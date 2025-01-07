@@ -1,0 +1,19 @@
+L' B' U2 F' R2 U2 F D2 U2 F2 D2 R' B' R' D' L' B R D U
+['Edges': 'כע לא מג' דנ הש חש ', 'Corners': 'חא טכ צ'ש ה', 'Twist Clockwise':'ב ']
+D2 R2 D F2 U' F2 U2 R F L2 D2 F2 D2 R' F2 L' B2 D2 R2 D2
+['Edges': 'קב הנ ג'א וס חע כמ ', 'Corners': 'בכ רד חנ ']
+B2 L U B2 D' F2 U' F2 R2 D2 L2 D B2 F' L D' R' F' R' B2 R'
+['Edges': 'נל ג'ח אמ די שצ' סה ', 'Corners': 'פה דס צ'ו ']
+L2 B' R2 D2 F' R2 B' D2 B U2 F' R' D2 R2 B2 D' F' U R'
+['Edges': 'תח זכ לי בק נפ הב ', 'Corners': 'נל טא ג'ע שת ']
+L2 U' R U2 F' D2 R' D2 L2 U2 F2 U2 F R2 D2 F' L2 B' U F'
+['Edges': 'שס עג' כב פמ לנ חו ', 'Flip': 'ד ', 'Corners': 'רצ' נ', 'Twist Clockwise':'א ', 'Twist Counterclockwise':'ע ']
+F L2 F L U' L D B L R2 D2 F D2 F' U2 F2 B D2 L2 F
+['Edges': 'כד חג' או קר ספ ', 'Flip': 'ב ', 'Corners': 'לו חב אר ', 'Twist Counterclockwise':'ע ']
+R F L2 U2 D R2 F' B2 L' U B2 U' R2 D2 R2 F2 U' F2 D R2 B2
+['Edges': 'בו קב אג' חד רכ תפ ', 'Corners': 'שכ ג'ל ב', 'Twist Clockwise':'א ', 'Twist Counterclockwise':'ד ']
+F' D2 U2 F D2 B2 R2 F R2 B D L' U F' R2 D2 B L' B' F2
+['Edges': 'תכ פש רז לי בח ', 'Flip': 'ד ', 'Corners': 'קו תה בס נ', 'Twist Clockwise':'ל ']
+L' U' B2 D2 R B L R2 B L2 D2 B2 R2 B R2 B' L2 U2 B
+['Edges': 'בי צו נפ כת קב ', 'Corners': 'פצ טצ' ח', 'Twist Counterclockwise':'ר ']
+
