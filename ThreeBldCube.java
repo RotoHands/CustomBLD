@@ -144,13 +144,13 @@ public class ThreeBldCube implements BldCube {
                 parseScramble(scramble1);
         }
 
-        public void ScrambleCurrent3x3Cube(int current_line) {
+        public void ScrambleCurrent3x3Cube(int current_line, String file_name_scramble) {
                 BufferedReader reader;
                 int count = 0;
                 String line="";
 		try {
 			reader = new BufferedReader(new FileReader(
-					"C:\\Users\\rotem\\PycharmProjects\\train_memo\\scrambles.txt"));
+                                file_name_scramble));
 			line = reader.readLine();
 			while (line != null && count != current_line) {
                                 line = reader.readLine();

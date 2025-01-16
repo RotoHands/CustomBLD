@@ -3,8 +3,8 @@ const cstimer = require('cstimer_module');
 
 // Generate scrambles
 const scrambles = [];
-for (let i = 0; i < workerData; i++) {
-  const scrStr = cstimer.getScramble("edges", 15);
+for (let i = 0; i < workerData.count; i++) {
+  const scrStr = cstimer.getScramble(workerData.type);
   scrambles.push(scrStr);
 }
 

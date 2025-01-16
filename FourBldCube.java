@@ -1,10 +1,13 @@
-package com.example.user.rotobld;
+
 
 /**
  * Created by user on 05/09/2017.
  */
 
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,9 +27,11 @@ public class FourBldCube extends ThreeBldCube implements BldCube
     // protected String[] wingLettering = { "א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט", "י", "כ", "ל", "מ", "נ", "ס", "ע", "פ", "צ", "ק", "ר", "ת", "ש","ZZ","Y" };
     protected String[] xCenterLettering = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X" };
     protected String[] xCenterPositions = { "Ubl", "Urb", "Ufr", "Ulf", "Lub", "Lfu", "Ldf", "Lbd", "Ful", "Fru", "Fdr", "Fld", "Ruf", "Rbu", "Rdb", "Rfd", "Bur", "Blu", "Bdl", "Brd", "Dfl", "Drf", "Dbr", "Dlb" };
-    //protected String[] wingPositions = { "DFr", "UBr", "URf", "UFl", "ULb", "LUf", "LFd", "LDb", "LBu", "FUr", "FRd", "FDl", "FLu", "RUb", "RBd", "RDf", "RFu", "BUl", "BLd", "BDr", "BRu", "DRb", "DBl", "DLf" };
+    // protected String[] wingPositions = { "DFr", "UBr", "URf", "UFl", "ULb", "LUf", "LFd", "LDb", "LBu", "FUr", "FRd", "FDl", "FLu", "RUb", "RBd", "RDf", "RFu", "BUl", "BLd", "BDr", "BRu", "DRb", "DBl", "DLf" };
     protected String[] wingPositions = { "UBl", "URb", "UFr", "ULf", "LUb","LFu", "LDf", "LBd", "FUl", "FRu", "FDr", "FLd", "RUf", "RBu", "RDb", "RFd", "BUr", "BLu", "BDl", "BRd", "DRf", "DBr", "DLb","DFl"};
-    String [] correspondingWingScheme = {  "פ", "מ", "ט", "ה", "ד", "ל", "ג" + '\u05F3', "צ", "ג", "ע", "צ"  + '\u05F3', "ו", "ב", "ר", "ת", "י", "א", "ח", "ש", "נ", "כ", "ס", "ק", "ז"}  ;
+    String [] correspondingWingScheme = {  "פ", "מ", "ש", "ה", "ד", "ל", "ג" + '\u05F3', "צ", "ג", "ע", "צ"  + '\u05F3', "ו", "ב", "ר", "ת", "י", "א", "ח", "ש", "נ", "כ", "ס", "ק", "ז"}  ;
+
+    // protected Integer[] wingCubies = { Integer.valueOf(U), Integer.valueOf(A), Integer.valueOf(B), Integer.valueOf(C), Integer.valueOf(D), Integer.valueOf(E), Integer.valueOf(F), Integer.valueOf(G), Integer.valueOf(H), Integer.valueOf(I), Integer.valueOf(J), Integer.valueOf(K), Integer.valueOf(L), Integer.valueOf(M), Integer.valueOf(N), Integer.valueOf(O), Integer.valueOf(P), Integer.valueOf(Q), Integer.valueOf(R), Integer.valueOf(S), Integer.valueOf(T), Integer.valueOf(V), Integer.valueOf(W), Integer.valueOf(X) };
 
     protected Integer[] wingCubies = { Integer.valueOf(U), Integer.valueOf(A), Integer.valueOf(B), Integer.valueOf(C), Integer.valueOf(D), Integer.valueOf(E), Integer.valueOf(F), Integer.valueOf(G), Integer.valueOf(H), Integer.valueOf(I), Integer.valueOf(J), Integer.valueOf(K), Integer.valueOf(L), Integer.valueOf(M), Integer.valueOf(N), Integer.valueOf(O), Integer.valueOf(P), Integer.valueOf(Q), Integer.valueOf(R), Integer.valueOf(S), Integer.valueOf(T), Integer.valueOf(V), Integer.valueOf(W), Integer.valueOf(X) };
     //protected Integer[] wingCubies = { Integer.valueOf(ג), Integer.valueOf(א), Integer.valueOf(ב), Integer.valueOf(ד), Integer.valueOf(ה), Integer.valueOf(ו), Integer.valueOf(ז), Integer.valueOf(ח), Integer.valueOf(ט), Integer.valueOf(י), Integer.valueOf(כ), Integer.valueOf(ל), Integer.valueOf(מ), Integer.valueOf(נ), Integer.valueOf(ס), Integer.valueOf(ע), Integer.valueOf(פ), Integer.valueOf(צ), Integer.valueOf(ק), Integer.valueOf(ר), Integer.valueOf(ת), Integer.valueOf(ש), Integer.valueOf(ZZ), Integer.valueOf(Y) };
@@ -558,6 +563,30 @@ public class FourBldCube extends ThreeBldCube implements BldCube
 
         return -1;
     }
+    public void ScrambleCurrent4x4Cube(int current_line, String file_name_scramble) {
+                BufferedReader reader;
+                int count = 0;
+                String line="";
+		try {
+			reader = new BufferedReader(new FileReader(
+                                file_name_scramble));
+			line = reader.readLine();
+			while (line != null && count != current_line) {
+                                line = reader.readLine();
+                                count ++;
+			}
+			reader.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+               
+                // String scramble1 = scrambleCube3x3(faceNamesScramble3x3);
+                this.scramble = line;
+                System.out.println("here");
+                System.out.println(this.scramble);
+                initPermutations();
+                parseScramble(this.scramble);
+        }
     public String correctWingPairs(String wingPairs, String currentScheme [] ,String [] correspondingScheme)
     {
 
@@ -586,6 +615,7 @@ public class FourBldCube extends ThreeBldCube implements BldCube
         return correctedWingLetterPairs;
 
     }
+
 
 
     public void setXCenterBuffer(String bufferAsLetter) {

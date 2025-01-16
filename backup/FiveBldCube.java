@@ -11,6 +11,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import FourBldCube;
+
 public class FiveBldCube extends FourBldCube implements BldCube
 {
 

@@ -1,8 +1,7 @@
-
-import java.io.*;
-import java.util.Arrays;
 // import org.json.simple.JSONArray;
 // import rotobld.Globals;
+import java.io.*;
+import java.util.Arrays;
 
 public class ThreeCube {
 
@@ -11,7 +10,7 @@ public class ThreeCube {
         public int switchPieceCounter = 0;
         public long time3x3 = 0;
 
-        public void setUpCube3x3() {
+        public void setUpCube3x3(String scramble_file_name,String solve_file_name, int scrambleCount) {
 
                 Globals g = new Globals();
                 String[] cornerScheme = { "א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט", "י", "כ", "ל", "מ", "נ", "ס",
@@ -43,7 +42,6 @@ public class ThreeCube {
                 String final_data = "";
 
                 String temp = "";
-
                 for (int j = 0; j < cornerScheme.length; j++) {
                         System.out.println(cornerScheme[j]);
 
@@ -51,9 +49,7 @@ public class ThreeCube {
                 for (int j = 0; j < 1; j++) {
                         temp = "";
                         for (int i = 1; i < 10; i++) {
-                                // System.out.println(i + j * 10000);
-                                System.out.println(i);
-                                g.three.ScrambleCurrent3x3Cube(i);
+                                g.three.ScrambleCurrent3x3Cube(i, scramble_file_name);
                                 String scrambleString = g.three.getScramble();
                                 String solutionPairs = g.three.getSolutionPairs(false, false);
                                 String[] parts = solutionPairs.split("\n");
@@ -66,8 +62,7 @@ public class ThreeCube {
                 }
 
                 try {
-                        PrintWriter writer = new PrintWriter(
-                                        "C:\\פרויקטים\\bld_scrambles\\rotobld\\solves.txt", "UTF-8");
+                        PrintWriter writer = new PrintWriter(solve_file_name, "UTF-8");
                         System.out.println(final_data);
                         writer.println(final_data);
                         writer.close();
@@ -83,7 +78,9 @@ public class ThreeCube {
                 
                 // System.out.println("Hello World");
                 ThreeCube c = new ThreeCube();
-                c.setUpCube3x3();
+                String solve_file_name =  "C:\\פרויקטים\\bld_scrambles\\rotobld\\333_solves.txt";
+                String scramble_file_name = "C:\\פרויקטים\\bld_scrambles\\rotobld\\333_scrambles.txt";
+                c.setUpCube3x3(scramble_file_name,solve_file_name, 10);
 
         }
 }
