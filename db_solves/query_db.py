@@ -4,8 +4,8 @@ import sqlite3
 db_file = "db_solves\\333_solve.db"
 
 # User input: allowed characters for edges and corners
-allowed_edges = "ABCDEFGHIJ"
-allowed_corners = "ABCDEFGHIJ"
+allowed_edges = "ABCD"
+allowed_corners = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 # Function to generate SQL condition for checking allowed characters
 def generate_filter_condition(column, allowed_chars):

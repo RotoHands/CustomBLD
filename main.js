@@ -60,7 +60,7 @@ function generateRandomFileName(extension = "txt") {
 // generateScrambles(100, '444bld').catch(err => console.error(err));
 // generateScrambles(10000, 'edges').catch(err => console.error(err));
 // generateScrambles(10000, 'corners').catch(err => console.error(err));
-generateScrambles(100000, '333ni').catch(err => console.error(err));
+generateScrambles(150000, '333ni').catch(err => console.error(err));
 // 444edo - only scramlbe wings
 // 444cto - scramble only centers / can be used for 555 center with couple of mis-slices
 // 5edge - only scramble midges + wings

@@ -44,24 +44,15 @@ public class ThreeCube {
                 // g.three.setEdgeScheme(edgeScheme);
                 g.three.setCornerBuffer("C");
                 g.three.setEdgeBuffer("C");
-                String final_data = "";
-                ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);
-
                 StringBuilder temp = new StringBuilder();
                 try {
                         PrintWriter writer = new PrintWriter(solve_file_name, "UTF-8");
                         BufferedReader reader;
-                        int count = 0;
                         String line = "";
                         try {
-                                reader = new BufferedReader(new FileReader(
-                                                scramble_file_name));
+                                reader = new BufferedReader(new FileReader(scramble_file_name));
                                 for (int i = scramble_start; i < scrambleCount; i++) {
-
                                         line = reader.readLine();
-
-                                        // String scramble1 = scrambleCube3x3(faceNamesScramble3x3);
-
                                         String scrambleString = line;
                                         g.three.initPermutations();
                                         g.three.parseScramble(scrambleString);
@@ -77,8 +68,9 @@ public class ThreeCube {
                                                         .append(",")
                                                         .append(String.join(",", parts))
                                                         .append("\n");
-                                        System.out.println(i);
-                                        if (i % 5000 == 0) {
+                                        if (i % 10000 == 0) {
+                                                System.out.println(i);
+
                                                 writer.print(temp.toString()); // Write accumulated data
                                                 writer.flush(); // Ensure data is written to the file
                                                 temp.setLength(0); // Clear the StringBuilder
@@ -111,12 +103,12 @@ public class ThreeCube {
                 // int scramble_count = Integer.parseInt(args[2]);
                 ThreeCube c = new ThreeCube();
                 // String solve_file_name = "txt_files\\" + scramble_file_name + "_solves.txt";
-                String solve_file_name = "txt_files\\" + "file_DhpfDCTumF" + "_solves.txt";
-                String scramble_file_name  = "txt_files\\" + "file_DhpfDCTumF" + ".txt";
+                String solve_file_name = "txt_files\\all_333_solves.txt";
+                String scramble_file_name = "txt_files\\all_333_scambles.txt";
                 long startTime = System.nanoTime();
 
                 // Call the method
-                c.setUpCube3x3(scramble_file_name, solve_file_name, 1, 100000);
+                c.setUpCube3x3(scramble_file_name, solve_file_name, 1, 2499900);
 
                 // Measure the end time
                 long endTime = System.nanoTime();

@@ -2,8 +2,8 @@ import csv
 import re
 
 # Input and output file paths
-input_file = "txt_files\\333_solves.txt"  # Replace with your input file path
-output_file = "db_solves\\333_solves.csv"
+input_file = "txt_files\\all_333_solves.txt"  # Replace with your input file path
+output_file = "db_solves\\all_333_solves.csv"
 
 # Define the columns for the CSV
 columns = ["scramble","edge_buffer", "corner_buffer", "edges", "flip", "corners", "Twist Clockwise", "Twist Counterclockwise", "first_lp_edges_join", "first_lp_corners_join"]

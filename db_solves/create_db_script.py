@@ -3,7 +3,7 @@ import csv
 import os
 
 # File paths
-csv_file = "db_solves\\333_solves.csv"  # Replace with your CSV file path
+csv_file = "db_solves\\all_333_solves.csv"  # Replace with your CSV file path
 db_file = "db_solves\\333_solve.db"
 
 # Create the database and table
