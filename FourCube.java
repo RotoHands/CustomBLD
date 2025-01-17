@@ -82,8 +82,8 @@ public static void main(String[] args) throws FileNotFoundException {
         
         // System.out.println("Hello World");
         FourCube c = new FourCube();
-        String solve_file_name =  "C:\\פרויקטים\\bld_scrambles\\rotobld\\444bld_solves.txt";
-        String scramble_file_name = "C:\\פרויקטים\\bld_scrambles\\rotobld\\444bld_scrambles.txt";
+        String solve_file_name =  "txt_files\\444bld_solves.txt";
+        String scramble_file_name = "txt_files\\444bld_scrambles.txt";
         c.setUpCube4x4(scramble_file_name,solve_file_name, 10);
 
 }

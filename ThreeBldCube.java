@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 public class ThreeBldCube implements BldCube {
+
         protected static final int CORNERS = 0;
         protected static final int EDGES = 1;
         protected static final int CENTERS = 2;
@@ -22,6 +23,8 @@ public class ThreeBldCube implements BldCube {
         protected int[] edges = new int[24];
         protected int[] centers = new int[6];
 
+        protected String cornerBuffer = "C";
+        protected String edgeBuffer = "C";
         protected int A = 0;
         protected int B = 1;
         protected int C = 2;
@@ -163,22 +166,6 @@ public class ThreeBldCube implements BldCube {
                
                 // String scramble1 = scrambleCube3x3(faceNamesScramble3x3);
                 this.scramble = line;
-                System.out.println("here");
-                System.out.println(this.scramble);
-                // this.scramble = "U' R U R' D R U' R' D' U";
-                // this.scramble = "L U L' D L U' L' D'";
-                // this.scramble = "F' D' F U' F' D F F' F U";
-                // this.scramble = "L' U L D' L' U' L D D L' U L D' L' U' L";
-                // this.scramble = "B' B' U R' L U U R L' B' B' U' B B";
-                // this.scramble = "B' U B U' D L' U' L D' U";
-                // this.scramble = "B' F B' F L F' B D' D' B' F L B' F B' F";
-                // this.scramble = "U' R' L R' L D' R' D R' L R' L U' R U U";
-                // this.scramble = "B' F B' F U' F' B L' L' B' F U' B' F B' F";
-                // this.scramble = "F' D F U' F' D' F U' F' D F U U F' D' F";
-                // this.scramble = "F U F' D' F U' F' D";
-                // this.scramble = "D F U F' D F U' F' D D";
-                // this.scramble = "R U R' F' R U R' U' R' F R R U' R' U'";
-                // this.scramble = "F' D F U U F' D' F U F' F F' D F U F' D' F U U'";
                 initPermutations();
                 parseScramble(this.scramble);
         }
@@ -1594,6 +1581,7 @@ public class ThreeBldCube implements BldCube {
                                         ccwCorner = ((Integer) i$.next()).intValue();
                                 cornerPairs += "'";
                         }
+                        
                 }
                 return cornerPairs;
         }
@@ -1666,6 +1654,14 @@ public class ThreeBldCube implements BldCube {
                 return getPreSolvedEdges() + getPreFlippedEdges();
         }
 
+        public String getEdgeBuffer() {
+                return "'edge_buffer':" + "'" + edgeBuffer + "'";
+        }
+        
+        
+        public String getCornerBuffer() {
+                return "'corner_buffer':" + "'" + cornerBuffer + "'";
+        }
         public int getNumPreEdges(boolean flipped) {
                 int preSolved = 0;
                 for (int i = 0; i < scrambledStateSolvedEdges.length; i++) {

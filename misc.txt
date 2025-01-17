@@ -3,3 +3,14 @@
 5edge - only scramble midges + wings
 corners - 333 corners only
 edges - edges only scrambles
+
+
+
+
+scrambles of 3x3:
+only edges 
+only corners
+ltct
+no edge flip
+no cycle breaks
+no corner twists

@@ -1,3 +1,6 @@
+
+
+
 const { Worker } = require('worker_threads');
 const fs = require('fs');
 
@@ -33,7 +36,8 @@ async function generateScrambles(numScrambles, scrambleType) {
   const allScrambles = results.flat();
 
   // Write allScrambles to a text file
-  const fileName = `${scrambleType}_scrambles.txt`;
+  const file_name_scar = generateRandomFileName("txt");
+  const fileName = `txt_files\\${file_name_scar}`;
   fs.writeFile(fileName, allScrambles.join('\n'), (err) => {
     if (err) throw err;
     console.log(`Scrambles have been saved to ${fileName}`);
@@ -42,11 +46,21 @@ async function generateScrambles(numScrambles, scrambleType) {
   console.log("finished");
 }
 
+function generateRandomFileName(extension = "txt") {
+    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let randomString = "";
+    for (let i = 0; i < 10; i++) { // Generate a 10-character random string
+        randomString += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return `file_${randomString}.${extension}`;
+}
+
 // Example usage
-generateScrambles(100, '444bld').catch(err => console.error(err));
+
+// generateScrambles(100, '444bld').catch(err => console.error(err));
 // generateScrambles(10000, 'edges').catch(err => console.error(err));
 // generateScrambles(10000, 'corners').catch(err => console.error(err));
-// generateScrambles(10000, '333').catch(err => console.error(err));
+generateScrambles(100000, '333ni').catch(err => console.error(err));
 // 444edo - only scramlbe wings
 // 444cto - scramble only centers / can be used for 555 center with couple of mis-slices
 // 5edge - only scramble midges + wings
