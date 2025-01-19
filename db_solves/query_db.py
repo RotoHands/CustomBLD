@@ -60,4 +60,11 @@ else:
     print("No scrambles found matching your criteria.")
 
 # Close the connection
+
+cursor.execute("PRAGMA table_info(scrambles);")
+columns = cursor.fetchall()
+
+# Extract column names
+column_names = [column[1] for column in columns]  # Column names are in the second position
+print("Column Names:", column_names)
 conn.close()

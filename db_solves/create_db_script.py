@@ -16,16 +16,42 @@ cursor.execute("""
 CREATE TABLE IF NOT EXISTS scrambles (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     scramble TEXT NOT NULL,
+    scramble_type TEXT,
+    
     edges TEXT,
-    flip TEXT,
+    edge_buffer TEXT,
+    first_lp_edges_join TEXT,
+    length_edges INTEGER,
+    flips TEXT,
+    
     corners TEXT,
+    corner_buffer TEXT,
+    length_corners INTEGER,
     twist_clockwise TEXT,
     twist_counterclockwise TEXT,
-    first_lp_edges_join TEXT,
+    sum_of_twists INTEGER,
     first_lp_corners_join TEXT,
-    edge_buffer TEXT,
-    corner_buffer TEXT
-
+   
+    wings TEXT,
+    wings_buffer TEXT,
+    first_lp_wings_join TEXT,
+    wings_length INTEGER,
+    
+    midges TEXT,
+    midges_buffer TEXT,
+    first_lp_midges_join TEXT,
+    midges_length INTEGER,
+    
+    tcenters TEXT,
+    tcenters_buffer TEXT,
+    first_lp_tcenters_join TEXT,
+    tcenters_length INTEGER,
+    
+    xcenters TEXT,
+    xcenters_buffer TEXT,
+    first_lp_xcenters_join TEXT,
+    xcenters_length INTEGER
+    
 )
 """)
 print("Database and table created.")

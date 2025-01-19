@@ -1,8 +1,9 @@
-
-
-
 const { Worker } = require('worker_threads');
 const fs = require('fs');
+const os = require('os');
+
+const workerCount = os.cpus().length; // Use the number of CPU cores
+console.log(`Spawning ${workerCount} workers`);
 
 function generateScramblesInWorker(count, type) {
   return new Promise((resolve, reject) => {
@@ -16,10 +17,9 @@ function generateScramblesInWorker(count, type) {
 }
 
 async function generateScrambles(numScrambles, scrambleType) {
-//   console.time("MultithreadedScrambleGeneration");
+  console.time("MultithreadedScrambleGeneration");
 
   const tasks = [];
-  const workerCount = 8; // Number of threads
   const scramblesPerWorker = Math.ceil(numScrambles / workerCount); // Divide tasks evenly across workers
 
   // Spawn workers
@@ -30,14 +30,13 @@ async function generateScrambles(numScrambles, scrambleType) {
   // Wait for all workers to finish
   const results = await Promise.all(tasks);
 
-//   console.timeEnd("MultithreadedScrambleGeneration");
+  console.timeEnd("MultithreadedScrambleGeneration");
 
   // Combine results from all workers
   const allScrambles = results.flat();
 
   // Write allScrambles to a text file
-  const file_name_scar = generateRandomFileName("txt");
-  const fileName = `txt_files\\${file_name_scar}`;
+  const fileName = `txt_files\\${generateRandomFileName("txt")}`;
   fs.writeFile(fileName, allScrambles.join('\n'), (err) => {
     if (err) throw err;
     console.log(`Scrambles have been saved to ${fileName}`);
@@ -47,20 +46,27 @@ async function generateScrambles(numScrambles, scrambleType) {
 }
 
 function generateRandomFileName(extension = "txt") {
-    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    let randomString = "";
-    for (let i = 0; i < 10; i++) { // Generate a 10-character random string
-        randomString += characters.charAt(Math.floor(Math.random() * characters.length));
-    }
-    return `file_${randomString}.${extension}`;
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let randomString = "";
+  for (let i = 0; i < 10; i++) { // Generate a 10-character random string
+    randomString += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return `file_${randomString}.${extension}`;
+}
+
+function main() {
+  const numScrambles = parseInt(process.argv[2], 10);
+  const scrambleType = process.argv[3];
+
+  if (isNaN(numScrambles) || !scrambleType) {
+    console.log("Usage: node main.js <numScrambles> <scrambleType>");
+    process.exit(1);
+  }
+
+  generateScrambles(numScrambles, scrambleType).catch(err => console.error(err));
 }
 
 // Example usage
-
-// generateScrambles(100, '444bld').catch(err => console.error(err));
-// generateScrambles(10000, 'edges').catch(err => console.error(err));
-// generateScrambles(10000, 'corners').catch(err => console.error(err));
-generateScrambles(150000, '333ni').catch(err => console.error(err));
-// 444edo - only scramlbe wings
-// 444cto - scramble only centers / can be used for 555 center with couple of mis-slices
-// 5edge - only scramble midges + wings
+if (require.main === module) {
+  main();
+}
