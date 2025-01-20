@@ -18,11 +18,14 @@ CREATE TABLE IF NOT EXISTS scrambles (
     scramble TEXT NOT NULL,
     scramble_type TEXT,
     
+    is_parity BOOLEAN,
     edges TEXT,
     edge_buffer TEXT,
     first_lp_edges_join TEXT,
     length_edges INTEGER,
     flips TEXT,
+    length_flips INTEGER,
+    
     
     corners TEXT,
     corner_buffer TEXT,
@@ -57,28 +60,77 @@ CREATE TABLE IF NOT EXISTS scrambles (
 print("Database and table created.")
 
 # Read the CSV and insert data into the database
+
+
+def insert_regular_333_bld_solves():
+   import csv
+import sqlite3
+
+# Open the CSV file and insert data into the database
 with open(csv_file, "r", encoding="utf-8") as file:
     csv_reader = csv.DictReader(file)
     for row in csv_reader:
+        # Calculate additional derived values
+        length_edges = len(row["edges"].split()) if row.get("edges") else 0
+        length_flips = len(row["flip"].split()) if row.get("flip") else 0
+        length_corners = len(row["corners"].split()) if row.get("corners") else 0
+        sum_of_twists = len(row["Twist Clockwise"].split() + len(row["Twist Counterclockwise"].split())) if row.get("Twist Clockwise") and row.get("Twist Counterclockwise") else 0
+        is_parity = True if len(row["edegs"][-2]==1) else False
+
+        # Insert data into the database
         cursor.execute("""
         INSERT INTO scrambles (
-            scramble, edges, flip, corners, twist_clockwise, twist_counterclockwise, first_lp_edges_join, first_lp_corners_join, edge_buffer, corner_buffer
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?,?)
+            scramble_type, scramble, edges, edge_buffer, first_lp_edges_join, length_edges,
+            flips, length_flips, corners, corner_buffer, length_corners, twist_clockwise,
+            twist_counterclockwise, sum_of_twists, first_lp_corners_join, is_parity
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
+            row["scramble_type"], 
             row["scramble"],
             row["edges"],
+            row["edge_buffer"],
+            row["first_lp_edges_join"],
+            length_edges,
             row["flip"],
+            length_flips,
             row["corners"],
+            row["corner_buffer"],
+            length_corners,
             row["Twist Clockwise"],
             row["Twist Counterclockwise"],
-            row["first_lp_edges_join"],
-            row["first_lp_corners_join"],
-            row["edge_buffer"],
-            row["corner_buffer"]
+            sum_of_twists,
+            row["first_lp_corners_join"], 
+            is_parity
         ))
-    print("Data inserted into the database.")
+    conn.commit()
+    conn.close()
 
-# Commit changes and close connection
-conn.commit()
-conn.close()
-print(f"Database saved as {db_file}")
+# Commit the transaction
+
+
+
+def insert_edges_only_333_bld_solves():
+    pass
+
+def insert_corners_333_bld_solves():
+    pass
+
+def insert_regular_444_bld_solves():
+    pass
+
+def insert_centers_only_444_bld_solves():
+    pass
+
+def insert_wings_only_444_bld_solves():
+    pass
+
+def insert_regular_555_bld_solves():
+    pass
+
+
+
+def main():
+    insert_regular_333_bld_solves()
+    
+if __name__ == "__main__":
+    main()  
