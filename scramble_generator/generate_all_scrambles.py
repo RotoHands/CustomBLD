@@ -6,16 +6,16 @@ from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 def analyze_333_solves(scramble_type):
-   # Define the working directory and Java command
-    working_dir = "C:\\Users\\rotem\\AppData\\Roaming\\Code\\User\\workspaceStorage\\b42ee5f7ca190946e798fbd2338ac8d4\\redhat.java\\jdt_ws\\rotobld_8d89bd7a\\bin"
-    java_executable = "\"C:\\Program Files\\Eclipse Foundation\\jdk-11.0.12.7-hotspot\\bin\\java.exe\""
-    class_name = "ThreeCube"
+    cmd = [
+        "C:\\Program Files\\Eclipse Foundation\\jdk-11.0.12.7-hotspot\\bin\\java.exe",
+        "-cp",
+        "C:\\Users\\rotem\\AppData\\Roaming\\Code\\User\\workspaceStorage\\b42ee5f7ca190946e798fbd2338ac8d4\\redhat.java\\jdt_ws\\rotobld_8d89bd7a\\bin",
+        "ThreeCube",
+        scramble_type
+    ]
+    working_dir = r"c:\\פרויקטים\\bld_scrambles\\rotobld"
+    result = subprocess.run(cmd, cwd=working_dir)
 
-    # Combine the command with the scramble_type as an argument
-    command = f'cd "{working_dir}" && {java_executable} -cp . {class_name} {scramble_type}'
-
-    # Run the command
-    os.system(command)
 
 def delete_csv_files(scramble_type):
     """Delete CSV files for a specific scramble type."""
@@ -87,11 +87,11 @@ def main():
     )
     args = parser.parse_args()
 
-    # generate_scrambles(args.count, args.scramble_type, args.threads)
-    # merge_files(args.scramble_type)
-    # print("Converting solves to CSV...")
+    generate_scrambles(args.count, args.scramble_type, args.threads)
+    merge_files(args.scramble_type)
+    print("Converting solves to CSV...")
     analyze_333_solves(args.scramble_type)
-    # subprocess.run(["python", "db_solves/solves_to_csv.py", args.scramble_type])
+    subprocess.run(["python", "db_solves/solves_to_csv.py", args.scramble_type])
 
 
 if __name__ == '__main__':

@@ -8,23 +8,21 @@ from datetime import datetime
 
 def convert_regular_333_solves_to_csv():
 
-    input_file = glob.glob(os.path.join('txt_files', "333ni*.txt"))[0]
+    input_file = glob.glob(os.path.join('txt_files', "333ni*_solves_*.txt"))[0]
     current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
     output_file = os.path.join('db_solves', "333ni_solves_{}.csv".format(current_time)) 
-
+    print(input_file)
     columns = ["scramble","edge_buffer", "corner_buffer", "edges", "flip", "corners", "Twist Clockwise", "Twist Counterclockwise", "first_lp_edges_join", "first_lp_corners_join"]
     data = []
 
     # Regular expression patterns for parsing the lines
-    scramble_pattern = r"^(.*?)\,"  # Extract scramble
     key_value_pattern = r"'(\w[\w\s]+)':\s*'([^']*)'"  # Extract key-value pairs
 
     # Read and parse the input file
     with open(input_file, "r", encoding="utf-8") as file:
         for line in file:
-            # Parse the scramble
-            scramble_match = re.search(scramble_pattern, line)
-            scramble = scramble_match.group(1).strip() if scramble_match else ""
+          
+            scramble = line.split(",")[1]
 
             # Parse the key-value pairs (edges, flip, etc.)
             key_values = dict(re.findall(key_value_pattern, line))
@@ -62,6 +60,7 @@ def main():
     args = parser.parse_args()
     print (args.scramble_type)
     if args.scramble_type == "333ni":
+        print("here")
         convert_regular_333_solves_to_csv()
     
 if __name__ == '__main__':

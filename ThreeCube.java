@@ -132,8 +132,8 @@ public class ThreeCube {
                 long startTime = System.nanoTime();
 
                 // Call the method
-                c.setUpCube3x3("txt_files\\333ni_scrambles_20250120_023623.txt", scramble_type,
-                                "txt_files\\all_solves.txt");
+                c.setUpCube3x3(scrambleFileName, scramble_type,
+                                solveFileName);
 
                 // Measure the end time
                 long endTime = System.nanoTime();
