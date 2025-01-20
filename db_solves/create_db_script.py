@@ -108,7 +108,42 @@ def insert_regular_333_bld_solves():
 
 
 def insert_edges_only_333_bld_solves():
-    pass
+    db_file = "db_solves\\all_solves.db"
+    conn = sqlite3.connect(db_file)
+    cursor = conn.cursor()
+    csv_file = glob.glob(os.path.join('txt_files', "edges*_solves_*.csv"))[0]
+
+   # Open the CSV file and insert data into the database
+    with open(csv_file, "r", encoding="utf-8") as file:
+        csv_reader = csv.DictReader(file)
+        for row in csv_reader:
+            # Calculate additional derived values
+            length_edges = len(row["edges"].split()) if row.get("edges") else 0
+            length_flips = len(row["flip"].split()) if row.get("flip") else 0
+            
+
+            # Insert data into the database
+            cursor.execute("""
+            INSERT INTO scrambles (
+                scramble_type, scramble, edges, edge_buffer, first_lp_edges_join, length_edges,
+                flips, length_flips
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                row["scramble_type"], 
+                row["scramble"],
+                row["edges"],
+                row["edge_buffer"],
+                row["first_lp_edges_join"],
+                length_edges,
+                row["flip"],
+                length_flips,
+                
+            ))
+        conn.commit()
+        conn.close()
+
+
+
 
 def insert_corners_333_bld_solves():
     db_file = "db_solves\\all_solves.db"
