@@ -121,9 +121,8 @@ public class FiveCube {
 
     public static void main(String[] args) throws FileNotFoundException {
 
-        // System.out.println("Hello World");
         String scramble_type = args[0];
-
+        
         String folderPath = "txt_files\\";
         File folder = new File(folderPath);
         File[] files = folder.listFiles(
@@ -156,5 +155,6 @@ public class FiveCube {
         // Calculate and print the elapsed time in milliseconds
         long elapsedTime = (endTime - startTime) / 1_000_000; // Convert nanoseconds to milliseconds
         System.out.println("Execution time: " + elapsedTime + " ms");
+
     }
 }

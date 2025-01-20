@@ -5,16 +5,24 @@ import os
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-def analyze_333_solves(scramble_type):
-    cmd = [
-        "C:\\Program Files\\Eclipse Foundation\\jdk-11.0.12.7-hotspot\\bin\\java.exe",
-        "-cp",
-        "C:\\Users\\rotem\\AppData\\Roaming\\Code\\User\\workspaceStorage\\b42ee5f7ca190946e798fbd2338ac8d4\\redhat.java\\jdt_ws\\rotobld_8d89bd7a\\bin",
-        "ThreeCube",
-        scramble_type
-    ]
-    working_dir = r"c:\\פרויקטים\\bld_scrambles\\rotobld"
-    result = subprocess.run(cmd, cwd=working_dir)
+def analyze_solves(scramble_type):
+    if scramble_type in ["333ni","corners","edges"]:
+        cmd = [
+            "java.exe",
+            "-cp",
+            ".",
+            "ThreeCube",
+            scramble_type
+        ]
+    if scramble_type in ["555bld"]:
+        cmd = [
+            "java.exe",
+            "-cp",
+            ".",
+            "FiveCube",
+            scramble_type
+        ]
+    result = subprocess.run(cmd)
 
 
 def delete_csv_files(scramble_type):
@@ -90,9 +98,9 @@ def main():
     generate_scrambles(args.count, args.scramble_type, args.threads)
     merge_files(args.scramble_type)
     print("Converting solves to CSV...")
-    analyze_333_solves(args.scramble_type)
-    subprocess.run(["python", "db_solves/solves_to_csv.py", args.scramble_type])
-    subprocess.run(["python", "db_solves/create_db_script.py", args.scramble_type])
+    analyze_solves(args.scramble_type)
+    # subprocess.run(["python", "db_solves/solves_to_csv.py", args.scramble_type])
+    # subprocess.run(["python", "db_solves/create_db_script.py", args.scramble_type])
 
 
 if __name__ == '__main__':

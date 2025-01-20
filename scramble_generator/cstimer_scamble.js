@@ -64,9 +64,9 @@ var wca_events = [
 
 console.time("ScrambleGeneration");
 
-for (let i = 0; i < 8000; i++) {
-  const scrStr = cstimer.getScramble("edges", 15);
-//   console.log('Generated: ', scrStr);
+for (let i = 0; i < 500; i++) {
+  const scrStr = cstimer.getScramble("555bld", 60);
+  console.log('Generated: ', scrStr);
 }
 
 console.timeEnd("ScrambleGeneration");
