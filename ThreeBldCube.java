@@ -1553,6 +1553,8 @@ public class ThreeBldCube implements BldCube {
                                 edgePairs += "'";
                         }
                 }
+                if (edgePairs == "'")
+                        return "";
                 return edgePairs;
         }
 
@@ -1583,6 +1585,8 @@ public class ThreeBldCube implements BldCube {
                         }
                         
                 }
+                if (cornerPairs == "'")
+                        return "";
                 return cornerPairs;
         }
 

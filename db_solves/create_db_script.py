@@ -2,7 +2,7 @@ import sqlite3
 import csv
 import os
 import glob
-
+import argparse
 def create_db():
     db_file = "db_solves\\all_solves.db"
     conn = sqlite3.connect(db_file)
@@ -111,7 +111,41 @@ def insert_edges_only_333_bld_solves():
     pass
 
 def insert_corners_333_bld_solves():
-    pass
+    db_file = "db_solves\\all_solves.db"
+    conn = sqlite3.connect(db_file)
+    cursor = conn.cursor()
+    csv_file = glob.glob(os.path.join('txt_files', "corners*_solves_*.csv"))[0]
+
+   # Open the CSV file and insert data into the database
+    with open(csv_file, "r", encoding="utf-8") as file:
+        csv_reader = csv.DictReader(file)
+        for row in csv_reader:
+            # Calculate additional derived values
+            length_corners = len(row["corners"].split()) if row.get("corners") else 0
+            sum_of_twists = len(row["Twist Clockwise"].split()) + len(row["Twist Counterclockwise"].split()) if row.get("Twist Clockwise") and row.get("Twist Counterclockwise") else 0
+            
+
+            # Insert data into the database
+            cursor.execute("""
+            INSERT INTO scrambles (
+                scramble_type, scramble, corners, corner_buffer, length_corners, twist_clockwise,
+                twist_counterclockwise, sum_of_twists, first_lp_corners_join
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                row["scramble_type"], 
+                row["scramble"],
+                row["corners"],
+                row["corner_buffer"],
+                length_corners,
+                row["Twist Clockwise"],
+                row["Twist Counterclockwise"],
+                sum_of_twists,
+                row["first_lp_corners_join"], 
+            ))
+        conn.commit()
+        conn.close()
+
+
 
 def insert_regular_444_bld_solves():
     pass
@@ -124,12 +158,32 @@ def insert_wings_only_444_bld_solves():
 
 def insert_regular_555_bld_solves():
     pass
-
+def insert_edges_only_555_bld_solves():
+    pass
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Insert solves to db")
+    parser.add_argument("scramble_type", type=str, help="The type of scrambles to generate.")
+    args = parser.parse_args()
+
     create_db()
-    insert_regular_333_bld_solves()
-    
+    if args.scramble_type == "333ni":
+        insert_regular_333_bld_solves()
+    if args.scramble_type == "corners":
+        insert_corners_333_bld_solves()
+    if args.scramble_type == "edges":
+        insert_edges_only_333_bld_solves()
+    if args.scramble_type == "444bld":
+        insert_regular_444_bld_solves()
+    if args.scramble_type == "444cto":
+        insert_centers_only_444_bld_solves()
+    if args.scramble_type == "444edo":  
+        insert_wings_only_444_bld_solves()
+    if args.scramble_type == "555bld":
+        insert_regular_555_bld_solves()
+    if args.scramble_type == "5edge":
+        insert_edges_only_555_bld_solves()
+
 if __name__ == "__main__":
     main()  
