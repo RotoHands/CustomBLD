@@ -4,7 +4,7 @@
 corners - 333 corners only
 edges - edges only scrambles
 
-
+solve same scramble with deiiferent buffers : UF, UB, UR, DF, UFR, UBL, RDF
 
 
 scrambles of 3x3:

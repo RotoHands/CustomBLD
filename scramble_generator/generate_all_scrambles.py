@@ -92,6 +92,7 @@ def main():
     print("Converting solves to CSV...")
     analyze_333_solves(args.scramble_type)
     subprocess.run(["python", "db_solves/solves_to_csv.py", args.scramble_type])
+    subprocess.run(["python", "db_solves/create_db_script.py"])
 
 
 if __name__ == '__main__':
