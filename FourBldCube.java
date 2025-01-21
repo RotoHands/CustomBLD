@@ -1828,16 +1828,19 @@ public class FourBldCube extends ThreeBldCube implements BldCube {
     }
 
     public String getWingPairs(boolean isSchemeRegualar) {
-        String wingPairs = "";
+        String wingPairs = "'";
         if (wingCycles.size() != 0) {
             for (int i = 0; i < wingCycles.size(); i++) {
                 wingPairs = wingPairs + wingLettering[((Integer) wingCycles.get(i)).intValue()];
                 if (i % 2 == 1)
                     wingPairs = wingPairs + " ";
             }
+            wingPairs += "'";
         }
         if (!isSchemeRegualar)
             return correctWingPairs(wingPairs, wingLettering, correspondingWingScheme);
+        if (wingPairs == "'")
+            return "";
         return wingPairs;
     }
 
@@ -1850,20 +1853,23 @@ public class FourBldCube extends ThreeBldCube implements BldCube {
     }
     public String getXCenterPairs() {
 
-        String xCenterPairs = "";
+        String xCenterPairs = "'";
         if (xCenterCycles.size() != 0) {
             for (int i = 0; i < xCenterCycles.size(); i++) {
                 xCenterPairs = xCenterPairs + xCenterLettering[((Integer) xCenterCycles.get(i)).intValue()];
                 if (i % 2 == 1)
                     xCenterPairs = xCenterPairs + " ";
             }
+            xCenterPairs += "'";
         }
+        if (xCenterPairs == "'")
+            return "";
         return xCenterPairs;
     }
 
     public String getSolutionPairs(boolean withRotation, boolean isWingSchemeRegular) {
-        return (withRotation ? getRotations() + "\n" : "") + "XCenters: " + getXCenterPairs() + "\nWings: "
-                + getWingPairs(isWingSchemeRegular) + "\nCorners: " + getCornerPairs();
+        return (withRotation ? getRotations() + "\n" : "") + "'XCenters': " + getXCenterPairs() + "\n'Wings': "
+                + getWingPairs(isWingSchemeRegular) + "\n'Corners': " + getCornerPairs();
     }
 
     public String getStatstics() {

@@ -15,7 +15,7 @@ if (["333ni", "corners", "edges"].includes(workerData.type)){
 else {
   if(["555bld", "5edge"].includes(workerData.type)){
     for (let i = 0; i < workerData.count; i++) {
-      const scrStr = cstimer.getScramble(workerData.type, 5);
+      const scrStr = cstimer.getScramble(workerData.type, 60);
       scrambles.push(scrStr);
     }
   }

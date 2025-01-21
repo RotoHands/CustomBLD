@@ -89,6 +89,8 @@ public class FiveCube {
                             .append(",")
                             .append(xcenter_buffer)
                             .append(",")
+                            .append(tcenter_buffer)
+                            .append(",")
                             .append(String.join(",", parts))
                             .append("\n");
 

@@ -39,7 +39,7 @@ public class FiveBldCube extends FourBldCube implements BldCube {
             "Bw'", "Bw2", "Dw", "Dw'", "Dw2" };
 
     public String getTCenterBuffer() {
-        return "'xcenter_buffer':" + "'" + xcenter_buffer + "'";
+        return "'tcenter_buffer':" + "'" + tcenter_buffer + "'";
     }
 
     public FiveBldCube(String scramble) {
@@ -1315,21 +1315,24 @@ public class FiveBldCube extends FourBldCube implements BldCube {
     }
 
     public String getTCenterPairs() {
-        String tCenterPairs = "";
+        String tCenterPairs = "'";
         if (tCenterCycles.size() != 0) {
             for (int i = 0; i < tCenterCycles.size(); i++) {
                 tCenterPairs = tCenterPairs + tCenterLettering[((Integer) tCenterCycles.get(i)).intValue()];
                 if (i % 2 == 1)
                     tCenterPairs = tCenterPairs + " ";
             }
+            tCenterPairs += "'";
         }
+        if (tCenterPairs == "'")
+            tCenterPairs = "";
         return tCenterPairs;
     }
 
     public String getSolutionPairs(boolean withRotation, boolean isWingSchemeRegular) {
-        return (withRotation ? getRotations() + "\n" : "") + "TCenters: " + getTCenterPairs() + "\nXCenters: "
-                + getXCenterPairs() + "\nWings: " + getWingPairs(isWingSchemeRegular) + "\nEdges: " + getEdgePairs()
-                + "\nCorners: " + getCornerPairs();
+        return (withRotation ? getRotations() + "\n" : "") + "'TCenters': " + getTCenterPairs() + "\n'XCenters': "
+                + getXCenterPairs() + "\n'Wings': " + getWingPairs(isWingSchemeRegular) + "\n'Edges': " + getEdgePairs()
+                + "\n'Corners': " + getCornerPairs();
     }
 
     public String getStatstics() {
