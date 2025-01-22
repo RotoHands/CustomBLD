@@ -14,12 +14,21 @@ def analyze_solves(scramble_type):
             "ThreeCube",
             scramble_type
         ]
-    if scramble_type in ["555bld"]:
+    if scramble_type in ["555bld", "5edge"]:
         cmd = [
             "java.exe",
             "-cp",
             ".",
             "FiveCube",
+            scramble_type
+        ]
+    
+    if scramble_type in ["444bld", "444cto", "444edo"]:
+        cmd = [
+            "java.exe",
+            "-cp",
+            ".",
+            "FourCube",
             scramble_type
         ]
     result = subprocess.run(cmd)

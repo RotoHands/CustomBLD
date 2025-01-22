@@ -2011,7 +2011,6 @@ public class FourBldCube extends ThreeBldCube implements BldCube {
             e.printStackTrace();
         }
 
-        // String scramble1 = scrambleCube3x3(faceNamesScramble3x3);
         this.scramble = line;
         System.out.println("here");
         System.out.println(this.scramble);
