@@ -109,14 +109,60 @@ def insert_333_bld_solves(scramble_type_input):
 
 
 
-def insert_regular_444_bld_solves():
-    pass
 
-def insert_centers_only_444_bld_solves():
-    pass
+def insert_444_bld_solves(scramble_type_input):
+    db_file = "db_solves\\all_solves.db"
+    conn = sqlite3.connect(db_file)
+    cursor = conn.cursor()
+    csv_file = glob.glob(os.path.join('txt_files', "{}*_solves_*.csv".format(scramble_type_input)))[0]
+    
 
-def insert_wings_only_444_bld_solves():
-    pass
+   # Open the CSV file and insert data into the database
+    with open(csv_file, "r", encoding="utf-8") as file:
+        csv_reader = csv.DictReader(file)
+        for row in csv_reader:
+            # Calculate additional derived values
+            length_corners = len(row["corners"].split()) if row.get("corners") else 0
+            length_wings = len(row["wings"].split()) if row.get("wings") else 0
+            length_xcenters = len(row["xcenters"].split()) if row.get("xcenters") else 0
+
+            sum_of_twists = len(row["Twist Clockwise"].split()) + len(row["Twist Counterclockwise"].split()) if row.get("Twist Clockwise") and row.get("Twist Counterclockwise") else 0
+            is_parity_wings = True if len(row["wings"].split()[-1])==1 else False
+            is_parity = True if (len(row["corners"]) > 0 and len(row["corners"].split()[-1])==1) else False
+
+            # Insert data into the database
+            cursor.execute("""
+            INSERT INTO scrambles (
+                scramble_type, scramble, corners, corner_buffer, length_corners, twist_clockwise,
+                twist_counterclockwise, sum_of_twists, first_lp_corners_join, is_parity,
+                wing_buffer, wings, length_wings, first_lp_wings_join, is_parity_wings,
+                xcenters_buffer, xcenters,length_xcenters, first_lp_xcenters_join
+                
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                row["scramble_type"], 
+                row["scramble"],
+                row["corners"],
+                row["corner_buffer"],
+                length_corners,
+                row["Twist Clockwise"],
+                row["Twist Counterclockwise"],
+                sum_of_twists,
+                row["first_lp_corners_join"], 
+                is_parity,
+                row["wing_buffer"],
+                row["wings"],
+                length_wings,
+                row["first_lp_wings_join"],
+                is_parity_wings,
+                row["xcenter_buffer"],
+                row["xcenters"],
+                length_xcenters,
+                row["first_lp_xcenters_join"]
+            ))
+        conn.commit()
+        conn.close()
+
 
 def insert_555_bld_solves(scramble_type_input):
     db_file = "db_solves\\all_solves.db"
@@ -138,7 +184,7 @@ def insert_555_bld_solves(scramble_type_input):
             length_tcenters = len(row["tcenters"].split()) if row.get("tcenters") else 0
 
             sum_of_twists = len(row["Twist Clockwise"].split()) + len(row["Twist Counterclockwise"].split()) if row.get("Twist Clockwise") and row.get("Twist Counterclockwise") else 0
-            is_parity = True if len(row["corners"].split()[-1])==1 else False
+            is_parity = True if (len(row["corners"]) > 0 and len(row["corners"].split()[-1])==1) else False
             is_parity_midges = True if len(row["edges"].split()[-1])==1 else False
             is_parity_wings = True if len(row["wings"].split()[-1])==1 else False
 
@@ -197,12 +243,8 @@ def main():
     create_db()
     if args.scramble_type in ["333ni", "edges", "corners"]:
         insert_333_bld_solves(args.scramble_type)
-    if args.scramble_type == "444bld":
-        insert_regular_444_bld_solves()
-    if args.scramble_type == "444cto":
-        insert_centers_only_444_bld_solves()
-    if args.scramble_type == "444edo":  
-        insert_wings_only_444_bld_solves()
+    if args.scramble_type  in ["444bld", "444cto", "444edo"]:
+        insert_444_bld_solves(args.scramble_type)
     if args.scramble_type in ["555bld", "5edge"]:
         insert_555_bld_solves(args.scramble_type)
     

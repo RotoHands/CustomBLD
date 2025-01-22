@@ -4,7 +4,6 @@ const cstimer = require('cstimer_module');
 // Generate scrambles
 const scrambles = [];
 if (["333ni", "corners", "edges"].includes(workerData.type)){
-  console.log("here");
 }
 if (["333ni", "corners", "edges"].includes(workerData.type)){
   for (let i = 0; i < workerData.count; i++) {

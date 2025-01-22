@@ -40,7 +40,7 @@ public class FourCube  {
                 g.four.setCornerBuffer("C");
                 g.four.setWingBuffer("C");
                 g.four.setXCenterBuffer("C");
-                g.four.setEdgeBuffer("C");
+                
         
                 StringBuilder temp = new StringBuilder();
                 try {
@@ -62,7 +62,6 @@ public class FourCube  {
                             scrambleString = currline;
                             g.four.initPermutations();
                             g.four.parseScramble(scrambleString);
-                            edge_buffer = g.four.getEdgeBuffer();
                             corner_buffer = g.four.getCornerBuffer();
                             xcenter_buffer = g.four.getXCenterBuffer();
                             wing_buffer = g.four.getWingsBuffer();
@@ -71,8 +70,6 @@ public class FourCube  {
                             temp.append(scramble_type)
                                     .append(",")
                                     .append(scrambleString)
-                                    .append(",")
-                                    .append(edge_buffer)
                                     .append(",")
                                     .append(corner_buffer)
                                     .append(",")
