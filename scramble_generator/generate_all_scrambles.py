@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-def analyze_solves(scramble_type):
+def analyze_solves(scramble_type, change_base_scheme):
     if scramble_type in ["333ni","corners","edges"]:
         cmd = [
             "java.exe",
@@ -20,7 +20,8 @@ def analyze_solves(scramble_type):
             "-cp",
             ".",
             "FiveCube",
-            scramble_type
+            scramble_type,
+            change_base_scheme
         ]
     
     if scramble_type in ["444bld", "444cto", "444edo"]:
@@ -29,7 +30,8 @@ def analyze_solves(scramble_type):
             "-cp",
             ".",
             "FourCube",
-            scramble_type
+            scramble_type,
+            change_base_scheme
         ]
     result = subprocess.run(cmd)
 
@@ -39,7 +41,6 @@ def delete_csv_files(scramble_type):
     csv_files = glob.glob(os.path.join('db_solves', f"{scramble_type}_solves_*.csv"))
     for file_name in csv_files:
         os.remove(file_name)
-    print(f"Deleted {len(csv_files)} CSV files for {scramble_type}.")
 
 def run_subprocess(count, scramble_type, process_id):
     """Run the Node.js subprocess for a specific range of scrambles."""
@@ -49,7 +50,6 @@ def run_subprocess(count, scramble_type, process_id):
             ["node", "scramble_generator/scramble_generator.js", str(count), scramble_type],
             check=True
         )
-        print(f"Process {process_id} completed.")
     except subprocess.CalledProcessError as e:
         print(f"Subprocess {process_id} failed: {e}")
 
@@ -69,7 +69,6 @@ def merge_files(scramble_type):
         for file_name in input_files:
             os.remove(file_name)
 
-        print(f"Merged files into {output_file} and deleted source files.")
     except Exception as e:
         print(f"Error during file merge: {e}")
 
@@ -90,7 +89,6 @@ def generate_scrambles(total_count, scramble_type, num_threads):
             for future in as_completed(futures):
                 future.result()  # Wait for all subprocesses to complete
 
-        print("All scramble generation subprocesses completed.")
     except Exception as e:
         print(f"Error during scramble generation: {e}")
 
@@ -98,6 +96,7 @@ def main():
     parser = argparse.ArgumentParser(description="Generate scrambles and merge results.")
     parser.add_argument("count", type=int, help="The total number of scrambles to generate.")
     parser.add_argument("scramble_type", type=str, help="The type of scrambles to generate.")
+    parser.add_argument("change_base_scheme", type=str, help="change_Base_scheme (for DFr wings buffer)")
     parser.add_argument(
         "--threads", type=int, default=1,
         help="The number of threads (subprocesses) to run concurrently."
@@ -106,8 +105,7 @@ def main():
 
     generate_scrambles(args.count, args.scramble_type, args.threads)
     merge_files(args.scramble_type)
-    print("Converting solves to CSV...")
-    analyze_solves(args.scramble_type)
+    analyze_solves(args.scramble_type, args.change_base_scheme)
     subprocess.run(["python", "db_solves/solves_to_csv.py", args.scramble_type])
     subprocess.run(["python", "db_solves/create_db_script.py", args.scramble_type])
 

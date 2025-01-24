@@ -15,7 +15,7 @@ public class FiveCube {
     public int switchPieceCounter = 0;
     public long time5x5 = 0;
 
-    public void setUpCube5x5(String scramble_file_name, String scramble_type, String solve_file_name) {
+    public void setUpCube5x5(String scramble_file_name, String scramble_type, String solve_file_name, Boolean changeSchemeBase) {
 
         Globals g = new Globals();
         String[] cornerScheme = { "א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט", "י", "כ", "ל", "מ", "נ", "ס",
@@ -44,7 +44,7 @@ public class FiveCube {
         // g.four.setWingScheme(wingScheme4x4);
         // g.four.setXCenterScheme(XCenterScheme);
         g.five.setCornerBuffer("C");
-        g.five.setWingBuffer("C");
+        g.five.setWingBuffer("C", true);
         g.five.setXCenterBuffer("C");
         g.five.setTCenterBuffer("C");
         g.five.setEdgeBuffer("C");
@@ -75,7 +75,10 @@ public class FiveCube {
                     xcenter_buffer = g.five.getXCenterBuffer();
                     tcenter_buffer = g.five.getTCenterBuffer();
                     wing_buffer = g.five.getWingsBuffer();
-                    solutionPairs = g.five.getSolutionPairs(false, true);
+                    if (changeSchemeBase)
+                        solutionPairs = g.five.getSolutionPairs(true, false);
+                    else
+                        solutionPairs = g.five.getSolutionPairs(true, true);
                     parts = solutionPairs.split("\n");
                     temp.append(scramble_type)
                             .append(",")
@@ -124,7 +127,10 @@ public class FiveCube {
     public static void main(String[] args) throws FileNotFoundException {
 
         String scramble_type = args[0];
-        
+        String arg_bool = args[1];
+        Boolean changeSchemeBase = Boolean.parseBoolean(arg_bool);
+
+
         String folderPath = "txt_files\\";
         File folder = new File(folderPath);
         File[] files = folder.listFiles(
@@ -142,14 +148,12 @@ public class FiveCube {
         String solveFileName = folderPath + scramble_type + "_solves_" + currentTime + ".txt";
 
         FiveCube c = new FiveCube();
-        System.out.println("Scramble file: " + scrambleFileName);
-        System.out.println("Solve file: " + solveFileName);
-        System.out.println("Scramble type: " + scramble_type);
+        
         long startTime = System.nanoTime();
 
         // Call the method
         c.setUpCube5x5(scrambleFileName, scramble_type,
-                solveFileName);
+                solveFileName, changeSchemeBase);
 
         // Measure the end time
         long endTime = System.nanoTime();

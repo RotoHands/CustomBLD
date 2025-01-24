@@ -126,9 +126,7 @@ public class ThreeCube {
                 String solveFileName = folderPath + scramble_type + "_solves_" + currentTime + ".txt";
 
                 ThreeCube c = new ThreeCube();
-                System.out.println("Scramble file: " + scrambleFileName);
-                System.out.println("Solve file: " + solveFileName);
-                System.out.println("Scramble type: " + scramble_type);
+               
                 long startTime = System.nanoTime();
 
                 // Call the method
@@ -140,7 +138,7 @@ public class ThreeCube {
 
                 // Calculate and print the elapsed time in milliseconds
                 long elapsedTime = (endTime - startTime) / 1_000_000; // Convert nanoseconds to milliseconds
-                System.out.println("Execution time: " + elapsedTime + " ms");
+                // System.out.println("Execution time: " + elapsedTime + " ms");
         }
 }
 

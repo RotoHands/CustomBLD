@@ -19,7 +19,7 @@ else {
     }
   }
   else {
-    if(["444bld", "4cto", "4edo"].includes(workerData.type)){
+    if(["444bld", "444cto", "444edo"].includes(workerData.type)){
 
     for (let i = 0; i < workerData.count; i++) {
       const scrStr = cstimer.getScramble(workerData.type, 45);

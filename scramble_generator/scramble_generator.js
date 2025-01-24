@@ -3,7 +3,6 @@ const fs = require('fs');
 const os = require('os');
 
 const workerCount = os.cpus().length; // Use the number of CPU cores
-console.log(`Spawning ${workerCount} workers`);
 
 function generateScramblesInWorker(count, type) {
   return new Promise((resolve, reject) => {
@@ -17,7 +16,6 @@ function generateScramblesInWorker(count, type) {
 }
 
 async function generateScrambles(numScrambles, scrambleType) {
-  console.time("MultithreadedScrambleGeneration");
 
   const tasks = [];
   const scramblesPerWorker = Math.ceil(numScrambles / workerCount); // Divide tasks evenly across workers
@@ -30,7 +28,6 @@ async function generateScrambles(numScrambles, scrambleType) {
   // Wait for all workers to finish
   const results = await Promise.all(tasks);
 
-  console.timeEnd("MultithreadedScrambleGeneration");
 
   // Combine results from all workers
   const allScrambles = results.flat();
@@ -42,7 +39,6 @@ async function generateScrambles(numScrambles, scrambleType) {
     console.log(`Scrambles have been saved to ${fileName}`);
   });
 
-  console.log("finished");
 }
 
 function generateRandomFileName(extension = "txt") {
@@ -59,7 +55,6 @@ function main() {
   const scrambleType = process.argv[3];
 
   if (isNaN(numScrambles) || !scrambleType) {
-    console.log("Usage: node main.js <numScrambles> <scrambleType>");
     process.exit(1);
   }
 

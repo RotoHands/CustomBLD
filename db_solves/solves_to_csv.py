@@ -51,14 +51,12 @@ def convert_333_solves_to_csv(scramble_type_input):
         # Write the data rows
         writer.writerows(data)
 
-    print(f"CSV file saved to {output_file}")
 
 def convert_444_solves_to_csv(scramble_type_input):
     
     input_file = glob.glob(os.path.join('txt_files', "{}*_solves_*.txt".format(scramble_type_input)))[0]
     current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
     output_file = os.path.join('txt_files', "{}_solves_{}.csv".format(scramble_type_input, current_time)) 
-    print(input_file)
     columns = ["scramble_type","scramble", "corner_buffer", "corners", "Twist Clockwise", "Twist Counterclockwise","first_lp_corners_join", "wing_buffer", "wings", "first_lp_wings_join", "xcenter_buffer","xcenters", "first_lp_xcenters_join"]
     data = []
 
@@ -89,7 +87,6 @@ def convert_444_solves_to_csv(scramble_type_input):
             xcenter_buffer = key_values.get("xcenter_buffer", "").strip()
             # Add the parsed row to the data list
             
-            print(scramble_type,scramble,corner_buffer, corners, twist_clockwise, twist_counterclockwise, first_corners, first_wings, xcenter_buffer,xcenters, first_xcenters)
             
 
             data.append([scramble_type,scramble,corner_buffer, corners, twist_clockwise, twist_counterclockwise, first_corners, wing_buffer, wings, first_wings, xcenter_buffer,xcenters, first_xcenters])
@@ -104,7 +101,6 @@ def convert_444_solves_to_csv(scramble_type_input):
         # Write the data rows
         writer.writerows(data)
 
-    print(f"CSV file saved to {output_file}")
 
 
 
@@ -116,7 +112,6 @@ def convert_555_solves_to_csv(scramble_type_input):
     input_file = glob.glob(os.path.join('txt_files', "{}*_solves_*.txt".format(scramble_type_input)))[0]
     current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
     output_file = os.path.join('txt_files', "{}_solves_{}.csv".format(scramble_type_input, current_time)) 
-    print(input_file)
     columns = ["scramble_type","scramble","edge_buffer", "corner_buffer", "edges", "flip", "corners", "Twist Clockwise", "Twist Counterclockwise", "first_lp_edges_join", "first_lp_corners_join", "wing_buffer", "wings", "first_lp_wings_join", "xcenter_buffer","xcenters", "first_lp_xcenters_join", "tcenter_buffer", "tcenters", "first_lp_tcenters_join"]
     data = []
 

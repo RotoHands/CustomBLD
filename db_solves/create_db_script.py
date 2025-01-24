@@ -127,7 +127,7 @@ def insert_444_bld_solves(scramble_type_input):
             length_xcenters = len(row["xcenters"].split()) if row.get("xcenters") else 0
 
             sum_of_twists = len(row["Twist Clockwise"].split()) + len(row["Twist Counterclockwise"].split()) if row.get("Twist Clockwise") and row.get("Twist Counterclockwise") else 0
-            is_parity_wings = True if len(row["wings"].split()[-1])==1 else False
+            is_parity_wings = True if (len(row["wings"]) > 0 and len(row["wings"].split()[-1])==1) else False
             is_parity = True if (len(row["corners"]) > 0 and len(row["corners"].split()[-1])==1) else False
 
             # Insert data into the database
@@ -186,7 +186,7 @@ def insert_555_bld_solves(scramble_type_input):
             sum_of_twists = len(row["Twist Clockwise"].split()) + len(row["Twist Counterclockwise"].split()) if row.get("Twist Clockwise") and row.get("Twist Counterclockwise") else 0
             is_parity = True if (len(row["corners"]) > 0 and len(row["corners"].split()[-1])==1) else False
             is_parity_midges = True if len(row["edges"].split()[-1])==1 else False
-            is_parity_wings = True if len(row["wings"].split()[-1])==1 else False
+            is_parity_wings = True if (len(row["wings"]) > 0 and len(row["wings"].split()[-1])==1) else False
 
             # Insert data into the database
             cursor.execute("""

@@ -50,26 +50,15 @@ public class ThreeBldCube implements BldCube {
         protected int W = 22;
         protected int X = 23;
         protected int Z = -1;
-        // protected int א = 0 ; protected int ב = 1; protected int ג = 2; protected int
-        // ד = 3; protected int ה = 4; protected int ו = 5; protected int ז = 6;
-        // protected int ח = 7; protected int ט = 8; protected int י = 9; protected int
-        // כ = 10; protected int ל = 11; protected int מ = 12; protected int נ = 13;
-        // protected int ס = 14; protected int ע = 15; protected int פ = 16; protected
-        // int צ = 17; protected int ק = 18; protected int ר = 19; protected int ת = 20;
-        // protected int ש = 21; protected int Y = 22; protected int ZZ = 23;
+
+        
         protected int UP = 0;
         protected int LEFT = 1;
         protected int FRONT = 2;
         protected int RIGHT = 3;
         protected int BACK = 4;
         protected int DOWN = 5;
-        // protected String [] cornerScheme
-        // ={"א","ב","ג","ד","ה","ו","ז","ח","ט","י","כ","ל","מ","נ","ס","ע","פ","צ","ק","ר","צ"
-        // + '\u05F3',"ת","ש","ג" + '\u05F3'};
-        // protected String [] edgeScheme
-        // ={"א","ב","ג","ד","ה","ו","ז","ח","ט","י","כ","ל","מ","נ","ס","ע","פ","צ","ק","ר","צ"
-        // + '\u05F3',"ת","ש","ג" + '\u05F3'};
-
+        
         protected String[] cornerLettering = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N",
                         "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X" };
         protected String[] edgeLettering = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",

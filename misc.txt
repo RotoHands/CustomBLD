@@ -15,6 +15,11 @@ no edge flip
 no cycle breaks
 no corner twists
 
+
+
+TODO
+cha
+
 how to compile and run the java program
 # javac -encoding UTF-8 *.java
 # java -cp . FiveCube
