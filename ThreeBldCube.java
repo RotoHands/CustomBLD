@@ -97,6 +97,7 @@ public class ThreeBldCube implements BldCube {
 
         protected int[] centerCubies = { UP, LEFT, FRONT, RIGHT, BACK, DOWN };
         protected String centerRotations = "";
+        protected String wingsRotations = "";
 
         protected HashMap<String, HashMap<Integer, Integer[]>> permutations = new HashMap();
 

@@ -63,9 +63,9 @@ public class FourCube {
                     xcenter_buffer = g.four.getXCenterBuffer();
                     wing_buffer = g.four.getWingsBuffer();
                     if (changeSchemeBase)
-                        solutionPairs = g.four.getSolutionPairs(false, false);
+                        solutionPairs = g.four.getSolutionPairs(true, false);
                     else
-                        solutionPairs = g.four.getSolutionPairs(false, true);
+                        solutionPairs = g.four.getSolutionPairs(true, true);
                     parts = solutionPairs.split("\n");
                     temp.append(scramble_type)
                             .append(",")

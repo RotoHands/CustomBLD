@@ -35,7 +35,8 @@ public class FourBldCube extends ThreeBldCube implements BldCube {
         protected String[] wingPositions = { "UBl", "URb", "UFr", "ULf", "LUb", "LFu", "LDf", "LBd", "FUl", "FRu",
                         "FDr",
                         "FLd", "RUf", "RBu", "RDb", "RFd", "BUr", "BLu", "BDl", "BRd", "DRf", "DBr", "DLb", "DFl" };
-        String[] correspondingWingScheme = { "Q", "M", "I", "E", "D", "L", "X", "R", "C", "P","U", "F","B","T","V","J","A","H","W","N","K","O","S","G"};
+        String[] correspondingWingScheme = { "Q", "M", "I", "E", "D", "L", "X", "R", "C", "P", "U", "F", "B", "T", "V",
+                        "J", "A", "H", "W", "N", "K", "O", "S", "G" };
 
         protected Integer[] wingCubies = { Integer.valueOf(U), Integer.valueOf(A),
                         Integer.valueOf(B), Integer.valueOf(C), Integer.valueOf(D),
@@ -2740,7 +2741,11 @@ public class FourBldCube extends ThreeBldCube implements BldCube {
 
         protected void solveCube() {
                 if (optimizeCenters)
+                {
                         reorientCube();
+                        reorientCubeWings();
+                }
+
                 solveCorners();
                 solveWings();
                 solveXCenters();
@@ -2796,8 +2801,62 @@ public class FourBldCube extends ThreeBldCube implements BldCube {
                 }
         }
 
+        protected void reorientCubeWings() {
+                centerRotations = "";
+                String[] possRotations = { "", "y'", "y", "y2", "z y", "z", "z y2", "z y'", "x y2", "x y'", "x y", "x",
+                                "z' y'",
+                                "z'", "z' y2", "z' y", "x'", "x' y'", "x' y", "x' y2", "x2 y'", "z2", "x2 y", "z2 y2" };
+                int[] copyWings = new int[24];
+                double max = Double.MIN_VALUE;
+                int maxIndex = 0;
+                for (int i = 0; i < possRotations.length; i++) {
+                        System.arraycopy(wings, 0, copyWings, 0, 24);
+                        if (i > 0)
+                                for (String rotation : possRotations[i].split("\\s")) {
+                                        int[] exchanges = { Z, Z, Z, Z, Z, Z, Z, Z, Z, Z, Z, Z, Z, Z, Z, Z, Z, Z, Z, Z,
+                                                        Z, Z, Z, Z };
+                                        Integer[] perm = (Integer[]) ((HashMap) permutations.get(rotation))
+                                                        .get(Integer.valueOf(4));
+                                        for (int j = 0; j < 24; j++)
+                                                if (perm[j].intValue() != Z)
+                                                        exchanges[perm[j].intValue()] = copyWings[j];
+                                        for (int j = 0; j < 24; j++)
+                                                if (exchanges[j] != Z) {
+                                                        copyWings[j] = exchanges[j];
+                                                }
+                                }
+                        double solvedWings = 0.0D;
+                        double solvedBadWings = 0.0D;
+                        for (int j = 0; j < copyWings.length; j++)
+                                if (copyWings[j] / 4 == j / 4) {
+                                        solvedWings += 1.0D;
+                                        if (j > 15)
+                                                solvedBadWings += 1.0D;
+                                }
+                        solvedWings /= 24.0D;
+                        solvedBadWings /= 8.0D;
+                        double solvedCoeff = (2.0D * solvedWings + solvedBadWings) / 3.0D;
+                        if (solvedCoeff > max) {
+                                max = solvedCoeff;
+                                maxIndex = i;
+                        }
+                }
+
+                if (maxIndex > 0) {
+                        String rotation = possRotations[maxIndex];
+                        centerRotations = rotation;
+                        for (String singleRotation : rotation.split("\\s"))
+                        {
+                                permute(singleRotation);
+                                System.out.println(singleRotation);
+                        }
+                                
+                }
+        }
+
         public void optimizeCenters(boolean optimize) {
                 optimizeCenters = optimize;
+
                 parseScramble(getScramble());
         }
 
@@ -2996,10 +3055,10 @@ public class FourBldCube extends ThreeBldCube implements BldCube {
                         }
                         wingPairs += "'";
                 }
-                if (!isSchemeRegualar)
-                {
-                        String corrected_wing_pairs =  correctWingPairs(wingPairs, wingLettering, correspondingWingScheme);
-                        return "'"  + corrected_wing_pairs + "'";
+                if (!isSchemeRegualar) {
+                        String corrected_wing_pairs = correctWingPairs(wingPairs, wingLettering,
+                                        correspondingWingScheme);
+                        return "'" + corrected_wing_pairs + "'";
                 }
                 if (wingPairs == "'")
                         return "";
