@@ -64,8 +64,8 @@ var wca_events = [
 
 console.time("ScrambleGeneration");
 
-for (let i = 0; i < 10; i++) {
-  const scrStr = cstimer.getScramble("444cto", 40);
+for (let i = 0; i < 1; i++) {
+  const scrStr = cstimer.getScramble("444edo", 40);
   console.log('Generated: ', scrStr);
 }
 

@@ -2740,10 +2740,10 @@ public class FourBldCube extends ThreeBldCube implements BldCube {
         }
 
         protected void solveCube() {
-                if (optimizeCenters)
-                {
-                        reorientCube();
-                        reorientCubeWings();
+                if (optimizeCenters) {
+                        boolean is_edo_scramble = reorientCubeByWings();
+                        if (is_edo_scramble == false)
+                                reorientCubeByCenters();
                 }
 
                 solveCorners();
@@ -2751,7 +2751,7 @@ public class FourBldCube extends ThreeBldCube implements BldCube {
                 solveXCenters();
         }
 
-        protected void reorientCube() {
+        protected void reorientCubeByCenters() {
                 centerRotations = "";
                 String[] possRotations = { "", "y'", "y", "y2", "z y", "z", "z y2", "z y'", "x y2", "x y'", "x y", "x",
                                 "z' y'",
@@ -2783,6 +2783,7 @@ public class FourBldCube extends ThreeBldCube implements BldCube {
                                         if (j > 15)
                                                 solvedBadCenters += 1.0D;
                                 }
+
                         solvedCenters /= 24.0D;
                         solvedBadCenters /= 8.0D;
                         double solvedCoeff = (2.0D * solvedCenters + solvedBadCenters) / 3.0D;
@@ -2790,18 +2791,18 @@ public class FourBldCube extends ThreeBldCube implements BldCube {
                                 max = solvedCoeff;
                                 maxIndex = i;
                         }
-                        // System.out.println(xcenter_buffer);
                 }
 
                 if (maxIndex > 0) {
                         String rotation = possRotations[maxIndex];
                         centerRotations = rotation;
-                        for (String singleRotation : rotation.split("\\s"))
+                        for (String singleRotation : rotation.split("\\s")) {
                                 permute(singleRotation);
+                        }
                 }
         }
 
-        protected void reorientCubeWings() {
+        protected boolean reorientCubeByWings() {
                 centerRotations = "";
                 String[] possRotations = { "", "y'", "y", "y2", "z y", "z", "z y2", "z y'", "x y2", "x y'", "x y", "x",
                                 "z' y'",
@@ -2840,18 +2841,21 @@ public class FourBldCube extends ThreeBldCube implements BldCube {
                                 max = solvedCoeff;
                                 maxIndex = i;
                         }
-                }
 
-                if (maxIndex > 0) {
-                        String rotation = possRotations[maxIndex];
-                        centerRotations = rotation;
-                        for (String singleRotation : rotation.split("\\s"))
-                        {
-                                permute(singleRotation);
-                                System.out.println(singleRotation);
-                        }
-                                
                 }
+                if (max == 1.0D) {
+                        if (maxIndex > 0) {
+                                String rotation = possRotations[maxIndex];
+                                centerRotations = rotation;
+                                for (String singleRotation : rotation.split("\\s")) {
+                                        permute(singleRotation);
+                                }
+
+                        }
+                        return true;
+                }
+                return false;
+
         }
 
         public void optimizeCenters(boolean optimize) {
@@ -3270,8 +3274,7 @@ public class FourBldCube extends ThreeBldCube implements BldCube {
                 }
 
                 this.scramble = line;
-                System.out.println("here");
-                System.out.println(this.scramble);
+              
                 initPermutations();
                 parseScramble(this.scramble);
         }
