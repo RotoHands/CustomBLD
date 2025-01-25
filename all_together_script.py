@@ -5,7 +5,9 @@ import glob
 def main():
 
     scramble_types = ["333ni", "edges", "corners", "555bld", "5edge", "444bld", "444cto", "444edo"]
+    scramble_types = ["555bld"]#, "edges", "corners", "555bld", "5edge", "444bld", "444cto", "444edo"]
     count_scramble = "10"
+
     change_base_scheme = "true"
     for s in scramble_types:
         cmd = [

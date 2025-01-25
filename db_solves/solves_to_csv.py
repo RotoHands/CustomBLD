@@ -11,7 +11,7 @@ def convert_333_solves_to_csv(scramble_type_input):
     input_file = glob.glob(os.path.join('txt_files', "{}*_solves_*.txt").format(scramble_type_input))[0]
     current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
     output_file = os.path.join('txt_files', "{}_solves_{}.csv".format(scramble_type_input, current_time)) 
-    columns = ["scramble_type","scramble","edge_buffer", "corner_buffer", "edges", "flip", "corners", "Twist Clockwise", "Twist Counterclockwise", "first_lp_edges_join", "first_lp_corners_join"]
+    columns = ["scramble_type","scramble","rotations_to_apply", "edge_buffer", "corner_buffer", "edges", "flip", "corners", "Twist Clockwise", "Twist Counterclockwise", "first_lp_edges_join", "first_lp_corners_join"]
     data = []
 
     # Regular expression patterns for parsing the lines
@@ -25,6 +25,9 @@ def convert_333_solves_to_csv(scramble_type_input):
             scramble_type = line.split(",")[0]
             # Parse the key-value pairs (edges, flip, etc.)
             key_values = dict(re.findall(key_value_pattern, line))
+            rotations_to_apply = re.findall(r"\{([^}]*)\}", line)[0]
+
+
             edges = key_values.get("Edges", "").strip()
             flip = key_values.get("Flip", "").strip()
             corners = key_values.get("Corners", "").strip()
@@ -39,7 +42,7 @@ def convert_333_solves_to_csv(scramble_type_input):
             edge_buffer = key_values.get("edge_buffer", "").strip()
             corner_buffer = key_values.get("corner_buffer", "").strip()
             # Add the parsed row to the data list
-            data.append([scramble_type,scramble,edge_buffer,corner_buffer, edges, flip, corners, twist_clockwise, twist_counterclockwise, first_edges, first_corners])
+            data.append([scramble_type,scramble,rotations_to_apply,edge_buffer,corner_buffer, edges, flip, corners, twist_clockwise, twist_counterclockwise, first_edges, first_corners])
 
     # Write the parsed data to a CSV file
     with open(output_file, "w", newline="", encoding="utf-8") as csv_file:
@@ -57,7 +60,7 @@ def convert_444_solves_to_csv(scramble_type_input):
     input_file = glob.glob(os.path.join('txt_files', "{}*_solves_*.txt".format(scramble_type_input)))[0]
     current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
     output_file = os.path.join('txt_files', "{}_solves_{}.csv".format(scramble_type_input, current_time)) 
-    columns = ["scramble_type","scramble", "corner_buffer", "corners", "Twist Clockwise", "Twist Counterclockwise","first_lp_corners_join", "wing_buffer", "wings", "first_lp_wings_join", "xcenter_buffer","xcenters", "first_lp_xcenters_join"]
+    columns = ["scramble_type","scramble","rotations_to_apply", "corner_buffer", "corners", "Twist Clockwise", "Twist Counterclockwise","first_lp_corners_join", "wing_buffer", "wings", "first_lp_wings_join", "xcenter_buffer","xcenters", "first_lp_xcenters_join"]
     data = []
 
     # Regular expression patterns for parsing the lines
@@ -71,6 +74,8 @@ def convert_444_solves_to_csv(scramble_type_input):
             scramble_type = line.split(",")[0]
             # Parse the key-value pairs (edges, flip, etc.)
             key_values = dict(re.findall(key_value_pattern, line))
+            rotations_to_apply = re.findall(r"\{([^}]*)\}", line)[0]
+
             corners = key_values.get("Corners", "").strip()
             twist_clockwise = key_values.get("Twist Clockwise", "").strip()
             twist_counterclockwise = key_values.get("Twist Counterclockwise", "").strip()
@@ -89,7 +94,7 @@ def convert_444_solves_to_csv(scramble_type_input):
             
             
 
-            data.append([scramble_type,scramble,corner_buffer, corners, twist_clockwise, twist_counterclockwise, first_corners, wing_buffer, wings, first_wings, xcenter_buffer,xcenters, first_xcenters])
+            data.append([scramble_type,scramble,rotations_to_apply,corner_buffer, corners, twist_clockwise, twist_counterclockwise, first_corners, wing_buffer, wings, first_wings, xcenter_buffer,xcenters, first_xcenters])
 
     # Write the parsed data to a CSV file
     with open(output_file, "w", newline="", encoding="utf-8") as csv_file:
@@ -112,7 +117,7 @@ def convert_555_solves_to_csv(scramble_type_input):
     input_file = glob.glob(os.path.join('txt_files', "{}*_solves_*.txt".format(scramble_type_input)))[0]
     current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
     output_file = os.path.join('txt_files', "{}_solves_{}.csv".format(scramble_type_input, current_time)) 
-    columns = ["scramble_type","scramble","edge_buffer", "corner_buffer", "edges", "flip", "corners", "Twist Clockwise", "Twist Counterclockwise", "first_lp_edges_join", "first_lp_corners_join", "wing_buffer", "wings", "first_lp_wings_join", "xcenter_buffer","xcenters", "first_lp_xcenters_join", "tcenter_buffer", "tcenters", "first_lp_tcenters_join"]
+    columns = ["scramble_type","scramble","rotations_to_apply", "edge_buffer", "corner_buffer", "edges", "flip", "corners", "Twist Clockwise", "Twist Counterclockwise", "first_lp_edges_join", "first_lp_corners_join", "wing_buffer", "wings", "first_lp_wings_join", "xcenter_buffer","xcenters", "first_lp_xcenters_join", "tcenter_buffer", "tcenters", "first_lp_tcenters_join"]
     data = []
 
     # Regular expression patterns for parsing the lines
@@ -121,11 +126,13 @@ def convert_555_solves_to_csv(scramble_type_input):
     # Read and parse the input file
     with open(input_file, "r", encoding="utf-8") as file:
         for line in file:
-        
+            
+            
             scramble = line.split(",")[1]
             scramble_type = line.split(",")[0]
             # Parse the key-value pairs (edges, flip, etc.)
             key_values = dict(re.findall(key_value_pattern, line))
+            rotations_to_apply = re.findall(r"\{([^}]*)\}", line)[0]
             edges = key_values.get("Edges", "").strip()
             flip = key_values.get("Flip", "").strip()
             corners = key_values.get("Corners", "").strip()
@@ -151,7 +158,7 @@ def convert_555_solves_to_csv(scramble_type_input):
 
             
 
-            data.append([scramble_type,scramble,edge_buffer, corner_buffer, edges, flip, corners, twist_clockwise, twist_counterclockwise, first_edges, first_corners, wing_buffer, wings, first_wings, xcenter_buffer,xcenters, first_xcenters, tcenter_buffer, tcenters, first_tcenters])
+            data.append([scramble_type,scramble,rotations_to_apply, edge_buffer, corner_buffer, edges, flip, corners, twist_clockwise, twist_counterclockwise, first_edges, first_corners, wing_buffer, wings, first_wings, xcenter_buffer,xcenters, first_xcenters, tcenter_buffer, tcenters, first_tcenters])
 
     # Write the parsed data to a CSV file
     with open(output_file, "w", newline="", encoding="utf-8") as csv_file:

@@ -1581,7 +1581,7 @@ public class ThreeBldCube implements BldCube {
         }
 
         public String getSolutionPairs(boolean withRotation, boolean neverMind) {
-                return (withRotation ? getRotations() + "\n" : "") + "'Edges': " + getEdgePairs() + "\n'Corners': "
+                return (withRotation ? "'Rotations': " + "'{" + getRotations() + "}'" + "\n" :  "") + "'Edges': " + getEdgePairs() + "\n'Corners': "
                                 + getCornerPairs() ;
         }
 
@@ -1597,7 +1597,7 @@ public class ThreeBldCube implements BldCube {
         }
 
         public String getRotations() {
-                return centerRotations.length() > 0 ? centerRotations : "/";
+                return centerRotations.length() > 0 ? centerRotations : "";
         }
 
         public boolean hasCornerParity() {

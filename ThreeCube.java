@@ -65,7 +65,7 @@ public class ThreeCube {
                                         g.three.parseScramble(scrambleString);
                                         edge_buffer = g.three.getEdgeBuffer();
                                         corner_buffer = g.three.getCornerBuffer();
-                                        solutionPairs = g.three.getSolutionPairs(false, false);
+                                        solutionPairs = g.three.getSolutionPairs(true, false);
                                         parts = solutionPairs.split("\n");
                                         temp.append(scramble_type)
                                                         .append(",")

@@ -1330,7 +1330,7 @@ public class FiveBldCube extends FourBldCube implements BldCube {
     }
 
     public String getSolutionPairs(boolean withRotation, boolean isWingSchemeRegular) {
-        return (withRotation ? getRotations() + "\n" : "") + "'TCenters': " + getTCenterPairs() + "\n'XCenters': "
+        return (withRotation ? "'Rotations': " + "'{" + getRotations() + "}'" + "\n" :  "") + "'TCenters': " + getTCenterPairs() + "\n'XCenters': "
                 + getXCenterPairs() + "\n'Wings': " + getWingPairs(isWingSchemeRegular) + "\n'Edges': " + getEdgePairs()
                 + "\n'Corners': " + getCornerPairs();
     }

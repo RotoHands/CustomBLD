@@ -12,6 +12,7 @@ def create_db():
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         scramble TEXT NOT NULL,
         scramble_type TEXT,
+        rotations_to_apply TEXT,
         
         is_parity BOOLEAN,
         edges TEXT,
@@ -82,13 +83,14 @@ def insert_333_bld_solves(scramble_type_input):
             # Insert data into the database
             cursor.execute("""
             INSERT INTO scrambles (
-                scramble_type, scramble, edges, edge_buffer, first_lp_edges_join, length_edges,
+                scramble_type, scramble, rotations_to_apply,edges, edge_buffer, first_lp_edges_join, length_edges,
                 flips, length_flips, corners, corner_buffer, length_corners, twist_clockwise,
                 twist_counterclockwise, sum_of_twists, first_lp_corners_join, is_parity
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 row["scramble_type"], 
                 row["scramble"],
+                row["rotations_to_apply"],
                 row["edges"],
                 row["edge_buffer"],
                 row["first_lp_edges_join"],
@@ -133,15 +135,16 @@ def insert_444_bld_solves(scramble_type_input):
             # Insert data into the database
             cursor.execute("""
             INSERT INTO scrambles (
-                scramble_type, scramble, corners, corner_buffer, length_corners, twist_clockwise,
+                scramble_type, scramble,rotations_to_apply, corners, corner_buffer, length_corners, twist_clockwise,
                 twist_counterclockwise, sum_of_twists, first_lp_corners_join, is_parity,
                 wing_buffer, wings, length_wings, first_lp_wings_join, is_parity_wings,
                 xcenters_buffer, xcenters,length_xcenters, first_lp_xcenters_join
                 
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 row["scramble_type"], 
                 row["scramble"],
+                row["rotations_to_apply"],
                 row["corners"],
                 row["corner_buffer"],
                 length_corners,
@@ -191,16 +194,17 @@ def insert_555_bld_solves(scramble_type_input):
             # Insert data into the database
             cursor.execute("""
             INSERT INTO scrambles (
-                scramble_type, scramble, edges, edge_buffer, first_lp_edges_join, length_edges,
+                scramble_type, scramble, rotations_to_apply, edges, edge_buffer, first_lp_edges_join, length_edges,
                 flips, length_flips, corners, corner_buffer, length_corners, twist_clockwise,
                 twist_counterclockwise, sum_of_twists, first_lp_corners_join, is_parity,
                 wing_buffer, wings, length_wings, first_lp_wings_join, is_parity_wings,
                 xcenters_buffer, xcenters,length_xcenters, first_lp_xcenters_join, 
                 tcenters_buffer, tcenters,length_tcenters, first_lp_tcenters_join, is_parity_midges
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,? , ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ? ,? , ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 row["scramble_type"], 
                 row["scramble"],
+                row["rotations_to_apply"],
                 row["edges"],
                 row["edge_buffer"],
                 row["first_lp_edges_join"],
