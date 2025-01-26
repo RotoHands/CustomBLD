@@ -10,49 +10,55 @@ def create_db():
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS scrambles (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        scramble TEXT NOT NULL,
         scramble_type TEXT,
+        scramble TEXT NOT NULL,
         rotations_to_apply TEXT,
         
-        is_parity BOOLEAN,
-        edges TEXT,
         edge_buffer TEXT,
-        first_lp_edges_join TEXT,
-        length_edges INTEGER,
+        edges TEXT,
+        edge_length INTEGER,
+        edges_cycle_breaks INTEGER,
+        edges_flipped INTEGER,
+        edges_solved INTEGER,
         flips TEXT,
-        length_flips INTEGER,
-        
-        
-        corners TEXT,
+        first_edges TEXT,
+                
         corner_buffer TEXT,
-        length_corners INTEGER,
+        corners TEXT,
+        corner_length INTEGER,
+        corners_cycle_breaks INTEGER,
         twist_clockwise TEXT,
         twist_counterclockwise TEXT,
-        sum_of_twists INTEGER,
-        first_lp_corners_join TEXT,
-    
-        wings TEXT,
-        wing_buffer TEXT,
-        first_lp_wings_join TEXT,
-        length_wings INTEGER,
-        is_parity_wings BOOLEAN,
-        
-        midges TEXT,
-        midges_buffer TEXT,
-        first_lp_midges_join TEXT,
-        length_midges INTEGER,
-        is_parity_midges BOOLEAN,
-        
-        xcenters TEXT,
-        xcenters_buffer TEXT,
-        first_lp_xcenters_join TEXT,
-        length_xcenters INTEGER,
+        corners_twisted INTEGER,
+        corners_solved INTEGER,
+        corner_parity BOOLEAN,
+        first_corners TEXT,
                    
+    
+        wing_buffer TEXT,
+        wings TEXT,
+        wings_length INTEGER,
+        wings_cycle_breaks INTEGER,
+        wings_solved INTEGER,
+        wing_parity BOOLEAN,
+        first_wings TEXT,
+                   
+        xcenter_buffer TEXT,
+        xcenters TEXT,
+        xcenter_length INTEGER,
+        xcenters_cycle_breaks INTEGER,
+        xcenters_solved INTEGER,
+        xcenter_parity BOOLEAN,
+        first_xcenters TEXT,
+
+        tcenter_buffer TEXT,
         tcenters TEXT,
-        tcenters_buffer TEXT,
-        first_lp_tcenters_join TEXT,
-        length_tcenters INTEGER
-        
+        tcenter_length INTEGER,
+        tcenters_cycle_breaks INTEGER,
+        tcenters_solved INTEGER,
+        tcenter_parity BOOLEAN,
+        first_tcenters TEXT
+    
         
     )
     """)
@@ -88,8 +94,9 @@ def insert_333_bld_solves(scramble_type_input):
                 twist_counterclockwise, sum_of_twists, first_lp_corners_join, is_parity
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
-                row["scramble_type"], 
+            
                 row["scramble"],
+                row["scramble_type"], 
                 row["rotations_to_apply"],
                 row["edges"],
                 row["edge_buffer"],
@@ -178,61 +185,65 @@ def insert_555_bld_solves(scramble_type_input):
     with open(csv_file, "r", encoding="utf-8") as file:
         csv_reader = csv.DictReader(file)
         for row in csv_reader:
-            # Calculate additional derived values
-            length_edges = len(row["edges"].split()) if row.get("edges") else 0
-            length_flips = len(row["flip"].split()) if row.get("flip") else 0
-            length_corners = len(row["corners"].split()) if row.get("corners") else 0
-            length_wings = len(row["wings"].split()) if row.get("wings") else 0
-            length_xcenters = len(row["xcenters"].split()) if row.get("xcenters") else 0
-            length_tcenters = len(row["tcenters"].split()) if row.get("tcenters") else 0
-
-            sum_of_twists = len(row["Twist Clockwise"].split()) + len(row["Twist Counterclockwise"].split()) if row.get("Twist Clockwise") and row.get("Twist Counterclockwise") else 0
-            is_parity = True if (len(row["corners"]) > 0 and len(row["corners"].split()[-1])==1) else False
-            is_parity_midges = True if len(row["edges"].split()[-1])==1 else False
-            is_parity_wings = True if (len(row["wings"]) > 0 and len(row["wings"].split()[-1])==1) else False
 
             # Insert data into the database
             cursor.execute("""
             INSERT INTO scrambles (
-                scramble_type, scramble, rotations_to_apply, edges, edge_buffer, first_lp_edges_join, length_edges,
-                flips, length_flips, corners, corner_buffer, length_corners, twist_clockwise,
-                twist_counterclockwise, sum_of_twists, first_lp_corners_join, is_parity,
-                wing_buffer, wings, length_wings, first_lp_wings_join, is_parity_wings,
-                xcenters_buffer, xcenters,length_xcenters, first_lp_xcenters_join, 
-                tcenters_buffer, tcenters,length_tcenters, first_lp_tcenters_join, is_parity_midges
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ? ,? , ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 scramble_type , scramble , rotations_to_apply , 
+                           edge_buffer , edges , edge_length , edges_cycle_breaks , edges_flipped , edges_solved , flips , first_edges ,
+                           corner_buffer , corners , corner_length , corners_cycle_breaks , twist_clockwise , twist_counterclockwise , corners_twisted , corners_solved , corner_parity , first_corners ,
+                           wing_buffer , wings , wings_length , wings_cycle_breaks , wings_solved , wing_parity , first_wings ,
+                           xcenter_buffer , xcenters , xcenter_length , xcenters_cycle_breaks , xcenters_solved , xcenter_parity , first_xcenters , 
+                           tcenter_buffer , tcenters , tcenter_length , tcenters_cycle_breaks , tcenters_solved , tcenter_parity , first_tcenters
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
-                row["scramble_type"], 
+                row["scramble_type"],
                 row["scramble"],
                 row["rotations_to_apply"],
-                row["edges"],
+
                 row["edge_buffer"],
-                row["first_lp_edges_join"],
-                length_edges,
-                row["flip"],
-                length_flips,
-                row["corners"],
+                row["edges"],
+                row["edge_length"],
+                row["edges_cycle_breaks"],
+                row["edges_flipped"],
+                row["edges_solved"],
+                row["flips"],
+                row["first_edges"],
+                
                 row["corner_buffer"],
-                length_corners,
-                row["Twist Clockwise"],
-                row["Twist Counterclockwise"],
-                sum_of_twists,
-                row["first_lp_corners_join"], 
-                is_parity,
+                row["corners"],
+                row["corner_length"],
+                row["corners_cycle_breaks"],
+                row["twist_clockwise"],
+                row["twist_counterclockwise"],
+                row["corners_twisted"],
+                row["corners_solved"],
+                row["corner_parity"],
+                row["first_corners"],
+                
                 row["wing_buffer"],
                 row["wings"],
-                length_wings,
-                row["first_lp_wings_join"],
-                is_parity_wings,
+                row["wings_length"],
+                row["wings_cycle_breaks"],
+                row["wings_solved"],
+                row["wing_parity"],
+                row["first_wings"],
+                
                 row["xcenter_buffer"],
                 row["xcenters"],
-                length_xcenters,
-                row["first_lp_xcenters_join"],
+                row["xcenter_length"],
+                row["xcenters_cycle_breaks"],
+                row["xcenters_solved"],
+                row["xcenter_parity"],
+                row["first_xcenters"],
+                
                 row["tcenter_buffer"],
                 row["tcenters"],
-                length_tcenters,
-                row["first_lp_tcenters_join"],
-                is_parity_midges
+                row["tcenter_length"],
+                row["tcenters_cycle_breaks"],
+                row["tcenters_solved"],
+                row["tcenter_parity"],
+                row["first_tcenters"]
 
             ))
         conn.commit()

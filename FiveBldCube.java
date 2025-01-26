@@ -1336,14 +1336,14 @@ public class FiveBldCube extends FourBldCube implements BldCube {
     }
 
     public String getStatstics() {
-        return "Corners: " + getCornerLength() + "@" + getCornerBreakInNum() + " w/ " + getNumPreSolvedCorners() + "-"
-                + getNumPreTwistedCorners() + " > " + hasCornerParity() + "\nEdges: " + getEdgeLength() + "@"
-                + getEdgeBreakInNum() + " w/ " + getNumPreSolvedEdges() + "-" + getNumPreFlippedEdges() + " > "
-                + hasCornerParity() + "\nWings: " + getWingLength() + "@" + getWingBreakInNum() + " w/ "
-                + getNumPreSolvedWings() + " > " + hasWingParity() + "\nXCenters: " + getXCenterLength() + "@"
-                + getXCenterBreakInNum() + " w/ " + getNumPreSolvedXCenters() + " > " + hasXCenterParity()
-                + "\nTCenters: " + getTCenterLength() + "@" + getTCenterBreakInNum() + " w/ "
-                + getNumPreSolvedTCenters() + " > " + hasTCenterParity();
+        return "'Corners_len': '" + getCornerLength() + "'" + "\n'Corners_cycle_breaks': '" + getCornerBreakInNum() +"'" + "\n'Conrners_solved': '" + getNumPreSolvedCorners() + "'" +
+                "\n'Corners_twists': '" + getNumPreTwistedCorners() + "'" + "\n'Corners_parity': '" +  hasCornerParity() +"'" + "\n'Edges_len': '" + getEdgeLength() + "'"
+                + "\n'Edges_cycle_breaks': '" + getEdgeBreakInNum() + "'" + "\n'Edges_solved': '" + getNumPreSolvedEdges() + "'" + "\n'Edges_flipped' : '" + getNumPreFlippedEdges() + "'"
+                + "\n'Wings_len': '" + getWingLength() + "'" + "\n'Wings_cycle_breaks' :'" + getWingBreakInNum() + "'"
+                + "\n'Wings_solved': '"+ getNumPreSolvedWings() + "'" +"\n'Wings_parity': '" + hasWingParity() + "'" + "\n'XCenters_len': '" + getXCenterLength() + "'"
+                + "\n'Xcenters_cycle_breaks': '" + getXCenterBreakInNum() + "'" + "\n'Xcenters_solved': '" + getNumPreSolvedXCenters() + "'" + "\n'Xcenters_parity': '" + hasXCenterParity() + "'"
+                + "\n'TCenters_len': '" + getTCenterLength() + "'" +"\n'Tcenters_cycle_breaks' :'" +  getTCenterBreakInNum() + "'"
+                +"\n'Tcenters_solved': '" +  getNumPreSolvedTCenters() + "'" +"\n'Tcenters_parity': '" +  hasTCenterParity() + "'";
     }
 
     public String getNoahtation() {

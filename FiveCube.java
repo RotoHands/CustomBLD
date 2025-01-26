@@ -62,7 +62,15 @@ public class FiveCube {
             String xcenter_buffer;
             String tcenter_buffer;
             String wing_buffer;
-            String[] parts;
+            String[] parts_sol;
+            String[] parts_stats;
+
+
+            edge_buffer = g.five.getEdgeBuffer();
+            corner_buffer = g.five.getCornerBuffer();
+            xcenter_buffer = g.five.getXCenterBuffer();
+            tcenter_buffer = g.five.getTCenterBuffer();
+            wing_buffer = g.five.getWingsBuffer();
             int i = 0;
             try {
                 reader = new BufferedReader(new FileReader(scramble_file_name));
@@ -70,16 +78,16 @@ public class FiveCube {
                     scrambleString = currline;
                     g.five.initPermutations();
                     g.five.parseScramble(scrambleString);
-                    edge_buffer = g.five.getEdgeBuffer();
-                    corner_buffer = g.five.getCornerBuffer();
-                    xcenter_buffer = g.five.getXCenterBuffer();
-                    tcenter_buffer = g.five.getTCenterBuffer();
-                    wing_buffer = g.five.getWingsBuffer();
+                    // String statstics = ;
+                   
+                    
                     if (changeSchemeBase)
                         solutionPairs = g.five.getSolutionPairs(true, false);
                     else
                         solutionPairs = g.five.getSolutionPairs(true, true);
-                    parts = solutionPairs.split("\n");
+                    parts_sol = solutionPairs.split("\n");
+                    parts_stats = g.five.getStatstics().split("\n");
+                    System.out.println("parts_stats: " + Arrays.toString(parts_stats));
                     temp.append(scramble_type)
                             .append(",")
                             .append(scrambleString)
@@ -94,7 +102,8 @@ public class FiveCube {
                             .append(",")
                             .append(tcenter_buffer)
                             .append(",")
-                            .append(String.join(",", parts))
+                            .append(String.join(",", parts_sol))
+                            .append(String.join(",", parts_stats))
                             .append("\n");
 
                     if (i % 10000 == 0) {
@@ -130,7 +139,6 @@ public class FiveCube {
         String arg_bool = args[1];
         Boolean changeSchemeBase = Boolean.parseBoolean(arg_bool);
 
-
         String folderPath = "txt_files\\";
         File folder = new File(folderPath);
         File[] files = folder.listFiles(
@@ -148,7 +156,7 @@ public class FiveCube {
         String solveFileName = folderPath + scramble_type + "_solves_" + currentTime + ".txt";
 
         FiveCube c = new FiveCube();
-        
+
         long startTime = System.nanoTime();
 
         // Call the method

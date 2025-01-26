@@ -21,7 +21,7 @@ async function generateScrambles(numScrambles, scrambleType) {
   const scramblesPerWorker = Math.ceil(numScrambles / workerCount); // Divide tasks evenly across workers
 
   // Spawn workers
-  for (let i = 0; i < workerCount; i++) {
+  for (let i = 0; i < 1; i++) {
     tasks.push(generateScramblesInWorker(scramblesPerWorker, scrambleType));
   }
 
