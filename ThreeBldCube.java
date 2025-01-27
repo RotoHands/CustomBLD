@@ -1649,12 +1649,12 @@ public class ThreeBldCube implements BldCube {
         }
 
         public String getEdgeBuffer() {
-                return "'edge_buffer':" + "'" + edgeBuffer + "'";
+                return "'Edge_buffer':" + "'" + edgeBuffer + "'";
         }
         
         
         public String getCornerBuffer() {
-                return "'corner_buffer':" + "'" + cornerBuffer + "'";
+                return "'Corner_buffer':" + "'" + cornerBuffer + "'";
         }
         public int getNumPreEdges(boolean flipped) {
                 int preSolved = 0;

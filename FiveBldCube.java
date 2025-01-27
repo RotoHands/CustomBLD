@@ -39,7 +39,7 @@ public class FiveBldCube extends FourBldCube implements BldCube {
             "Bw'", "Bw2", "Dw", "Dw'", "Dw2" };
 
     public String getTCenterBuffer() {
-        return "'tcenter_buffer':" + "'" + tcenter_buffer + "'";
+        return "'TCenter_buffer':" + "'" + tcenter_buffer + "'";
     }
 
     public FiveBldCube(String scramble) {
@@ -1341,9 +1341,9 @@ public class FiveBldCube extends FourBldCube implements BldCube {
                 + "\n'Edges_cycle_breaks': '" + getEdgeBreakInNum() + "'" + "\n'Edges_solved': '" + getNumPreSolvedEdges() + "'" + "\n'Edges_flipped' : '" + getNumPreFlippedEdges() + "'"
                 + "\n'Wings_len': '" + getWingLength() + "'" + "\n'Wings_cycle_breaks' :'" + getWingBreakInNum() + "'"
                 + "\n'Wings_solved': '"+ getNumPreSolvedWings() + "'" +"\n'Wings_parity': '" + hasWingParity() + "'" + "\n'XCenters_len': '" + getXCenterLength() + "'"
-                + "\n'Xcenters_cycle_breaks': '" + getXCenterBreakInNum() + "'" + "\n'Xcenters_solved': '" + getNumPreSolvedXCenters() + "'" + "\n'Xcenters_parity': '" + hasXCenterParity() + "'"
-                + "\n'TCenters_len': '" + getTCenterLength() + "'" +"\n'Tcenters_cycle_breaks' :'" +  getTCenterBreakInNum() + "'"
-                +"\n'Tcenters_solved': '" +  getNumPreSolvedTCenters() + "'" +"\n'Tcenters_parity': '" +  hasTCenterParity() + "'";
+                + "\n'XCenters_cycle_breaks': '" + getXCenterBreakInNum() + "'" + "\n'XCenters_solved': '" + getNumPreSolvedXCenters() + "'" + "\n'XCenters_parity': '" + hasXCenterParity() + "'"
+                + "\n'TCenters_len': '" + getTCenterLength() + "'" +"\n'TCenters_cycle_breaks' :'" +  getTCenterBreakInNum() + "'"
+                +"\n'TCenters_solved': '" +  getNumPreSolvedTCenters() + "'" +"\n'TCenters_parity': '" +  hasTCenterParity() + "'";
     }
 
     public String getNoahtation() {

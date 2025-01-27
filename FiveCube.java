@@ -103,6 +103,7 @@ public class FiveCube {
                             .append(tcenter_buffer)
                             .append(",")
                             .append(String.join(",", parts_sol))
+                            .append(",")
                             .append(String.join(",", parts_stats))
                             .append("\n");
 

@@ -131,22 +131,25 @@ def convert_555_solves_to_csv(scramble_type_input):
         for line in file:
             items = line.split(',')
             key_values = {}
+            print("here")
             print(items)
             for item in items:
-                match = re.match(r"([^:]+):'([^']*)'", item)
-                if match:
-                    key, value = match.groups()
-                    key_values[key.strip("'")] = value.strip()
+               if ":" in item:
+                    key = item.split(":")[0].strip().strip("'")
+                    value = item.split(":")[1].strip().strip("'")
+                    key_values[key] = value
 
             scramble = line.split(",")[1]
             scramble_type = line.split(",")[0]
             # Parse the key-value pairs (edges, flip, etc.)
             # key_values = dict(re.findall(key_value_pattern, line))
+            print("here 2")
+
             print(key_values)
-            print(key_values.keys())
+            # print(key_values.keys())
             rotations_to_apply = re.findall(r"\{([^}]*)\}", line)[0]
             
-            edge_buffer = key_values.get("edge_buffer", "").strip()
+            edge_buffer = key_values.get("Edge_buffer", "").strip()
             edges = key_values.get("Edges", "").strip()
             edge_length = key_values.get("Edges_len", "").strip()
             edges_cycle_breaks = key_values.get("Edges_cycle_breaks", "").strip()
@@ -155,9 +158,11 @@ def convert_555_solves_to_csv(scramble_type_input):
             flip = key_values.get("Flip", "").strip()
             first_edges = "".join([pair[0] for pair in edges.split() if len(pair) > 1])
             
-            corner_buffer = key_values.get("corner_buffer", "").strip()
+            corner_buffer = key_values.get("Corner_buffer", "").strip()
             corners = key_values.get("Corners", "").strip()
             corner_length = key_values.get("Corners_len", "").strip()
+            print("here 3")
+            print(corner_length)
             corners_cycle_breaks = key_values.get("Corners_cycle_breaks", "").strip()
             twist_clockwise = key_values.get("Twist Clockwise", "").strip()
             twist_counterclockwise = key_values.get("Twist Counterclockwise", "").strip()
@@ -166,7 +171,7 @@ def convert_555_solves_to_csv(scramble_type_input):
             corner_parity = key_values.get("Corners_parity", "").strip()
             first_corners = "".join([pair[0] for pair in corners.split() if len(pair) > 1])
             
-            wing_buffer = key_values.get("wing_buffer", "").strip()
+            wing_buffer = key_values.get("Wings_buffer", "").strip()
             wings = key_values.get("Wings", "").strip()
             wings_length = key_values.get("Wings_len", "").strip()
             wings_cycle_breaks = key_values.get("Wings_cycle_breaks", "").strip()
@@ -174,16 +179,16 @@ def convert_555_solves_to_csv(scramble_type_input):
             wing_parity = key_values.get("Wings_parity", "").strip()
             first_wings = "".join([pair[0] for pair in wings.split() if len(pair) > 1])
             
-            xcenter_buffer = key_values.get("xcenter_buffer", "").strip()
+            xcenter_buffer = key_values.get("XCenter_buffer", "").strip()
             xcenters = key_values.get("XCenters", "").strip()
             xcenter_length = key_values.get("XCenters_len", "").strip()
             xcenters_cycle_breaks = key_values.get("XCenters_cycle_breaks", "").strip()
             xcenters_solved = key_values.get("XCenters_solved", "").strip()
-            print("here" + xcenters_solved)
+            print("here 2" + xcenters_solved)
             xcenter_parity = key_values.get("XCenters_parity", "").strip()
             first_xcenters = "".join([pair[0] for pair in xcenters.split() if len(pair) > 1])
             
-            tcenter_buffer = key_values.get("tcenter_buffer", "").strip()
+            tcenter_buffer = key_values.get("TCenter_buffer", "").strip()
             tcenters = key_values.get("TCenters", "").strip()
             tcenter_length = key_values.get("TCenters_len", "").strip()
             tcenters_cycle_breaks = key_values.get("TCenters_cycle_breaks", "").strip()

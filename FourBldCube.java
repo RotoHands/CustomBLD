@@ -3070,11 +3070,11 @@ public class FourBldCube extends ThreeBldCube implements BldCube {
         }
 
         public String getXCenterBuffer() {
-                return "'xcenter_buffer':" + "'" + xcenter_buffer + "'";
+                return "'XCenter_buffer':" + "'" + xcenter_buffer + "'";
         }
 
         public String getWingsBuffer() {
-                return "'wings_buffer':" + "'" + wings_buffer + "'";
+                return "'Wings_buffer':" + "'" + wings_buffer + "'";
         }
 
         public String getXCenterPairs() {
