@@ -6,7 +6,7 @@ const workerCount = os.cpus().length; // Use the number of CPU cores
 
 function generateScramblesInWorker(count, type) {
   return new Promise((resolve, reject) => {
-    const worker = new Worker('./scramble_generator/scramble_worker.js', { workerData: { count, type } });
+    const worker = new Worker('./scrambles_generator/scramble_worker.js', { workerData: { count, type } });
     worker.on('message', resolve); // Receive result from the worker
     worker.on('error', reject);   // Handle errors
     worker.on('exit', code => {

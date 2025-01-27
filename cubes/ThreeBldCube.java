@@ -1,3 +1,4 @@
+package cubes;
 
 /**
  * Created by user on 05/09/2017.
@@ -12,6 +13,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+
+import cubes.BldCube.OrientationColor;
 
 public class ThreeBldCube implements BldCube {
 

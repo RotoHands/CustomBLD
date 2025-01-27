@@ -11,7 +11,7 @@ def analyze_solves(scramble_type, change_base_scheme):
             "java.exe",
             "-cp",
             ".",
-            "ThreeCube",
+            "cubes/ThreeCube",
             scramble_type
         ]
     if scramble_type in ["555bld", "5edge"]:
@@ -19,7 +19,7 @@ def analyze_solves(scramble_type, change_base_scheme):
             "java.exe",
             "-cp",
             ".",
-            "FiveCube",
+            "cubes/FiveCube",
             scramble_type,
             change_base_scheme
         ]
@@ -29,7 +29,7 @@ def analyze_solves(scramble_type, change_base_scheme):
             "java.exe",
             "-cp",
             ".",
-            "FourCube",
+            "cubes/FourCube",
             scramble_type,
             change_base_scheme
         ]
@@ -47,7 +47,7 @@ def run_subprocess(count, scramble_type, process_id):
     print(f"Starting process {process_id} for {count} scrambles of type {scramble_type}...")
     try:
         subprocess.run(
-            ["node", "scramble_generator/scramble_generator.js", str(count), scramble_type],
+            ["node", "scrambles_generator\scramble_generator.js", str(count), scramble_type],
             check=True
         )
     except subprocess.CalledProcessError as e:

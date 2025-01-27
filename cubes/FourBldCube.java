@@ -1,3 +1,4 @@
+package cubes;
 
 /**
  * Created by user on 05/09/2017.

@@ -12,7 +12,7 @@ def main():
     for s in scramble_types:
         cmd = [
             "python.exe",
-            "scramble_generator/generate_all_scrambles.py",
+            "generate_solves.py",
             count_scramble,
             s,
             change_base_scheme
