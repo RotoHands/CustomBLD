@@ -7,7 +7,8 @@ import java.time.format.DateTimeFormatter;
 
 public class FourCube {
 
-    public void setUpCube4x4(String scramble_file_name, String scramble_type, String solve_file_name, Boolean changeSchemeBase) {
+    public void setUpCube4x4(String scramble_file_name, String scramble_type, String solve_file_name,
+            Boolean changeSchemeBase) {
 
         Globals g = new Globals();
         String[] cornerScheme = { "א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט", "י", "כ", "ל", "מ", "נ", "ס",
@@ -53,7 +54,7 @@ public class FourCube {
             String wing_buffer;
             String[] parts_sol;
             String[] parts_stats;
-                
+
             corner_buffer = g.four.getCornerBuffer();
             xcenter_buffer = g.four.getXCenterBuffer();
             wing_buffer = g.four.getWingsBuffer();
@@ -65,15 +66,13 @@ public class FourCube {
                     scrambleString = currline;
                     g.four.initPermutations();
                     g.four.parseScramble(scrambleString);
-                   
-                    
+
                     if (changeSchemeBase)
                         solutionPairs = g.four.getSolutionPairs(true, false);
                     else
                         solutionPairs = g.four.getSolutionPairs(true, true);
                     parts_sol = solutionPairs.split("\n");
                     parts_stats = g.four.getStatstics().split("\n");
-                    System.out.println("parts_stats: " + Arrays.toString(parts_stats));
                     temp.append(scramble_type)
                             .append(",")
                             .append(scrambleString)
@@ -123,22 +122,23 @@ public class FourCube {
         Boolean changeSchemeBase = Boolean.parseBoolean(arg_bool);
         String folderPath = "txt_files\\";
         File folder = new File(folderPath);
-        File[] files = folder.listFiles(
-                (dir, name) -> name.startsWith(scramble_type) && name.contains("_scrambles"));
-
-        if (files == null || files.length == 0) {
-            System.out.println("No scramble file found for type: " + scramble_type);
-            System.exit(1);
+        File newestFile = null;
+        for (File file : folder.listFiles(
+                (dir, name) -> name.startsWith(scramble_type) && name.contains("_scrambles"))) {
+            if (newestFile == null || file.lastModified() > newestFile.lastModified()) {
+                newestFile = file;
+            }
         }
+
+        String scrambleFileName = newestFile.getAbsolutePath();
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
         String currentTime = LocalDateTime.now().format(formatter);
 
-        String scrambleFileName = files[0].getAbsolutePath();
         String solveFileName = folderPath + scramble_type + "_solves_" + currentTime + ".txt";
 
         FourCube c = new FourCube();
-        
+
         long startTime = System.nanoTime();
 
         // Call the method

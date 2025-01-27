@@ -51,14 +51,13 @@ public class ThreeBldCube implements BldCube {
         protected int X = 23;
         protected int Z = -1;
 
-        
         protected int UP = 0;
         protected int LEFT = 1;
         protected int FRONT = 2;
         protected int RIGHT = 3;
         protected int BACK = 4;
         protected int DOWN = 5;
-        
+
         protected String[] cornerLettering = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N",
                         "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X" };
         protected String[] edgeLettering = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
@@ -140,20 +139,20 @@ public class ThreeBldCube implements BldCube {
         public void ScrambleCurrent3x3Cube(int current_line, String file_name_scramble) {
                 BufferedReader reader;
                 int count = 0;
-                String line="";
-		try {
-			reader = new BufferedReader(new FileReader(
-                                file_name_scramble));
-			line = reader.readLine();
-			while (line != null && count != current_line) {
+                String line = "";
+                try {
+                        reader = new BufferedReader(new FileReader(
+                                        file_name_scramble));
+                        line = reader.readLine();
+                        while (line != null && count != current_line) {
                                 line = reader.readLine();
-                                count ++;
-			}
-			reader.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-               
+                                count++;
+                        }
+                        reader.close();
+                } catch (IOException e) {
+                        e.printStackTrace();
+                }
+
                 // String scramble1 = scrambleCube3x3(faceNamesScramble3x3);
                 this.scramble = line;
                 initPermutations();
@@ -1309,7 +1308,7 @@ public class ThreeBldCube implements BldCube {
                 if (solvedCorners[0] != false) {
                         cornerCycleNum += 1;
                         // int[] cornerPref = { 7, 6, 1, 5, 4, 2, 3 };
-                        int[] cornerPref = { 7,6,1,3,2,5,4};
+                        int[] cornerPref = { 7, 6, 1, 3, 2, 5, 4 };
                         for (int i = 0; (i < 7) && (!cornerCycled); i++) {
                                 int j = cornerCubies[0][0].intValue() == C ? cornerPref[i] : i;
                                 if (solvedCorners[j] == false) {
@@ -1446,6 +1445,7 @@ public class ThreeBldCube implements BldCube {
                 while (!edgesSolved())
                         cycleEdgeBuffer();
         }
+
         private void cycleEdgeBuffer() {
                 boolean edgeCycled = false;
 
@@ -1453,7 +1453,7 @@ public class ThreeBldCube implements BldCube {
                         edgeCycleNum += 1;
 
                         // int[] edgePref = { 1, 8, 7, 2, 4, 3, 5, 6, 9, 10, 11 };
-                        int[] edgePref = {11,10,1,5,4,7,6,3,2,8,9};
+                        int[] edgePref = { 11, 10, 1, 5, 4, 7, 6, 3, 2, 8, 9 };
 
                         for (int i = 0; (i < 11) && (!edgeCycled); i++) {
                                 int j = edgeCubies[0][0].intValue() == C ? edgePref[i] : i;
@@ -1573,7 +1573,7 @@ public class ThreeBldCube implements BldCube {
                                         ccwCorner = ((Integer) i$.next()).intValue();
                                 cornerPairs += "'";
                         }
-                        
+
                 }
                 if (cornerPairs == "'")
                         return "";
@@ -1581,15 +1581,20 @@ public class ThreeBldCube implements BldCube {
         }
 
         public String getSolutionPairs(boolean withRotation, boolean neverMind) {
-                return (withRotation ? "'Rotations': " + "'{" + getRotations() + "}'" + "\n" :  "") + "'Edges': " + getEdgePairs() + "\n'Corners': "
-                                + getCornerPairs() ;
+                return (withRotation ? "'Rotations': " + "'{" + getRotations() + "}'" + "\n" : "") + "'Edges': "
+                                + getEdgePairs() + "\n'Corners': "
+                                + getCornerPairs();
         }
 
         public String getStatstics() {
-                return "Corners: " + getCornerLength() + "@" + getCornerBreakInNum() + " w/ " + getNumPreSolvedCorners()
-                                + "-" + getNumPreTwistedCorners() + " > " + hasCornerParity() + "\nEdges: "
-                                + getEdgeLength() + "@" + getEdgeBreakInNum() + " w/ " + getNumPreSolvedEdges() + "-"
-                                + getNumPreFlippedEdges() + " > " + hasCornerParity();
+                return "'Corners_len': '" + getCornerLength() + "'" + "\n'Corners_cycle_breaks': '"
+                                + getCornerBreakInNum() + "'" + "\n'Conrners_solved': '" + getNumPreSolvedCorners()
+                                + "'" +
+                                "\n'Corners_twists': '" + getNumPreTwistedCorners() + "'" + "\n'Corners_parity': '"
+                                + hasCornerParity() + "'" + "\n'Edges_len': '" + getEdgeLength() + "'"
+                                + "\n'Edges_cycle_breaks': '" + getEdgeBreakInNum() + "'" + "\n'Edges_solved': '"
+                                + getNumPreSolvedEdges() + "'" + "\n'Edges_flipped' : '" + getNumPreFlippedEdges()
+                                + "'";
         }
 
         public String getNoahtation() {
@@ -1651,11 +1656,11 @@ public class ThreeBldCube implements BldCube {
         public String getEdgeBuffer() {
                 return "'Edge_buffer':" + "'" + edgeBuffer + "'";
         }
-        
-        
+
         public String getCornerBuffer() {
                 return "'Corner_buffer':" + "'" + cornerBuffer + "'";
         }
+
         public int getNumPreEdges(boolean flipped) {
                 int preSolved = 0;
                 for (int i = 0; i < scrambledStateSolvedEdges.length; i++) {

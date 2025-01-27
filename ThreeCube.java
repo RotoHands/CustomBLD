@@ -55,7 +55,11 @@ public class ThreeCube {
                         String edge_buffer;
                         String corner_buffer;
                         String solutionPairs;
-                        String[] parts;
+                        String[] parts_sol;
+                        String[] parts_stats;
+
+                        edge_buffer = g.three.getEdgeBuffer();
+                        corner_buffer = g.three.getCornerBuffer();
                         int i = 0;
                         try {
                                 reader = new BufferedReader(new FileReader(scramble_file_name));
@@ -63,10 +67,10 @@ public class ThreeCube {
                                         scrambleString = currline;
                                         g.three.initPermutations();
                                         g.three.parseScramble(scrambleString);
-                                        edge_buffer = g.three.getEdgeBuffer();
-                                        corner_buffer = g.three.getCornerBuffer();
+
                                         solutionPairs = g.three.getSolutionPairs(true, false);
-                                        parts = solutionPairs.split("\n");
+                                        parts_sol = solutionPairs.split("\n");
+                                        parts_stats = g.three.getStatstics().split("\n");
                                         temp.append(scramble_type)
                                                         .append(",")
                                                         .append(scrambleString)
@@ -75,7 +79,9 @@ public class ThreeCube {
                                                         .append(",")
                                                         .append(corner_buffer)
                                                         .append(",")
-                                                        .append(String.join(",", parts))
+                                                        .append(String.join(",", parts_sol))
+                                                        .append(",")
+                                                        .append(String.join(",", parts_stats))
                                                         .append("\n");
 
                                         if (i % 10000 == 0) {
@@ -111,22 +117,24 @@ public class ThreeCube {
 
                 String folderPath = "txt_files\\";
                 File folder = new File(folderPath);
-                File[] files = folder.listFiles(
-                                (dir, name) -> name.startsWith(scramble_type) && name.contains("_scrambles"));
-
-                if (files == null || files.length == 0) {
-                        System.out.println("No scramble file found for type: " + scramble_type);
-                        System.exit(1);
+              
+                File newestFile = null;
+                for (File file : folder.listFiles(
+                                (dir, name) -> name.startsWith(scramble_type) && name.contains("_scrambles"))) {
+                        if (newestFile == null || file.lastModified() > newestFile.lastModified()) {
+                                newestFile = file;
+                        }
                 }
+              
+                String scrambleFileName = newestFile.getAbsolutePath();
 
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
                 String currentTime = LocalDateTime.now().format(formatter);
 
-                String scrambleFileName = files[0].getAbsolutePath();
                 String solveFileName = folderPath + scramble_type + "_solves_" + currentTime + ".txt";
 
                 ThreeCube c = new ThreeCube();
-               
+
                 long startTime = System.nanoTime();
 
                 // Call the method

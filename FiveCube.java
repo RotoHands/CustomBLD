@@ -15,7 +15,8 @@ public class FiveCube {
     public int switchPieceCounter = 0;
     public long time5x5 = 0;
 
-    public void setUpCube5x5(String scramble_file_name, String scramble_type, String solve_file_name, Boolean changeSchemeBase) {
+    public void setUpCube5x5(String scramble_file_name, String scramble_type, String solve_file_name,
+            Boolean changeSchemeBase) {
 
         Globals g = new Globals();
         String[] cornerScheme = { "א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט", "י", "כ", "ל", "מ", "נ", "ס",
@@ -65,7 +66,6 @@ public class FiveCube {
             String[] parts_sol;
             String[] parts_stats;
 
-
             edge_buffer = g.five.getEdgeBuffer();
             corner_buffer = g.five.getCornerBuffer();
             xcenter_buffer = g.five.getXCenterBuffer();
@@ -77,15 +77,14 @@ public class FiveCube {
                 while ((currline = reader.readLine()) != null) { // Loop until the end of the file
                     scrambleString = currline;
                     g.five.initPermutations();
-                    g.five.parseScramble(scrambleString);                   
-                    
+                    g.five.parseScramble(scrambleString);
+
                     if (changeSchemeBase)
                         solutionPairs = g.five.getSolutionPairs(true, false);
                     else
                         solutionPairs = g.five.getSolutionPairs(true, true);
                     parts_sol = solutionPairs.split("\n");
                     parts_stats = g.five.getStatstics().split("\n");
-                    System.out.println("parts_stats: " + Arrays.toString(parts_stats));
                     temp.append(scramble_type)
                             .append(",")
                             .append(scrambleString)
@@ -140,18 +139,19 @@ public class FiveCube {
 
         String folderPath = "txt_files\\";
         File folder = new File(folderPath);
-        File[] files = folder.listFiles(
-                (dir, name) -> name.startsWith(scramble_type) && name.contains("_scrambles"));
-
-        if (files == null || files.length == 0) {
-            System.out.println("No scramble file found for type: " + scramble_type);
-            System.exit(1);
+        File newestFile = null;
+        for (File file : folder.listFiles(
+                (dir, name) -> name.startsWith(scramble_type) && name.contains("_scrambles"))) {
+            if (newestFile == null || file.lastModified() > newestFile.lastModified()) {
+                newestFile = file;
+            }
         }
+
+        String scrambleFileName = newestFile.getAbsolutePath();
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
         String currentTime = LocalDateTime.now().format(formatter);
 
-        String scrambleFileName = files[0].getAbsolutePath();
         String solveFileName = folderPath + scramble_type + "_solves_" + currentTime + ".txt";
 
         FiveCube c = new FiveCube();
