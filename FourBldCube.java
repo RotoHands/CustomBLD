@@ -3095,20 +3095,25 @@ public class FourBldCube extends ThreeBldCube implements BldCube {
         }
 
         public String getSolutionPairs(boolean withRotation, boolean isWingSchemeRegular) {
-                return (withRotation ? "'Rotations': " + "'{" + getRotations() + "}'" + "\n" :  "") + "'XCenters': " + getXCenterPairs() + "\n'Wings': "
+                return (withRotation ? "'Rotations': " + "'{" + getRotations() + "}'" + "\n" : "") + "'XCenters': "
+                                + getXCenterPairs() + "\n'Wings': "
                                 + getWingPairs(isWingSchemeRegular) + "\n'Corners': " + getCornerPairs();
         }
 
         public String getStatstics() {
-                return "Corners: " + getCornerLength() + "@" + getCornerBreakInNum() + " w/ " + getNumPreSolvedCorners()
-                                + "-"
-                                + getNumPreTwistedCorners() + " > " + hasCornerParity() + "\nWings: " + getWingLength()
-                                + "@"
-                                + getWingBreakInNum() + " w/ " + getNumPreSolvedWings() + " > " + hasWingParity()
-                                + "\nXCenters: "
-                                + getXCenterLength() + "@" + getXCenterBreakInNum() + " w/ " + getNumPreSolvedXCenters()
-                                + " > "
-                                + hasXCenterParity();
+                return "'Corners_len': '" + getCornerLength() + "'" + "\n'Corners_cycle_breaks': '"
+                                + getCornerBreakInNum() + "'" + "\n'Conrners_solved': '" + getNumPreSolvedCorners()
+                                + "'" +
+                                "\n'Corners_twists': '" + getNumPreTwistedCorners() + "'" + "\n'Corners_parity': '"
+                                + hasCornerParity() + "'" + "\n'Wings_len': '" + getWingLength() + "'"
+                                + "\n'Wings_cycle_breaks' :'"
+                                + getWingBreakInNum() + "'"
+                                + "\n'Wings_solved': '" + getNumPreSolvedWings() + "'" + "\n'Wings_parity': '"
+                                + hasWingParity() + "'" + "\n'XCenters_len': '" + getXCenterLength() + "'"
+                                + "\n'XCenters_cycle_breaks': '" + getXCenterBreakInNum() + "'"
+                                + "\n'XCenters_solved': '" + getNumPreSolvedXCenters() + "'" + "\n'XCenters_parity': '"
+                                + hasXCenterParity() + "'";
+
         }
 
         public String getNoahtation() {
@@ -3274,7 +3279,7 @@ public class FourBldCube extends ThreeBldCube implements BldCube {
                 }
 
                 this.scramble = line;
-              
+
                 initPermutations();
                 parseScramble(this.scramble);
         }

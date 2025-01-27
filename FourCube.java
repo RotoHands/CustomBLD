@@ -51,7 +51,13 @@ public class FourCube {
             String solutionPairs;
             String xcenter_buffer;
             String wing_buffer;
-            String[] parts;
+            String[] parts_sol;
+            String[] parts_stats;
+                
+            corner_buffer = g.four.getCornerBuffer();
+            xcenter_buffer = g.four.getXCenterBuffer();
+            wing_buffer = g.four.getWingsBuffer();
+
             int i = 0;
             try {
                 reader = new BufferedReader(new FileReader(scramble_file_name));
@@ -59,14 +65,15 @@ public class FourCube {
                     scrambleString = currline;
                     g.four.initPermutations();
                     g.four.parseScramble(scrambleString);
-                    corner_buffer = g.four.getCornerBuffer();
-                    xcenter_buffer = g.four.getXCenterBuffer();
-                    wing_buffer = g.four.getWingsBuffer();
+                   
+                    
                     if (changeSchemeBase)
                         solutionPairs = g.four.getSolutionPairs(true, false);
                     else
                         solutionPairs = g.four.getSolutionPairs(true, true);
-                    parts = solutionPairs.split("\n");
+                    parts_sol = solutionPairs.split("\n");
+                    parts_stats = g.four.getStatstics().split("\n");
+                    System.out.println("parts_stats: " + Arrays.toString(parts_stats));
                     temp.append(scramble_type)
                             .append(",")
                             .append(scrambleString)
@@ -77,7 +84,9 @@ public class FourCube {
                             .append(",")
                             .append(xcenter_buffer)
                             .append(",")
-                            .append(String.join(",", parts))
+                            .append(String.join(",", parts_sol))
+                            .append(",")
+                            .append(String.join(",", parts_stats))
                             .append("\n");
 
                     if (i % 10000 == 0) {

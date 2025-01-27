@@ -77,9 +77,7 @@ public class FiveCube {
                 while ((currline = reader.readLine()) != null) { // Loop until the end of the file
                     scrambleString = currline;
                     g.five.initPermutations();
-                    g.five.parseScramble(scrambleString);
-                    // String statstics = ;
-                   
+                    g.five.parseScramble(scrambleString);                   
                     
                     if (changeSchemeBase)
                         solutionPairs = g.five.getSolutionPairs(true, false);

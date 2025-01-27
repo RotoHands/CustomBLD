@@ -130,48 +130,52 @@ def insert_444_bld_solves(scramble_type_input):
     with open(csv_file, "r", encoding="utf-8") as file:
         csv_reader = csv.DictReader(file)
         for row in csv_reader:
-            # Calculate additional derived values
-            length_corners = len(row["corners"].split()) if row.get("corners") else 0
-            length_wings = len(row["wings"].split()) if row.get("wings") else 0
-            length_xcenters = len(row["xcenters"].split()) if row.get("xcenters") else 0
-
-            sum_of_twists = len(row["Twist Clockwise"].split()) + len(row["Twist Counterclockwise"].split()) if row.get("Twist Clockwise") and row.get("Twist Counterclockwise") else 0
-            is_parity_wings = True if (len(row["wings"]) > 0 and len(row["wings"].split()[-1])==1) else False
-            is_parity = True if (len(row["corners"]) > 0 and len(row["corners"].split()[-1])==1) else False
 
             # Insert data into the database
             cursor.execute("""
             INSERT INTO scrambles (
-                scramble_type, scramble,rotations_to_apply, corners, corner_buffer, length_corners, twist_clockwise,
-                twist_counterclockwise, sum_of_twists, first_lp_corners_join, is_parity,
-                wing_buffer, wings, length_wings, first_lp_wings_join, is_parity_wings,
-                xcenters_buffer, xcenters,length_xcenters, first_lp_xcenters_join
-                
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 scramble_type , scramble , rotations_to_apply , 
+                           corner_buffer , corners , corner_length , corners_cycle_breaks , twist_clockwise , twist_counterclockwise , corners_twisted , corners_solved , corner_parity , first_corners ,
+                           wing_buffer , wings , wings_length , wings_cycle_breaks , wings_solved , wing_parity , first_wings ,
+                           xcenter_buffer , xcenters , xcenter_length , xcenters_cycle_breaks , xcenters_solved , xcenter_parity , first_xcenters 
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
-                row["scramble_type"], 
+                row["scramble_type"],
                 row["scramble"],
                 row["rotations_to_apply"],
-                row["corners"],
+                
                 row["corner_buffer"],
-                length_corners,
-                row["Twist Clockwise"],
-                row["Twist Counterclockwise"],
-                sum_of_twists,
-                row["first_lp_corners_join"], 
-                is_parity,
+                row["corners"],
+                row["corner_length"],
+                row["corners_cycle_breaks"],
+                row["twist_clockwise"],
+                row["twist_counterclockwise"],
+                row["corners_twisted"],
+                row["corners_solved"],
+                row["corner_parity"],
+                row["first_corners"],
+                
                 row["wing_buffer"],
                 row["wings"],
-                length_wings,
-                row["first_lp_wings_join"],
-                is_parity_wings,
+                row["wings_length"],
+                row["wings_cycle_breaks"],
+                row["wings_solved"],
+                row["wing_parity"],
+                row["first_wings"],
+                
                 row["xcenter_buffer"],
                 row["xcenters"],
-                length_xcenters,
-                row["first_lp_xcenters_join"]
+                row["xcenter_length"],
+                row["xcenters_cycle_breaks"],
+                row["xcenters_solved"],
+                row["xcenter_parity"],
+                row["first_xcenters"],
+              
+
             ))
         conn.commit()
         conn.close()
+
 
 
 def insert_555_bld_solves(scramble_type_input):
