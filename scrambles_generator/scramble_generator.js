@@ -21,7 +21,7 @@ async function generateScrambles(numScrambles, scrambleType) {
   const scramblesPerWorker = Math.ceil(numScrambles / workerCount); // Divide tasks evenly across workers
 
   // Spawn workers
-  for (let i = 0; i < 1; i++) {
+  for (let i = 0; i < workerCount; i++) {
     tasks.push(generateScramblesInWorker(scramblesPerWorker, scrambleType));
   }
 
@@ -53,7 +53,6 @@ function generateRandomFileName(extension = "txt") {
 function main() {
   const numScrambles = parseInt(process.argv[2], 10);
   const scrambleType = process.argv[3];
-
   if (isNaN(numScrambles) || !scrambleType) {
     process.exit(1);
   }
