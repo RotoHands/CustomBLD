@@ -20,7 +20,7 @@ import {
 const QueryForm = ({ onSubmit }) => {
   const [formData, setFormData] = useState({
     scramble_type: '',
-    edge_buffer: '',
+    edge_buffer: 'UF',  // Set default buffer to UF
     edge_length_type: 'random',
     edge_length: 0,
     edge_length_min: 0,
@@ -136,7 +136,7 @@ const QueryForm = ({ onSubmit }) => {
       localStorage.removeItem('scrambleForm');
       setFormData({
         scramble_type: '',
-        edge_buffer: '',
+        edge_buffer: 'UF',  // Set default buffer to UF
         edge_length_type: 'random',
         edge_length: 0,
         edge_length_min: 0,

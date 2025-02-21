@@ -70,6 +70,7 @@ code {
   .letters-practice-header:hover {
     background-color: #f0f0f0;
   }
+
   .collapsible-header {
     cursor: pointer;
     padding: 8px 12px;
@@ -78,17 +79,13 @@ code {
     user-select: none;
   }
   
-  .collapsible-header:hover {
-    background-color: #f8f9fa;
-  }
-  
   .collapsible-header i {
     font-size: 16px;
-    color: #04335c;
     width: 16px;
     text-align: center;
+    transition: color 0.2s ease;
   }
   
-  .collapsible-header:hover i {
-    color: #212529;
+  .collapsible-header:hover {
+    background-color: #f8f9fa;
   }

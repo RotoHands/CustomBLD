@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Form, Row, Col } from 'react-bootstrap';
+import { Form, Row, Col, Button } from 'react-bootstrap';
 import { edgeBufferOptions } from '../constants/Constants';
 import { edgePositions } from './LetterScheme';
 
@@ -9,6 +9,9 @@ const EdgeSection = ({ formData, handleChange, renderNumberSelect, handlePractic
   const [flippedType, setFlippedType] = useState('random');
   const [solvedType, setSolvedType] = useState('random');
   const [showPracticeLetters, setShowPracticeLetters] = useState(false);
+  const [selectedLetters, setSelectedLetters] = useState(
+    edgePositions.reduce((acc, pos) => ({ ...acc, [pos]: true }), {})
+  );
 
   // Generic handler for type changes
   const handleTypeChange = (field, type, setter) => {
@@ -21,15 +24,39 @@ const EdgeSection = ({ formData, handleChange, renderNumberSelect, handlePractic
     });
   };
 
-  // Generic handler for range values
-  const handleRangeChange = (field, type, value) => {
-    handleChange({
-      target: {
-        name: `${field}_${type}`,
-        value: Math.max(0, parseInt(value) || 0)
-      }
-    });
-  };
+  const renderRangeControl = (fieldName, type, defaultMax = 18) => (
+    <div className="d-flex align-items-center gap-2 ms-3">
+      <Form.Control
+        type="number"
+        min="0"
+        placeholder="Min"
+        value={formData[`${fieldName}_min`] || 0}
+        onChange={(e) => handleChange({
+          target: {
+            name: `${fieldName}_min`,
+            value: Math.max(0, parseInt(e.target.value) || 0)
+          }
+        })}
+        disabled={type !== 'range'}
+        style={{ width: '70px', opacity: type === 'range' ? 1 : 0.6 }}
+      />
+      <span>-</span>
+      <Form.Control
+        type="number"
+        min="0"
+        placeholder="Max"
+        value={formData[`${fieldName}_max`] || defaultMax}
+        onChange={(e) => handleChange({
+          target: {
+            name: `${fieldName}_max`,
+            value: Math.max(0, parseInt(e.target.value) || 0)
+          }
+        })}
+        disabled={type !== 'range'}
+        style={{ width: '70px', opacity: type === 'range' ? 1 : 0.6 }}
+      />
+    </div>
+  );
 
   const handleBufferChange = (value) => {
     handleChange({
@@ -38,6 +65,32 @@ const EdgeSection = ({ formData, handleChange, renderNumberSelect, handlePractic
         value: value
       }
     });
+  };
+
+  const handleSelectAll = () => {
+    const newSelected = { ...selectedLetters };
+    edgePositions.forEach(pos => {
+      newSelected[pos] = true;
+      handlePracticeLetterChange('edges', pos, true);
+    });
+    setSelectedLetters(newSelected);
+  };
+
+  const handleRemoveAll = () => {
+    const newSelected = { ...selectedLetters };
+    edgePositions.forEach(pos => {
+      newSelected[pos] = false;
+      handlePracticeLetterChange('edges', pos, false);
+    });
+    setSelectedLetters(newSelected);
+  };
+
+  const handleSingleCheck = (pos, checked) => {
+    setSelectedLetters(prev => ({
+      ...prev,
+      [pos]: checked
+    }));
+    handlePracticeLetterChange('edges', pos, checked);
   };
 
   return (
@@ -81,28 +134,7 @@ const EdgeSection = ({ formData, handleChange, renderNumberSelect, handlePractic
               checked={lengthType === 'range'}
               onChange={() => handleTypeChange('edge_length', 'range', setLengthType)}
             />
-            
-            {lengthType === 'range' && (
-              <div className="d-flex align-items-center gap-2 ms-3">
-                <Form.Control
-                  type="number"
-                  min="0"
-                  placeholder="Min"
-                  value={formData.edge_length_min || 0}
-                  onChange={(e) => handleRangeChange('edge_length', 'min', e.target.value)}
-                  style={{ width: '70px' }}
-                />
-                <span>-</span>
-                <Form.Control
-                  type="number"
-                  min="0"
-                  placeholder="Max"
-                  value={formData.edge_length_max || 18}
-                  onChange={(e) => handleRangeChange('edge_length', 'max', e.target.value)}
-                  style={{ width: '70px' }}
-                />
-              </div>
-            )}
+            {renderRangeControl('edge_length', lengthType, 18)}
           </div>
         </Col>
       </Form.Group>
@@ -126,25 +158,7 @@ const EdgeSection = ({ formData, handleChange, renderNumberSelect, handlePractic
               checked={cycleBreaksType === 'range'}
               onChange={() => handleTypeChange('edges_cycle_breaks', 'range', setCycleBreaksType)}
             />
-            {cycleBreaksType === 'range' && (
-              <div className="d-flex align-items-center gap-2 ms-3">
-                <Form.Control
-                  type="number"
-                  min="0"
-                  value={formData.edges_cycle_breaks_min || 0}
-                  onChange={(e) => handleRangeChange('edges_cycle_breaks', 'min', e.target.value)}
-                  style={{ width: '70px' }}
-                />
-                <span>-</span>
-                <Form.Control
-                  type="number"
-                  min="0"
-                  value={formData.edges_cycle_breaks_max || 10}
-                  onChange={(e) => handleRangeChange('edges_cycle_breaks', 'max', e.target.value)}
-                  style={{ width: '70px' }}
-                />
-              </div>
-            )}
+            {renderRangeControl('edges_cycle_breaks', cycleBreaksType, 10)}
           </div>
         </Col>
       </Form.Group>
@@ -168,25 +182,7 @@ const EdgeSection = ({ formData, handleChange, renderNumberSelect, handlePractic
               checked={flippedType === 'range'}
               onChange={() => handleTypeChange('edges_flipped', 'range', setFlippedType)}
             />
-            {flippedType === 'range' && (
-              <div className="d-flex align-items-center gap-2 ms-3">
-                <Form.Control
-                  type="number"
-                  min="0"
-                  value={formData.edges_flipped_min || 0}
-                  onChange={(e) => handleRangeChange('edges_flipped', 'min', e.target.value)}
-                  style={{ width: '70px' }}
-                />
-                <span>-</span>
-                <Form.Control
-                  type="number"
-                  min="0"
-                  value={formData.edges_flipped_max || 12}
-                  onChange={(e) => handleRangeChange('edges_flipped', 'max', e.target.value)}
-                  style={{ width: '70px' }}
-                />
-              </div>
-            )}
+            {renderRangeControl('edges_flipped', flippedType, 12)}
           </div>
         </Col>
       </Form.Group>
@@ -210,25 +206,7 @@ const EdgeSection = ({ formData, handleChange, renderNumberSelect, handlePractic
               checked={solvedType === 'range'}
               onChange={() => handleTypeChange('edges_solved', 'range', setSolvedType)}
             />
-            {solvedType === 'range' && (
-              <div className="d-flex align-items-center gap-2 ms-3">
-                <Form.Control
-                  type="number"
-                  min="0"
-                  value={formData.edges_solved_min || 0}
-                  onChange={(e) => handleRangeChange('edges_solved', 'min', e.target.value)}
-                  style={{ width: '70px' }}
-                />
-                <span>-</span>
-                <Form.Control
-                  type="number"
-                  min="0"
-                  value={formData.edges_solved_max || 12}
-                  onChange={(e) => handleRangeChange('edges_solved', 'max', e.target.value)}
-                  style={{ width: '70px' }}
-                />
-              </div>
-            )}
+            {renderRangeControl('edges_solved', solvedType, 12)}
           </div>
         </Col>
       </Form.Group>
@@ -243,24 +221,42 @@ const EdgeSection = ({ formData, handleChange, renderNumberSelect, handlePractic
         </div>
         
         {showPracticeLetters && (
-          <div className="practice-letters p-3 border rounded bg-light mt-2">
-            <div className="d-flex flex-wrap gap-2">
-              {edgePositions.map((pos) => {
-                const letter = formData.letterScheme?.edges?.[pos] || '';
-                return letter && (
-                  <Form.Check
-                    key={pos}
-                    type="checkbox"
-                    id={`edge-practice-${pos}`}
-                    label={`${letter} (${pos})`}
-                    defaultChecked={true}
-                    onChange={(e) => handlePracticeLetterChange('edges', pos, e.target.checked)}
-                    className="me-3"
-                  />
-                );
-              })}
+          <>
+            <div className="d-flex gap-2 mb-2 mt-2">
+              <Button
+                variant="outline-primary"
+                size="sm"
+                onClick={handleSelectAll}
+              >
+                Select All
+              </Button>
+              <Button
+                variant="outline-secondary"
+                size="sm"
+                onClick={handleRemoveAll}
+              >
+                Remove All
+              </Button>
             </div>
-          </div>
+            <div className="practice-letters p-3 border rounded bg-light mt-2">
+              <div className="d-flex flex-wrap gap-2">
+                {edgePositions.map((pos) => {
+                  const letter = formData.letterScheme?.edges?.[pos] || '';
+                  return letter && (
+                    <Form.Check
+                      key={pos}
+                      type="checkbox"
+                      id={`edge-practice-${pos}`}
+                      label={`${letter} (${pos})`}
+                      checked={selectedLetters[pos]}
+                      onChange={(e) => handleSingleCheck(pos, e.target.checked)}
+                      className="me-3"
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          </>
         )}
       </Form.Group>
     </>
