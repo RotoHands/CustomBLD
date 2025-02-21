@@ -225,6 +225,7 @@ const QueryForm = ({ onSubmit }) => {
                   handleChange={handleChange}
                   renderNumberSelect={renderNumberSelect}
                   handlePracticeLetterChange={handlePracticeLetterChange}
+                  handleLetterChange={handleLetterChange}
                 />
               </Accordion.Body>
             </Accordion.Item>
@@ -237,6 +238,7 @@ const QueryForm = ({ onSubmit }) => {
                   handleChange={handleChange}
                   renderNumberSelect={renderNumberSelect}
                   handlePracticeLetterChange={handlePracticeLetterChange}
+                  handleLetterChange={handleLetterChange}
                 />
               </Accordion.Body>
             </Accordion.Item>
