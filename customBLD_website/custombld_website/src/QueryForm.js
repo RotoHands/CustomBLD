@@ -78,17 +78,32 @@ const QueryForm = ({ onSubmit }) => {
     setHasChanges(true);
   };
 
-  const handleLetterChange = (piece, position, value) => {
-    setFormData(prev => ({
-      ...prev,
-      letterScheme: {
-        ...prev.letterScheme,
-        [piece]: {
-          ...prev.letterScheme[piece],
-          [position]: value
-        }
+  const handleLetterChange = (piece, pos, value) => {
+    setFormData(prev => {
+      const newData = { ...prev };
+      
+      if (piece === 'base') {
+        // Update base scheme
+        newData.letterScheme = {
+          ...prev.letterScheme,
+          base: {
+            ...prev.letterScheme.base,
+            [pos]: value
+          }
+        };
+      } else {
+        // Update specific piece scheme
+        newData.letterScheme = {
+          ...prev.letterScheme,
+          [piece]: {
+            ...prev.letterScheme[piece],
+            [pos]: value
+          }
+        };
       }
-    }));
+      
+      return newData;
+    });
   };
 
   const handlePracticeLetterChange = (piece, pos, isChecked) => {

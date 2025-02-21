@@ -1,9 +1,8 @@
 import React from 'react';
 import { Form, Row, Col } from 'react-bootstrap';
 import { tCenterBufferOptions, parityOptions } from '../constants/Constants';
-import { tCenterPositions } from './LetterScheme';
 
-const TCenterSection = ({ formData, handleChange, renderNumberSelect, handlePracticeLetterChange }) => {
+const TCenterSection = ({ formData, handleChange, renderNumberSelect }) => {
   return (
     <>
       <Form.Group as={Row} className="mb-3">
@@ -25,28 +24,6 @@ const TCenterSection = ({ formData, handleChange, renderNumberSelect, handlePrac
             {parityOptions.map(option => <option key={option}>{option}</option>)}
           </Form.Select>
         </Col>
-      </Form.Group>
-
-      <Form.Group className="mb-3 mt-4">
-        <Form.Label>Letters to Practice</Form.Label>
-        <div className="practice-letters p-3 border rounded bg-light">
-          <div className="d-flex flex-wrap gap-2">
-            {tCenterPositions.map((pos, index) => {
-              const letter = formData.letterScheme?.base?.[pos] || String.fromCharCode(65 + index);
-              return (
-                <Form.Check
-                  key={pos}
-                  type="checkbox"
-                  id={`tcenter-practice-${pos}`}
-                  label={`${letter} (${pos})`}
-                  defaultChecked={true}
-                  onChange={(e) => handlePracticeLetterChange('tCenters', pos, e.target.checked)}
-                  className="me-3"
-                />
-              );
-            })}
-          </div>
-        </div>
       </Form.Group>
     </>
   );

@@ -1,9 +1,14 @@
 import React from 'react';
 import { Form, Row, Col } from 'react-bootstrap';
 import { edgeBufferOptions } from '../constants/Constants';
-import { edgePositions } from './LetterScheme';
+import { basePositions, edgePositions } from './LetterScheme';
 
-const EdgeSection = ({ formData, handleChange, renderNumberSelect, handlePracticeLetterChange }) => {
+const EdgeSection = ({ formData, handleChange, renderNumberSelect, handlePracticeLetterChange, setHasChanges }) => {
+  const handleLocalChange = (piece, pos, value) => {
+    handlePracticeLetterChange(piece, pos, value);
+    setHasChanges(true);  // Track changes
+  };
+
   return (
     <>
       <Form.Group as={Row} className="mb-3">
@@ -25,15 +30,19 @@ const EdgeSection = ({ formData, handleChange, renderNumberSelect, handlePractic
         <div className="practice-letters p-3 border rounded bg-light">
           <div className="d-flex flex-wrap gap-2">
             {edgePositions.map((pos, index) => {
-              const letter = formData.letterScheme?.base?.[pos] || String.fromCharCode(65 + index);
-              return (
+              // Get corresponding base position
+              const basePos = basePositions[index];
+              const letter = formData.letterScheme?.base?.[basePos] || '';
+              
+              // Only show checkbox if there's a letter defined
+              return letter && (
                 <Form.Check
                   key={pos}
                   type="checkbox"
                   id={`edge-practice-${pos}`}
                   label={`${letter} (${pos})`}
                   defaultChecked={true}
-                  onChange={(e) => handlePracticeLetterChange('edges', pos, e.target.checked)}
+                  onChange={(e) => handleLocalChange('edges', pos, e.target.checked)}
                   className="me-3"
                 />
               );

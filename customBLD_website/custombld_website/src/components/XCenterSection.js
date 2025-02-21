@@ -27,27 +27,7 @@ const XCenterSection = ({ formData, handleChange, renderNumberSelect, handlePrac
         </Col>
       </Form.Group>
 
-      <Form.Group className="mb-3 mt-4">
-        <Form.Label>Letters to Practice</Form.Label>
-        <div className="practice-letters p-3 border rounded bg-light">
-          <div className="d-flex flex-wrap gap-2">
-            {xCenterPositions.map((pos, index) => {
-              const letter = formData.letterScheme?.base?.[pos] || String.fromCharCode(65 + index);
-              return (
-                <Form.Check
-                  key={pos}
-                  type="checkbox"
-                  id={`xcenter-practice-${pos}`}
-                  label={`${letter} (${pos})`}
-                  defaultChecked={true}
-                  onChange={(e) => handlePracticeLetterChange('xCenters', pos, e.target.checked)}
-                  className="me-3"
-                />
-              );
-            })}
-          </div>
-        </div>
-      </Form.Group>
+     
     </>
   );
 };

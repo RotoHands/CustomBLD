@@ -1,9 +1,8 @@
 import React from 'react';
 import { Form, Row, Col } from 'react-bootstrap';
 import { cornerBufferOptions, parityOptions } from '../constants/Constants';
-import { cornerPositions } from './LetterScheme';
 
-const CornerSection = ({ formData, handleChange, renderNumberSelect, handlePracticeLetterChange }) => {
+const CornerSection = ({ formData, handleChange, renderNumberSelect }) => {
   return (
     <>
       <Form.Group as={Row} className="mb-3">
@@ -26,28 +25,6 @@ const CornerSection = ({ formData, handleChange, renderNumberSelect, handlePract
             {parityOptions.map(option => <option key={option}>{option}</option>)}
           </Form.Select>
         </Col>
-      </Form.Group>
-
-      <Form.Group className="mb-3 mt-4">
-        <Form.Label>Letters to Practice</Form.Label>
-        <div className="practice-letters p-3 border rounded bg-light">
-          <div className="d-flex flex-wrap gap-2">
-            {cornerPositions.map((pos, index) => {
-              const letter = formData.letterScheme?.base?.[pos] || String.fromCharCode(65 + index);
-              return (
-                <Form.Check
-                  key={pos}
-                  type="checkbox"
-                  id={`corner-practice-${pos}`}
-                  label={`${letter} (${pos})`}
-                  defaultChecked={true}
-                  onChange={(e) => handlePracticeLetterChange('corners', pos, e.target.checked)}
-                  className="me-3"
-                />
-              );
-            })}
-          </div>
-        </div>
       </Form.Group>
     </>
   );

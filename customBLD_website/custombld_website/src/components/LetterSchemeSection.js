@@ -4,6 +4,40 @@ import { basePositions, cornerPositions, edgePositions, wingPositions, xCenterPo
 import './LetterSchemeSection.css';
 
 const LetterSchemeSection = ({ formData, handleLetterChange }) => {
+  const [hasChanges, setHasChanges] = useState(false);
+
+  const saveSettings = () => {
+    try {
+      localStorage.setItem('letterScheme', JSON.stringify(formData.letterScheme));
+      
+      // For each base position, map to corresponding position in other piece types by index
+      basePositions.forEach((basePos, index) => {
+        const letter = formData.letterScheme.base[basePos];
+        if (letter) {
+          // Map to corners (same index)
+          handleLetterChange('corners', cornerPositions[index], letter);
+          
+          // Map to edges (same index)
+          handleLetterChange('edges', edgePositions[index], letter);
+          
+          // Map to wings (same index)
+          handleLetterChange('wings', wingPositions[index], letter);
+          
+          // Map to x-centers (same index)
+          handleLetterChange('xCenters', xCenterPositions[index], letter);
+          
+          // Map to t-centers (same index)
+          handleLetterChange('tCenters', tCenterPositions[index], letter);
+        }
+      });
+
+      setHasChanges(false);
+      alert('Letter scheme saved successfully!');
+    } catch (error) {
+      alert('Error saving settings: ' + error.message);
+    }
+  };
+
   const [showCustomScheme, setShowCustomScheme] = useState({
     corners: false,
     edges: false,
@@ -11,8 +45,6 @@ const LetterSchemeSection = ({ formData, handleLetterChange }) => {
     xCenters: false,
     tCenters: false
   });
-
-  const [hasChanges, setHasChanges] = useState(false);
 
   useEffect(() => {
     const savedScheme = localStorage.getItem('letterScheme');
@@ -29,16 +61,6 @@ const LetterSchemeSection = ({ formData, handleLetterChange }) => {
   const handleLetterChangeWithTracking = (piece, pos, value) => {
     handleLetterChange(piece, pos, value);
     setHasChanges(true);
-  };
-
-  const saveSettings = () => {
-    try {
-      localStorage.setItem('letterScheme', JSON.stringify(formData.letterScheme));
-      setHasChanges(false);
-      alert('Settings saved successfully!');
-    } catch (error) {
-      alert('Error saving settings: ' + error.message);
-    }
   };
 
   const resetSettings = () => {
@@ -64,13 +86,12 @@ const LetterSchemeSection = ({ formData, handleLetterChange }) => {
                   const pos = basePositions[index];
                   return (
                     <td key={pos}>
-                      <div className="position-label small text-muted mb-1">{pos}</div>
+                      <div className="small text-muted mb-1">{pos}</div>
                       <Form.Control
                         type="text"
-                        maxLength={1}
-                        value={formData.letterScheme?.base?.[pos] || String.fromCharCode(65 + index)}
-                        onChange={(e) => handleLetterChangeWithTracking('base', pos, e.target.value.toUpperCase())}
-                        className="w-50 mx-auto text-center"
+                        value={formData.letterScheme?.base?.[pos] ?? ''}
+                        onChange={(e) => handleLetterChangeWithTracking('base', pos, e.target.value)}
+                        className="w-75 mx-auto text-center"
                       />
                     </td>
                   );
