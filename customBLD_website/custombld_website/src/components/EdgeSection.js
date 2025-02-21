@@ -108,7 +108,6 @@ const EdgeSection = ({ formData, handleChange, renderNumberSelect, handlePractic
                 checked={formData.edge_buffer === buffer}
                 onChange={() => handleBufferChange(buffer)}
                 className="me-3"
-                defaultChecked={buffer === 'UF'}
               />
             ))}
           </div>
