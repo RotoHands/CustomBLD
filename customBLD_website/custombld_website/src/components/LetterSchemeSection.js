@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Row, Col, Table, Button } from 'react-bootstrap';
 import { basePositions, cornerPositions, edgePositions, wingPositions, xCenterPositions, tCenterPositions } from './LetterScheme';
+import { toast } from 'react-toastify';
+
 import './LetterSchemeSection.css';
 
 const LetterSchemeSection = ({ formData, handleLetterChange }) => {
@@ -15,9 +17,9 @@ const LetterSchemeSection = ({ formData, handleLetterChange }) => {
     try {
       localStorage.setItem('letterScheme', JSON.stringify(formData.letterScheme));
       setHasChanges(false);
-      alert('Letter scheme saved successfully!');
+      toast.success('Letter scheme saved successfully!');
     } catch (error) {
-      alert('Error saving settings: ' + error.message);
+      toast.success('Error saving settings: ' + error.message);
     }
   };
 
@@ -33,7 +35,7 @@ const LetterSchemeSection = ({ formData, handleLetterChange }) => {
         handleLetterChange('tCenters', tCenterPositions[index], letter);
       }
     });
-    alert('Base letter scheme applied to all pieces');
+    toast.success('Base letter scheme applied to all pieces');
   };
 
   const [showCustomScheme, setShowCustomScheme] = useState({

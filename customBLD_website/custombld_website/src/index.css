@@ -89,3 +89,10 @@ code {
   .collapsible-header:hover {
     background-color: #f8f9fa;
   }
+
+  h4 {
+    color: #0d6efd;
+    margin-top: 2rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #dee2e6;
+  }

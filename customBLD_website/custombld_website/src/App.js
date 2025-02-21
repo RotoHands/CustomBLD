@@ -1,6 +1,8 @@
 import React from 'react';
 import { Container } from 'react-bootstrap';
 import QueryForm from './QueryForm';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const App = () => {
   const handleFormSubmit = async (formData) => {
@@ -20,10 +22,23 @@ const App = () => {
   };
 
   return (
-    <Container className="mt-5">
-      <h1>Custom BLD Query</h1>
-      <QueryForm onSubmit={handleFormSubmit} />
-    </Container>
+    <>
+      <Container className="mt-5">
+        <h1>Custom BLD Query</h1>
+        <QueryForm onSubmit={handleFormSubmit} />
+      </Container>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
+    </>
   );
 };
 

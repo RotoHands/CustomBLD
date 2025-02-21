@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Card, Accordion } from 'react-bootstrap';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import EdgeSection from './components/EdgeSection';
 import CornerSection from './components/CornerSection';
 import WingSection from './components/WingSection';
@@ -8,6 +10,7 @@ import TCenterSection from './components/TCenterSection';
 import LetterSchemeSection from './components/LetterSchemeSection';
 import { scrambleTypes } from './constants/Constants';
 import { defaultLetterScheme } from './components/LetterScheme';
+import AdditionalSettings from './components/AdditionalSettings';
 import { 
   basePositions,
   cornerPositions, 
@@ -16,6 +19,7 @@ import {
   xCenterPositions, 
   tCenterPositions 
 } from './components/LetterScheme';
+
 
 const QueryForm = ({ onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -91,9 +95,10 @@ const QueryForm = ({ onSubmit }) => {
       wings: [],
       xCenters: [],
       tCenters: []
-    }
+    },
+    scramble_count: 1,
+    generate_solutions: 'yes'
   });
-  const [hasChanges, setHasChanges] = useState(false);
 
   useEffect(() => {
     const savedForm = localStorage.getItem('scrambleForm');
@@ -108,7 +113,6 @@ const QueryForm = ({ onSubmit }) => {
       ...prev,
       [name]: value
     }));
-    setHasChanges(true);
   };
 
   const handleLetterChange = (piece, pos, value) => {
@@ -152,13 +156,73 @@ const QueryForm = ({ onSubmit }) => {
   };
 
   const saveSettings = () => {
-    try {
-      localStorage.setItem('scrambleForm', JSON.stringify(formData));
-      setHasChanges(false);
-      alert('Settings saved successfully!');
-    } catch (error) {
-      alert('Error saving settings: ' + error.message);
-    }
+    const settingsToSave = {
+      // Scramble Type
+      scramble_type: formData.scramble_type,
+      
+      // Edges
+      edge_buffer: formData.edge_buffer,
+      edge_length_type: formData.edge_length_type,
+      edge_length_min: formData.edge_length_min,
+      edge_length_max: formData.edge_length_max,
+      edges_cycle_breaks_type: formData.edges_cycle_breaks_type,
+      edges_cycle_breaks_min: formData.edges_cycle_breaks_min,
+      edges_cycle_breaks_max: formData.edges_cycle_breaks_max,
+      edge_flipped_type: formData.edge_flipped_type,
+      edge_flipped_min: formData.edge_flipped_min,
+      edge_flipped_max: formData.edge_flipped_max,
+      edge_parity: formData.edge_parity,
+      
+      // Corners
+      corner_buffer: formData.corner_buffer,
+      corner_length_type: formData.corner_length_type,
+      corner_length_min: formData.corner_length_min,
+      corner_length_max: formData.corner_length_max,
+      corners_cycle_breaks_type: formData.corners_cycle_breaks_type,
+      corners_cycle_breaks_min: formData.corners_cycle_breaks_min,
+      corners_cycle_breaks_max: formData.corners_cycle_breaks_max,
+      corner_parity: formData.corner_parity,
+      
+      // Wings
+      wing_buffer: formData.wing_buffer,
+      wings_length_type: formData.wings_length_type,
+      wings_length_min: formData.wings_length_min,
+      wings_length_max: formData.wings_length_max,
+      wings_cycle_breaks_type: formData.wings_cycle_breaks_type,
+      wings_cycle_breaks_min: formData.wings_cycle_breaks_min,
+      wings_cycle_breaks_max: formData.wings_cycle_breaks_max,
+      wing_parity: formData.wing_parity,
+      
+      // X-Centers
+      xcenter_buffer: formData.xcenter_buffer,
+      x_centers_length_type: formData.x_centers_length_type,
+      x_centers_length_min: formData.x_centers_length_min,
+      x_centers_length_max: formData.x_centers_length_max,
+      x_centers_cycle_breaks_type: formData.x_centers_cycle_breaks_type,
+      x_centers_cycle_breaks_min: formData.x_centers_cycle_breaks_min,
+      x_centers_cycle_breaks_max: formData.x_centers_cycle_breaks_max,
+      xcenter_parity: formData.xcenter_parity,
+      
+      // T-Centers
+      tcenter_buffer: formData.tcenter_buffer,
+      t_centers_length_type: formData.t_centers_length_type,
+      t_centers_length_min: formData.t_centers_length_min,
+      t_centers_length_max: formData.t_centers_length_max,
+      t_centers_cycle_breaks_type: formData.t_centers_cycle_breaks_type,
+      t_centers_cycle_breaks_min: formData.t_centers_cycle_breaks_min,
+      t_centers_cycle_breaks_max: formData.t_centers_cycle_breaks_max,
+      tcenter_parity: formData.tcenter_parity,
+      
+      // Letter Scheme
+      letterScheme: formData.letterScheme,
+      
+      // Additional Settings
+      scramble_count: formData.scramble_count,
+      generate_solutions: formData.generate_solutions
+    };
+  
+    localStorage.setItem('bldSettings', JSON.stringify(settingsToSave));
+    toast.success('Settings saved successfully');
   };
 
   const resetSettings = () => {
@@ -237,14 +301,14 @@ const QueryForm = ({ onSubmit }) => {
           wings: [],
           xCenters: [],
           tCenters: []
-        }
+        },
+        scramble_count: 1,
+        generate_solutions: 'yes'
       });
       localStorage.removeItem('letterScheme');
       basePositions.forEach((pos, index) => {
         handleLetterChange('base', pos, String.fromCharCode(65 + index));
       });
-      
-      setHasChanges(false);
     }
   };
 
@@ -269,7 +333,7 @@ const QueryForm = ({ onSubmit }) => {
           e.preventDefault();
           onSubmit(formData);
         }}>
-          <Accordion defaultActiveKey={['0','1','2','6']} alwaysOpen>
+          <Accordion defaultActiveKey={['0','1','2','6', '7']} alwaysOpen>
             <Accordion.Item eventKey="0">
               <Accordion.Header>Scramble Type</Accordion.Header>
               <Accordion.Body>
@@ -359,13 +423,22 @@ const QueryForm = ({ onSubmit }) => {
                 />
               </Accordion.Body>
             </Accordion.Item>
+
+            <Accordion.Item eventKey="7">
+              <Accordion.Header>Additional Settings</Accordion.Header>
+              <Accordion.Body>
+                <AdditionalSettings 
+                  formData={formData}
+                  handleChange={handleChange}
+                />
+              </Accordion.Body>
+            </Accordion.Item>
           </Accordion>
 
           <div className="d-flex justify-content-between mt-4">
             <Button 
               variant="primary" 
               onClick={saveSettings}
-              disabled={!hasChanges}
               type="button"
             >
               Save Settings
@@ -379,15 +452,9 @@ const QueryForm = ({ onSubmit }) => {
             </Button>
           </div>
 
-          {hasChanges && (
-            <div className="alert alert-warning mt-3">
-              You have unsaved changes
-            </div>
-          )}
-
           <div className="d-grid gap-2 mt-4">
             <Button variant="primary" size="lg" type="submit">
-              Generate Scramble
+              Generate Custom Scrambles!
             </Button>
           </div>
         </Form>
