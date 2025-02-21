@@ -84,7 +84,7 @@ const CornerSection = ({ formData, handleChange, handlePracticeLetterChange }) =
         <Form.Label column sm="3">Corner Buffer</Form.Label>
         <Col sm="9">
           <div className="d-flex flex-wrap gap-3">
-            {['UFR', 'UBL', 'UBR', 'UFL'].map(buffer => (
+            {cornerBufferOptions.map(buffer => (
               <Form.Check
                 key={buffer}
                 type="radio"
