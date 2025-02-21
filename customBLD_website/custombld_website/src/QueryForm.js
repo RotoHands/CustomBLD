@@ -45,6 +45,15 @@ const QueryForm = ({ onSubmit }) => {
     first_tcenters: '',
     letterScheme: defaultLetterScheme
   });
+
+  const [showCustomScheme, setShowCustomScheme] = useState({
+    corners: false,
+    edges: false,
+    wings: false,
+    xCenters: false,
+    tCenters: false
+  });
+
   const [hasChanges, setHasChanges] = useState(false);
 
   useEffect(() => {
@@ -63,17 +72,42 @@ const QueryForm = ({ onSubmit }) => {
     setHasChanges(true);
   };
 
-  const handleLetterChange = (piece, position, value) => {
-    setFormData(prev => ({
-      ...prev,
-      letterScheme: {
-        ...prev.letterScheme,
-        [piece]: {
-          ...prev.letterScheme[piece],
-          [position]: value
-        }
+  const handleLetterChange = (piece, pos, value) => {
+    setFormData(prev => {
+      const newData = { ...prev };
+      
+      // If changing base scheme, propagate to all pieces unless they have custom scheme
+      if (piece === 'base') {
+        newData.letterScheme = {
+          ...prev.letterScheme,
+          base: {
+            ...prev.letterScheme.base,
+            [pos]: value
+          }
+        };
+
+        // Propagate to other pieces if they don't have custom scheme
+        ['corners', 'edges', 'wings', 'xCenters', 'tCenters'].forEach(pieceType => {
+          if (!showCustomScheme[pieceType]) {
+            newData.letterScheme[pieceType] = {
+              ...prev.letterScheme[pieceType],
+              [pos]: value
+            };
+          }
+        });
+      } else {
+        // Handle piece-specific changes
+        newData.letterScheme = {
+          ...prev.letterScheme,
+          [piece]: {
+            ...prev.letterScheme[piece],
+            [pos]: value
+          }
+        };
       }
-    }));
+      
+      return newData;
+    });
   };
 
   const saveSettings = () => {
@@ -229,6 +263,8 @@ const QueryForm = ({ onSubmit }) => {
                 <LetterSchemeSection 
                   formData={formData}
                   handleLetterChange={handleLetterChange}
+                  showCustomScheme={showCustomScheme}
+                  setShowCustomScheme={setShowCustomScheme}
                 />
               </Accordion.Body>
             </Accordion.Item>
