@@ -72,10 +72,16 @@ const QueryForm = ({ onSubmit }) => {
     x_centers_solved_max: 24,
     xcenter_parity: 'random',
     first_xcenters: '',
-    tcenter_buffer: '',
-    tcenter_length: 'random',
-    tcenters_cycle_breaks: 'random',
-    tcenters_solved: 'random',
+    tcenter_buffer: 'Uf',
+    t_centers_length_type: 'random',
+    t_centers_length_min: 0,
+    t_centers_length_max: 30,
+    t_centers_cycle_breaks_type: 'random',
+    t_centers_cycle_breaks_min: 0,
+    t_centers_cycle_breaks_max: 8,
+    t_centers_solved_type: 'random',
+    t_centers_solved_min: 0,
+    t_centers_solved_max: 24,
     tcenter_parity: 'random',
     first_tcenters: '',
     letterScheme: defaultLetterScheme,
@@ -169,7 +175,7 @@ const QueryForm = ({ onSubmit }) => {
         edges_flipped: 'random',
         edges_solved: 'random',
         first_edges: '',
-        corner_buffer: 'UBL',  // Set default buffer to UBL
+        corner_buffer: 'UFR',  // Set default buffer to UBL
         corner_length_type: 'random',
         corner_length: 'random',
         corner_length_min: 0,
@@ -203,7 +209,7 @@ const QueryForm = ({ onSubmit }) => {
         xcenter_buffer: 'UFr',
         x_centers_length_type: 'random',
         x_centers_length_min: 0,
-        x_centers_length_max: 24,
+        x_centers_length_max: 30,
         x_centers_cycle_breaks_type: 'random',
         x_centers_cycle_breaks_min: 0,
         x_centers_cycle_breaks_max: 8,
@@ -212,10 +218,16 @@ const QueryForm = ({ onSubmit }) => {
         x_centers_solved_max: 24,
         xcenter_parity: 'random',
         first_xcenters: '',
-        tcenter_buffer: '',
-        tcenter_length: 'random',
-        tcenters_cycle_breaks: 'random',
-        tcenters_solved: 'random',
+        tcenter_buffer: 'Uf',
+        t_centers_length_type: 'random',
+        t_centers_length_min: 0,
+        t_centers_length_max: 30,
+        t_centers_cycle_breaks_type: 'random',
+        t_centers_cycle_breaks_min: 0,
+        t_centers_cycle_breaks_max: 8,
+        t_centers_solved_type: 'random',
+        t_centers_solved_min: 0,
+        t_centers_solved_max: 24,
         tcenter_parity: 'random',
         first_tcenters: '',
         letterScheme: defaultLetterScheme,
@@ -227,6 +239,11 @@ const QueryForm = ({ onSubmit }) => {
           tCenters: []
         }
       });
+      localStorage.removeItem('letterScheme');
+      basePositions.forEach((pos, index) => {
+        handleLetterChange('base', pos, String.fromCharCode(65 + index));
+      });
+      
       setHasChanges(false);
     }
   };
