@@ -6,36 +6,34 @@ import './LetterSchemeSection.css';
 const LetterSchemeSection = ({ formData, handleLetterChange }) => {
   const [hasChanges, setHasChanges] = useState(false);
 
+  const handleLocalChange = (piece, pos, value) => {
+    handleLetterChange(piece, pos, value);
+    setHasChanges(true);
+  };
+
   const saveSettings = () => {
     try {
       localStorage.setItem('letterScheme', JSON.stringify(formData.letterScheme));
-      
-      // For each base position, map to corresponding position in other piece types by index
-      basePositions.forEach((basePos, index) => {
-        const letter = formData.letterScheme.base[basePos];
-        if (letter) {
-          // Map to corners (same index)
-          handleLetterChange('corners', cornerPositions[index], letter);
-          
-          // Map to edges (same index)
-          handleLetterChange('edges', edgePositions[index], letter);
-          
-          // Map to wings (same index)
-          handleLetterChange('wings', wingPositions[index], letter);
-          
-          // Map to x-centers (same index)
-          handleLetterChange('xCenters', xCenterPositions[index], letter);
-          
-          // Map to t-centers (same index)
-          handleLetterChange('tCenters', tCenterPositions[index], letter);
-        }
-      });
-
       setHasChanges(false);
       alert('Letter scheme saved successfully!');
     } catch (error) {
       alert('Error saving settings: ' + error.message);
     }
+  };
+
+  const applyToAllPieces = () => {
+    // For each base position, map to corresponding position in other piece types by index
+    basePositions.forEach((basePos, index) => {
+      const letter = formData.letterScheme.base[basePos];
+      if (letter) {
+        handleLetterChange('corners', cornerPositions[index], letter);
+        handleLetterChange('edges', edgePositions[index], letter);
+        handleLetterChange('wings', wingPositions[index], letter);
+        handleLetterChange('xCenters', xCenterPositions[index], letter);
+        handleLetterChange('tCenters', tCenterPositions[index], letter);
+      }
+    });
+    alert('Base letter scheme applied to all pieces');
   };
 
   const [showCustomScheme, setShowCustomScheme] = useState({
@@ -198,13 +196,22 @@ const LetterSchemeSection = ({ formData, handleLetterChange }) => {
       )}
 
       <div className="d-flex justify-content-between mt-4 mb-4">
-        <Button 
-          variant="primary" 
-          onClick={saveSettings}
-          disabled={!hasChanges}
-        >
-          Save Letter Scheme
-        </Button>
+        <div>
+          <Button 
+            variant="primary" 
+            onClick={saveSettings}
+            disabled={!hasChanges}
+            className="me-2"
+          >
+            Save Letter Scheme
+          </Button>
+          <Button 
+            variant="success" 
+            onClick={applyToAllPieces}
+          >
+            Apply Letter Scheme to All
+          </Button>
+        </div>
         <Button 
           variant="outline-danger" 
           onClick={resetSettings}
@@ -212,7 +219,7 @@ const LetterSchemeSection = ({ formData, handleLetterChange }) => {
           Reset to Default
         </Button>
       </div>
-      
+        
       {hasChanges && (
         <div className="alert alert-warning">
           You have unsaved changes
