@@ -53,11 +53,11 @@ const QueryForm = ({ onSubmit }) => {
     first_tcenters: '',
     letterScheme: defaultLetterScheme,
     practiceLetters: {
-      edges: [...edgePositions],
-      corners: [...cornerPositions],
-      wings: [...wingPositions],
-      xCenters: [...xCenterPositions],
-      tCenters: [...tCenterPositions]
+      edges: [],
+      corners: [],
+      wings: [],
+      xCenters: [],
+      tCenters: []
     }
   });
   const [hasChanges, setHasChanges] = useState(false);
@@ -166,11 +166,11 @@ const QueryForm = ({ onSubmit }) => {
         first_tcenters: '',
         letterScheme: defaultLetterScheme,
         practiceLetters: {
-          edges: [...edgePositions],
-          corners: [...cornerPositions],
-          wings: [...wingPositions],
-          xCenters: [...xCenterPositions],
-          tCenters: [...tCenterPositions]
+          edges: [],
+          corners: [],
+          wings: [],
+          xCenters: [],
+          tCenters: []
         }
       });
       setHasChanges(false);

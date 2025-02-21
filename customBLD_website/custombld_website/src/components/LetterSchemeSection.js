@@ -234,7 +234,7 @@ const LetterSchemeSection = ({ formData, handleLetterChange }) => {
             variant="success" 
             onClick={applyToAllPieces}
           >
-            Apply Letter Scheme to All
+            Apply Letter Scheme to All Pieces
           </Button>
         </div>
         <Button 
