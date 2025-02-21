@@ -103,23 +103,48 @@ const LetterSchemeSection = ({ formData, handleLetterChange }) => {
     </>
   );
 
-  const renderLetterInputs = (positions, piece) => (
-    <Row className="mb-3">
-      {positions.map(pos => (
-        <Col key={pos} xs={6} sm={4} md={3} lg={2}>
-          <Form.Group className="mb-2">
-            <Form.Label>{pos}</Form.Label>
-            <Form.Control
-              type="text"
-              maxLength={1}
-              value={formData.letterScheme[piece][pos]}
-              onChange={(e) => handleLetterChangeWithTracking(piece, pos, e.target.value)}
-            />
-          </Form.Group>
-        </Col>
-      ))}
-    </Row>
-  );
+  const getPositionsForPiece = (piece) => {
+    switch(piece) {
+      case 'corners': return cornerPositions;
+      case 'edges': return edgePositions;
+      case 'wings': return wingPositions;
+      case 'xCenters': return xCenterPositions;
+      case 'tCenters': return tCenterPositions;
+      default: return basePositions;
+    }
+  };
+
+  const renderLetterInputs = (piece) => {
+    const positions = getPositionsForPiece(piece);
+    return (
+      <Table striped bordered hover size="sm" className="mb-4">
+        <tbody>
+          {Array.from({ length: 6 }, (_, rowIndex) => (
+            <tr key={rowIndex}>
+              {Array.from({ length: 4 }, (_, colIndex) => {
+                const index = rowIndex * 4 + colIndex;
+                if (index < positions.length) {
+                  const pos = positions[index];
+                  return (
+                    <td key={pos}>
+                      <div className="small text-muted mb-1">{pos}</div>
+                      <Form.Control
+                        type="text"
+                        value={formData.letterScheme?.[piece]?.[pos] ?? ''}
+                        onChange={(e) => handleLetterChangeWithTracking(piece, pos, e.target.value)}
+                        className="w-75 mx-auto text-center"
+                      />
+                    </td>
+                  );
+                }
+                return <td key={`empty-${rowIndex}-${colIndex}`}></td>;
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+    );
+  };
 
   return (
     <div className="letter-scheme-section">
@@ -135,7 +160,7 @@ const LetterSchemeSection = ({ formData, handleLetterChange }) => {
       {showCustomScheme.corners && (
         <>
           <h6>Corner Letters</h6>
-          {renderLetterInputs(cornerPositions, 'corners')}
+          {renderLetterInputs('corners')}
         </>
       )}
 
@@ -149,7 +174,7 @@ const LetterSchemeSection = ({ formData, handleLetterChange }) => {
       {showCustomScheme.edges && (
         <>
           <h6>Edge Letters</h6>
-          {renderLetterInputs(edgePositions, 'edges')}
+          {renderLetterInputs('edges')}
         </>
       )}
 
@@ -163,7 +188,7 @@ const LetterSchemeSection = ({ formData, handleLetterChange }) => {
       {showCustomScheme.wings && (
         <>
           <h6>Wing Letters</h6>
-          {renderLetterInputs(wingPositions, 'wings')}
+          {renderLetterInputs('wings')}
         </>
       )}
 
@@ -177,7 +202,7 @@ const LetterSchemeSection = ({ formData, handleLetterChange }) => {
       {showCustomScheme.xCenters && (
         <>
           <h6>X-Center Letters</h6>
-          {renderLetterInputs(xCenterPositions, 'xCenters')}
+          {renderLetterInputs('xCenters')}
         </>
       )}
 
@@ -191,7 +216,7 @@ const LetterSchemeSection = ({ formData, handleLetterChange }) => {
       {showCustomScheme.tCenters && (
         <>
           <h6>T-Center Letters</h6>
-          {renderLetterInputs(tCenterPositions, 'tCenters')}
+          {renderLetterInputs('tCenters')}
         </>
       )}
 
