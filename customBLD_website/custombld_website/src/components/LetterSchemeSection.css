@@ -81,3 +81,14 @@
 .letter input:not(:focus) {
   cursor: pointer;
 }
+
+.practice-letters {
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+  padding: 1rem;
+  background-color: #f8f9fa;
+}
+
+.practice-letters .form-check {
+  min-width: 80px;
+}

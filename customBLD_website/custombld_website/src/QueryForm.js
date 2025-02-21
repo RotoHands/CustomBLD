@@ -8,6 +8,14 @@ import TCenterSection from './components/TCenterSection';
 import LetterSchemeSection from './components/LetterSchemeSection';
 import { scrambleTypes } from './constants/Constants';
 import { defaultLetterScheme } from './components/LetterScheme';
+import { 
+  basePositions,
+  cornerPositions, 
+  edgePositions, 
+  wingPositions, 
+  xCenterPositions, 
+  tCenterPositions 
+} from './components/LetterScheme';
 
 const QueryForm = ({ onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -43,17 +51,15 @@ const QueryForm = ({ onSubmit }) => {
     tcenters_solved: 'random',
     tcenter_parity: 'random',
     first_tcenters: '',
-    letterScheme: defaultLetterScheme
+    letterScheme: defaultLetterScheme,
+    practiceLetters: {
+      edges: [...edgePositions],
+      corners: [...cornerPositions],
+      wings: [...wingPositions],
+      xCenters: [...xCenterPositions],
+      tCenters: [...tCenterPositions]
+    }
   });
-
-  const [showCustomScheme, setShowCustomScheme] = useState({
-    corners: false,
-    edges: false,
-    wings: false,
-    xCenters: false,
-    tCenters: false
-  });
-
   const [hasChanges, setHasChanges] = useState(false);
 
   useEffect(() => {
@@ -72,42 +78,29 @@ const QueryForm = ({ onSubmit }) => {
     setHasChanges(true);
   };
 
-  const handleLetterChange = (piece, pos, value) => {
-    setFormData(prev => {
-      const newData = { ...prev };
-      
-      // If changing base scheme, propagate to all pieces unless they have custom scheme
-      if (piece === 'base') {
-        newData.letterScheme = {
-          ...prev.letterScheme,
-          base: {
-            ...prev.letterScheme.base,
-            [pos]: value
-          }
-        };
-
-        // Propagate to other pieces if they don't have custom scheme
-        ['corners', 'edges', 'wings', 'xCenters', 'tCenters'].forEach(pieceType => {
-          if (!showCustomScheme[pieceType]) {
-            newData.letterScheme[pieceType] = {
-              ...prev.letterScheme[pieceType],
-              [pos]: value
-            };
-          }
-        });
-      } else {
-        // Handle piece-specific changes
-        newData.letterScheme = {
-          ...prev.letterScheme,
-          [piece]: {
-            ...prev.letterScheme[piece],
-            [pos]: value
-          }
-        };
+  const handleLetterChange = (piece, position, value) => {
+    setFormData(prev => ({
+      ...prev,
+      letterScheme: {
+        ...prev.letterScheme,
+        [piece]: {
+          ...prev.letterScheme[piece],
+          [position]: value
+        }
       }
-      
-      return newData;
-    });
+    }));
+  };
+
+  const handlePracticeLetterChange = (piece, pos, isChecked) => {
+    setFormData(prev => ({
+      ...prev,
+      practiceLetters: {
+        ...prev.practiceLetters,
+        [piece]: isChecked 
+          ? [...prev.practiceLetters[piece], pos]
+          : prev.practiceLetters[piece].filter(p => p !== pos)
+      }
+    }));
   };
 
   const saveSettings = () => {
@@ -156,7 +149,14 @@ const QueryForm = ({ onSubmit }) => {
         tcenters_solved: 'random',
         tcenter_parity: 'random',
         first_tcenters: '',
-        letterScheme: defaultLetterScheme
+        letterScheme: defaultLetterScheme,
+        practiceLetters: {
+          edges: [...edgePositions],
+          corners: [...cornerPositions],
+          wings: [...wingPositions],
+          xCenters: [...xCenterPositions],
+          tCenters: [...tCenterPositions]
+        }
       });
       setHasChanges(false);
     }
@@ -209,6 +209,7 @@ const QueryForm = ({ onSubmit }) => {
                   formData={formData} 
                   handleChange={handleChange}
                   renderNumberSelect={renderNumberSelect}
+                  handlePracticeLetterChange={handlePracticeLetterChange}
                 />
               </Accordion.Body>
             </Accordion.Item>
@@ -220,6 +221,7 @@ const QueryForm = ({ onSubmit }) => {
                   formData={formData} 
                   handleChange={handleChange}
                   renderNumberSelect={renderNumberSelect}
+                  handlePracticeLetterChange={handlePracticeLetterChange}
                 />
               </Accordion.Body>
             </Accordion.Item>
@@ -231,6 +233,7 @@ const QueryForm = ({ onSubmit }) => {
                   formData={formData} 
                   handleChange={handleChange}
                   renderNumberSelect={renderNumberSelect}
+                  handlePracticeLetterChange={handlePracticeLetterChange}
                 />
               </Accordion.Body>
             </Accordion.Item>
@@ -242,6 +245,7 @@ const QueryForm = ({ onSubmit }) => {
                   formData={formData} 
                   handleChange={handleChange}
                   renderNumberSelect={renderNumberSelect}
+                  handlePracticeLetterChange={handlePracticeLetterChange}
                 />
               </Accordion.Body>
             </Accordion.Item>
@@ -253,6 +257,7 @@ const QueryForm = ({ onSubmit }) => {
                   formData={formData} 
                   handleChange={handleChange}
                   renderNumberSelect={renderNumberSelect}
+                  handlePracticeLetterChange={handlePracticeLetterChange}
                 />
               </Accordion.Body>
             </Accordion.Item>
@@ -263,8 +268,6 @@ const QueryForm = ({ onSubmit }) => {
                 <LetterSchemeSection 
                   formData={formData}
                   handleLetterChange={handleLetterChange}
-                  showCustomScheme={showCustomScheme}
-                  setShowCustomScheme={setShowCustomScheme}
                 />
               </Accordion.Body>
             </Accordion.Item>

@@ -1,8 +1,9 @@
 import React from 'react';
 import { Form, Row, Col } from 'react-bootstrap';
 import { wingBufferOptions, parityOptions } from '../constants/Constants';
+import { wingPositions } from './LetterScheme';
 
-const WingSection = ({ formData, handleChange, renderNumberSelect }) => {
+const WingSection = ({ formData, handleChange, renderNumberSelect, handlePracticeLetterChange }) => {
   return (
     <>
       <Form.Group as={Row} className="mb-3">
@@ -24,6 +25,28 @@ const WingSection = ({ formData, handleChange, renderNumberSelect }) => {
             {parityOptions.map(option => <option key={option}>{option}</option>)}
           </Form.Select>
         </Col>
+      </Form.Group>
+
+      <Form.Group className="mb-3 mt-4">
+        <Form.Label>Letters to Practice</Form.Label>
+        <div className="practice-letters p-3 border rounded bg-light">
+          <div className="d-flex flex-wrap gap-2">
+            {wingPositions.map((pos, index) => {
+              const letter = formData.letterScheme?.base?.[pos] || String.fromCharCode(65 + index);
+              return (
+                <Form.Check
+                  key={pos}
+                  type="checkbox"
+                  id={`wing-practice-${pos}`}
+                  label={`${letter} (${pos})`}
+                  defaultChecked={true}
+                  onChange={(e) => handlePracticeLetterChange('wings', pos, e.target.checked)}
+                  className="me-3"
+                />
+              );
+            })}
+          </div>
+        </div>
       </Form.Group>
     </>
   );

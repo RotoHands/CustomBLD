@@ -1,21 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Table, Button } from 'react-bootstrap';
-import { 
-  basePositions,
-  cornerPositions,
-  edgePositions,
-  wingPositions,
-  xCenterPositions,
-  tCenterPositions 
-} from './LetterScheme';
+import { Form, Row, Col, Table, Button } from 'react-bootstrap';
+import { basePositions, cornerPositions, edgePositions, wingPositions, xCenterPositions, tCenterPositions } from './LetterScheme';
 import './LetterSchemeSection.css';
 
-const LetterSchemeSection = ({ 
-  formData, 
-  handleLetterChange, 
-  showCustomScheme, 
-  setShowCustomScheme 
-}) => {
+const LetterSchemeSection = ({ formData, handleLetterChange }) => {
+  const [showCustomScheme, setShowCustomScheme] = useState({
+    corners: false,
+    edges: false,
+    wings: false,
+    xCenters: false,
+    tCenters: false
+  });
+
   const [hasChanges, setHasChanges] = useState(false);
 
   useEffect(() => {
@@ -55,58 +51,26 @@ const LetterSchemeSection = ({
     }
   };
 
-  const handleCustomSchemeToggle = (piece, enabled) => {
-    setShowCustomScheme(prev => ({
-      ...prev,
-      [piece]: enabled
-    }));
-
-    // If disabling custom scheme, reset to base scheme
-    if (!enabled) {
-      Object.entries(formData.letterScheme.base).forEach(([pos, value]) => {
-        handleLetterChange(piece, pos, value);
-      });
-    }
-  };
-
-  const getPositionsForPiece = (piece) => {
-    switch(piece) {
-      case 'base': return basePositions;
-      case 'corners': return cornerPositions;
-      case 'edges': return edgePositions;
-      case 'wings': return wingPositions;
-      case 'xCenters': return xCenterPositions;
-      case 'tCenters': return tCenterPositions;
-      default: return [];
-    }
-  };
-
-  const renderLetterInputs = (piece) => {
-    const positions = getPositionsForPiece(piece);
-    const isBase = piece === 'base';
-    
-    return (
+  const renderBaseScheme = () => (
+    <>
+      <h5>Base Letter Scheme</h5>
       <Table striped bordered hover size="sm" className="mb-4">
         <tbody>
           {Array.from({ length: 6 }, (_, rowIndex) => (
             <tr key={rowIndex}>
               {Array.from({ length: 4 }, (_, colIndex) => {
                 const index = rowIndex * 4 + colIndex;
-                if (index < positions.length) {
-                  const pos = positions[index];
+                if (index < basePositions.length) {
+                  const pos = basePositions[index];
                   return (
                     <td key={pos}>
-                      <div className="small text-muted mb-1">{pos}</div>
+                      <div className="position-label small text-muted mb-1">{pos}</div>
                       <Form.Control
                         type="text"
-                        maxLength={isBase ? undefined : 1}
-                        value={formData.letterScheme[piece]?.[pos] ?? ''}
-                        onChange={(e) => handleLetterChange(
-                          piece, 
-                          pos, 
-                          isBase ? e.target.value : e.target.value.toUpperCase()
-                        )}
-                        className={`mx-auto text-center ${isBase ? 'w-75' : 'w-50'}`}
+                        maxLength={1}
+                        value={formData.letterScheme?.base?.[pos] || String.fromCharCode(65 + index)}
+                        onChange={(e) => handleLetterChangeWithTracking('base', pos, e.target.value.toUpperCase())}
+                        className="w-50 mx-auto text-center"
                       />
                     </td>
                   );
@@ -117,26 +81,100 @@ const LetterSchemeSection = ({
           ))}
         </tbody>
       </Table>
-    );
-  };
+    </>
+  );
+
+  const renderLetterInputs = (positions, piece) => (
+    <Row className="mb-3">
+      {positions.map(pos => (
+        <Col key={pos} xs={6} sm={4} md={3} lg={2}>
+          <Form.Group className="mb-2">
+            <Form.Label>{pos}</Form.Label>
+            <Form.Control
+              type="text"
+              maxLength={1}
+              value={formData.letterScheme[piece][pos]}
+              onChange={(e) => handleLetterChangeWithTracking(piece, pos, e.target.value)}
+            />
+          </Form.Group>
+        </Col>
+      ))}
+    </Row>
+  );
 
   return (
     <div className="letter-scheme-section">
-      <h5>Base Letter Scheme</h5>
-      {renderLetterInputs('base')}
+      {renderBaseScheme()}
       
-      {Object.entries(showCustomScheme).map(([piece, isCustom]) => (
-        <div key={piece}>
-          <Form.Check 
-            type="checkbox"
-            label={`Use custom ${piece} letter scheme`}
-            checked={isCustom}
-            onChange={(e) => handleCustomSchemeToggle(piece, e.target.checked)}
-            className="mb-3"
-          />
-          {isCustom && renderLetterInputs(piece)}
-        </div>
-      ))}
+      <Form.Check 
+        type="checkbox"
+        label="Customize Corner Letters"
+        checked={showCustomScheme.corners}
+        onChange={e => setShowCustomScheme({...showCustomScheme, corners: e.target.checked})}
+        className="mb-2"
+      />
+      {showCustomScheme.corners && (
+        <>
+          <h6>Corner Letters</h6>
+          {renderLetterInputs(cornerPositions, 'corners')}
+        </>
+      )}
+
+      <Form.Check 
+        type="checkbox"
+        label="Customize Edge Letters"
+        checked={showCustomScheme.edges}
+        onChange={e => setShowCustomScheme({...showCustomScheme, edges: e.target.checked})}
+        className="mb-2"
+      />
+      {showCustomScheme.edges && (
+        <>
+          <h6>Edge Letters</h6>
+          {renderLetterInputs(edgePositions, 'edges')}
+        </>
+      )}
+
+      <Form.Check 
+        type="checkbox"
+        label="Customize Wing Letters"
+        checked={showCustomScheme.wings}
+        onChange={e => setShowCustomScheme({...showCustomScheme, wings: e.target.checked})}
+        className="mb-2"
+      />
+      {showCustomScheme.wings && (
+        <>
+          <h6>Wing Letters</h6>
+          {renderLetterInputs(wingPositions, 'wings')}
+        </>
+      )}
+
+      <Form.Check 
+        type="checkbox"
+        label="Customize X-Center Letters"
+        checked={showCustomScheme.xCenters}
+        onChange={e => setShowCustomScheme({...showCustomScheme, xCenters: e.target.checked})}
+        className="mb-2"
+      />
+      {showCustomScheme.xCenters && (
+        <>
+          <h6>X-Center Letters</h6>
+          {renderLetterInputs(xCenterPositions, 'xCenters')}
+        </>
+      )}
+
+      <Form.Check 
+        type="checkbox"
+        label="Customize T-Center Letters"
+        checked={showCustomScheme.tCenters}
+        onChange={e => setShowCustomScheme({...showCustomScheme, tCenters: e.target.checked})}
+        className="mb-2"
+      />
+      {showCustomScheme.tCenters && (
+        <>
+          <h6>T-Center Letters</h6>
+          {renderLetterInputs(tCenterPositions, 'tCenters')}
+        </>
+      )}
 
       <div className="d-flex justify-content-between mt-4 mb-4">
         <Button 

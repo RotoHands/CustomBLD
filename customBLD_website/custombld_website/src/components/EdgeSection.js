@@ -1,8 +1,9 @@
 import React from 'react';
 import { Form, Row, Col } from 'react-bootstrap';
 import { edgeBufferOptions } from '../constants/Constants';
+import { edgePositions } from './LetterScheme';
 
-const EdgeSection = ({ formData, handleChange, renderNumberSelect }) => {
+const EdgeSection = ({ formData, handleChange, renderNumberSelect, handlePracticeLetterChange }) => {
   return (
     <>
       <Form.Group as={Row} className="mb-3">
@@ -18,6 +19,28 @@ const EdgeSection = ({ formData, handleChange, renderNumberSelect }) => {
       {renderNumberSelect('edges_cycle_breaks', 0, 10, 'Cycle Breaks')}
       {renderNumberSelect('edges_flipped', 0, 12, 'Flipped Edges')}
       {renderNumberSelect('edges_solved', 0, 12, 'Solved Edges')}
+
+      <Form.Group className="mb-3 mt-4">
+        <Form.Label>Letters to Practice</Form.Label>
+        <div className="practice-letters p-3 border rounded bg-light">
+          <div className="d-flex flex-wrap gap-2">
+            {edgePositions.map((pos, index) => {
+              const letter = formData.letterScheme?.base?.[pos] || String.fromCharCode(65 + index);
+              return (
+                <Form.Check
+                  key={pos}
+                  type="checkbox"
+                  id={`edge-practice-${pos}`}
+                  label={`${letter} (${pos})`}
+                  defaultChecked={true}
+                  onChange={(e) => handlePracticeLetterChange('edges', pos, e.target.checked)}
+                  className="me-3"
+                />
+              );
+            })}
+          </div>
+        </div>
+      </Form.Group>
     </>
   );
 };
