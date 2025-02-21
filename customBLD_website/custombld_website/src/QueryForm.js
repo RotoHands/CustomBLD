@@ -21,7 +21,10 @@ const QueryForm = ({ onSubmit }) => {
   const [formData, setFormData] = useState({
     scramble_type: '',
     edge_buffer: '',
-    edge_length: 'random',
+    edge_length_type: 'random',
+    edge_length: 0,
+    edge_length_min: 0,
+    edge_length_max: 18,
     edges_cycle_breaks: 'random',
     edges_flipped: 'random',
     edges_solved: 'random',
@@ -134,7 +137,10 @@ const QueryForm = ({ onSubmit }) => {
       setFormData({
         scramble_type: '',
         edge_buffer: '',
-        edge_length: 'random',
+        edge_length_type: 'random',
+        edge_length: 0,
+        edge_length_min: 0,
+        edge_length_max: 18,
         edges_cycle_breaks: 'random',
         edges_flipped: 'random',
         edges_solved: 'random',
@@ -198,7 +204,7 @@ const QueryForm = ({ onSubmit }) => {
           e.preventDefault();
           onSubmit(formData);
         }}>
-          <Accordion defaultActiveKey={['0','1','2','3','4','5','6']} alwaysOpen>
+          <Accordion defaultActiveKey={['0','1','2','6']} alwaysOpen>
             <Accordion.Item eventKey="0">
               <Accordion.Header>Scramble Type</Accordion.Header>
               <Accordion.Body>

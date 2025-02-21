@@ -40,3 +40,55 @@ code {
 .btn:hover {
   transform: translateY(-2px);
 }
+.practice-letters {  background-color: #f8f9fa;}.practice-letters .form-check {  min-width: 80px;}
+
+.practice-letters {
+    background-color: #f8f9fa;
+  }
+  
+  .practice-letters .form-check {
+    min-width: 80px;
+    margin-bottom: 0.5rem;
+  }
+  
+  /* Add these styles for the number inputs */
+  .form-control[type="number"] {
+    -moz-appearance: textfield;
+  }
+  
+  .form-control[type="number"]::-webkit-inner-spin-button,
+  .form-control[type="number"]::-webkit-outer-spin-button {
+    opacity: 1;
+  }
+  .letters-practice-header {
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+  }
+  
+  .letters-practice-header:hover {
+    background-color: #f0f0f0;
+  }
+  .collapsible-header {
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    user-select: none;
+  }
+  
+  .collapsible-header:hover {
+    background-color: #f8f9fa;
+  }
+  
+  .collapsible-header i {
+    font-size: 16px;
+    color: #04335c;
+    width: 16px;
+    text-align: center;
+  }
+  
+  .collapsible-header:hover i {
+    color: #212529;
+  }
