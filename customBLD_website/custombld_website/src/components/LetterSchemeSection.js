@@ -15,11 +15,14 @@ const LetterSchemeSection = ({ formData, handleLetterChange }) => {
 
   const saveSettings = () => {
     try {
+      // Save with more visible console logging
+      console.log("Saving letter scheme to localStorage:", formData.letterScheme);
       localStorage.setItem('letterScheme', JSON.stringify(formData.letterScheme));
       setHasChanges(false);
       toast.success('Letter scheme saved successfully!');
     } catch (error) {
-      toast.success('Error saving settings: ' + error.message);
+      console.error("Error saving letter scheme:", error);
+      toast.error('Error saving settings: ' + error.message);
     }
   };
 
@@ -47,14 +50,83 @@ const LetterSchemeSection = ({ formData, handleLetterChange }) => {
   });
 
   useEffect(() => {
-    const savedScheme = localStorage.getItem('letterScheme');
-    if (savedScheme) {
-      const parsed = JSON.parse(savedScheme);
-      Object.entries(parsed).forEach(([piece, letters]) => {
-        Object.entries(letters).forEach(([pos, letter]) => {
-          handleLetterChange(piece, pos, letter);
+    try {
+      const savedScheme = localStorage.getItem('letterScheme');
+      console.log("Retrieved saved scheme:", savedScheme);
+      
+      if (savedScheme) {
+        const parsed = JSON.parse(savedScheme);
+        Object.entries(parsed).forEach(([piece, letters]) => {
+          Object.entries(letters).forEach(([pos, letter]) => {
+            handleLetterChange(piece, pos, letter);
+          });
         });
-      });
+      } else {
+        console.log("No saved scheme found, initializing with default");
+        // Initialize with default letter scheme
+        const defaultScheme = {
+          "corners": {
+            "UBL": "A", "UBR": "B", "UFR": "C", "UFL": "D",
+            "LUB": "E", "LFU": "F", "LDF": "G", "LBD": "H",
+            "FUL": "I", "FRU": "J", "FDR": "K", "FLD": "L",
+            "RUF": "M", "RBU": "N", "RDB": "O", "RFD": "P",
+            "BUR": "Q", "BLU": "R", "BDL": "S", "BRD": "T",
+            "DFL": "U", "DRF": "V", "DBR": "W", "DLB": "X"
+          },
+          "edges": {
+            "UB": "A", "UR": "B", "UF": "C", "UL": "D",
+            "LU": "E", "LF": "F", "LD": "G", "LB": "H",
+            "FU": "I", "FR": "J", "FD": "K", "FL": "L",
+            "RU": "M", "RB": "N", "RD": "O", "RF": "P",
+            "BU": "Q", "BL": "R", "BD": "S", "BR": "T",
+            "DF": "U", "DR": "V", "DB": "W", "DL": "X"
+          },
+          "wings": {
+            "UBr": "A", "URf": "B", "UFl": "C", "ULb": "D",
+            "LUf": "E", "LFd": "F", "LDb": "G", "LBu": "H",
+            "FUr": "I", "FRd": "J", "FDl": "K", "FLu": "L",
+            "RUb": "M", "RBd": "N", "RDf": "O", "RFu": "P",
+            "BUl": "Q", "BLd": "R", "BDr": "S", "BRu": "T",
+            "DFr": "U", "DRb": "V", "DBl": "W", "DLf": "X"
+          },
+          "xCenters": {
+            "Ubl": "A", "Urb": "B", "Ufr": "C", "Ulf": "D",
+            "Lub": "E", "Lfu": "F", "Ldf": "G", "Lbd": "H",
+            "Ful": "I", "Fru": "J", "Fdr": "K", "Fld": "L",
+            "Ruf": "M", "Rbu": "N", "Rdb": "O", "Rfd": "P",
+            "Bur": "Q", "Blu": "R", "Bdl": "S", "Brd": "T",
+            "Dfl": "U", "Drf": "V", "Dbr": "W", "Dlb": "X"
+          },
+          "tCenters": {
+            "Ub": "A", "Ur": "B", "Uf": "C", "Ul": "D",
+            "Lu": "E", "Lf": "F", "Ld": "G", "Lb": "H",
+            "Fu": "I", "Fr": "J", "Fd": "K", "Fl": "L",
+            "Ru": "M", "Rb": "N", "Rd": "O", "Rf": "P",
+            "Bu": "Q", "Bl": "R", "Bd": "S", "Br": "T",
+            "Df": "U", "Dr": "V", "Db": "W", "Dl": "X"
+          },
+          "base": {
+            "UBL": "A", "UBR": "B", "UFR": "C", "UFL": "D",
+            "LUB": "E", "LFU": "F", "LDF": "G", "LBD": "H",
+            "FUL": "I", "FRU": "J", "FDR": "K", "FLD": "L",
+            "RUF": "M", "RBU": "N", "RDB": "O", "RFD": "P",
+            "BUR": "Q", "BLU": "R", "BDL": "S", "BRD": "T",
+            "DFL": "U", "DRF": "V", "DBR": "W", "DLB": "X"
+          }
+        };
+        
+        Object.entries(defaultScheme).forEach(([piece, letters]) => {
+          Object.entries(letters).forEach(([pos, letter]) => {
+            handleLetterChange(piece, pos, letter);
+          });
+        });
+        
+        // Save the default scheme
+        localStorage.setItem('letterScheme', JSON.stringify(defaultScheme));
+      }
+    } catch (error) {
+      console.error("Error loading letter scheme:", error);
+      toast.error('Error loading letter scheme: ' + error.message);
     }
   }, []);
 
@@ -227,7 +299,6 @@ const LetterSchemeSection = ({ formData, handleLetterChange }) => {
           <Button 
             variant="primary" 
             onClick={saveSettings}
-            disabled={!hasChanges}
             className="me-2"
           >
             Save Letter Scheme

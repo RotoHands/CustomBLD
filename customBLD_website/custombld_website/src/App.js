@@ -1,31 +1,37 @@
-import React from 'react';
-import { Container } from 'react-bootstrap';
+import React, { useState } from 'react';
+import { Container, Card, ListGroup } from 'react-bootstrap';
 import QueryForm from './QueryForm';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const App = () => {
-  const handleFormSubmit = async (formData) => {
-    try {
-      const response = await fetch('http://localhost:5000/query-scarmbels', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      });
-      const result = await response.json();
-      console.log(result);
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
+  const [scrambleResults, setScrambleResults] = useState(null);
 
   return (
     <>
       <Container className="mt-5">
         <h1>Custom BLD Query</h1>
-        <QueryForm onSubmit={handleFormSubmit} />
+        <QueryForm onSubmit={setScrambleResults} />
+        
+        {scrambleResults && scrambleResults.scrambles && (
+          <Card className="mt-4">
+            <Card.Header as="h5">Scramble Results</Card.Header>
+            <ListGroup variant="flush">
+              {scrambleResults.scrambles.map((scramble, index) => (
+                <ListGroup.Item key={index}>
+                  <div className="fw-bold">Scramble {index + 1}:</div>
+                  <div className="mb-2">{scramble}</div>
+                  {scrambleResults.solutions && scrambleResults.solutions[index] && (
+                    <>
+                      <div className="fw-bold">Solution:</div>
+                      <div>{scrambleResults.solutions[index]}</div>
+                    </>
+                  )}
+                </ListGroup.Item>
+              ))}
+            </ListGroup>
+          </Card>
+        )}
       </Container>
       <ToastContainer
         position="top-right"
