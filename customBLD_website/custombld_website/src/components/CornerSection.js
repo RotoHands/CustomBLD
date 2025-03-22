@@ -8,6 +8,7 @@ const CornerSection = ({ formData, handleChange, handlePracticeLetterChange }) =
   const [cycleBreaksType, setCycleBreaksType] = useState('random');
   const [cwTwistsType, setCwTwistsType] = useState('random');
   const [ccwTwistsType, setCcwTwistsType] = useState('random');
+  const [solvedType, setSolvedType] = useState('random');
   const [showPracticeLetters, setShowPracticeLetters] = useState(false);
   const [selectedLetters, setSelectedLetters] = useState(
     cornerPositions.reduce((acc, pos) => ({ ...acc, [pos]: true }), {})
@@ -261,6 +262,48 @@ const CornerSection = ({ formData, handleChange, handlePracticeLetterChange }) =
                 onChange={(e) => handleRangeChange('corners_ccw_twists', 'max', e.target.value)}
                 disabled={ccwTwistsType !== 'range'}
                 style={{ width: '70px', opacity: ccwTwistsType === 'range' ? 1 : 0.6 }}
+              />
+            </div>
+          </div>
+        </Col>
+      </Form.Group>
+
+      {/* Solved Corners */}
+      <Form.Group as={Row} className="mb-3">
+        <Form.Label column sm="3">Solved Corners</Form.Label>
+        <Col sm="9">
+          <div className="d-flex align-items-center gap-3">
+            <Form.Check
+              type="radio"
+              id="corners-solved-random"
+              label="random"
+              checked={solvedType === 'random'}
+              onChange={() => handleTypeChange('corners_solved', 'random', setSolvedType)}
+            />
+            <Form.Check
+              type="radio"
+              id="corners-solved-range"
+              label="range"
+              checked={solvedType === 'range'}
+              onChange={() => handleTypeChange('corners_solved', 'range', setSolvedType)}
+            />
+            <div className="d-flex align-items-center gap-2 ms-3">
+              <Form.Control
+                type="number"
+                min="0"
+                value={formData.corners_solved_min || 0}
+                onChange={(e) => handleRangeChange('corners_solved', 'min', e.target.value)}
+                disabled={solvedType !== 'range'}
+                style={{ width: '70px', opacity: solvedType === 'range' ? 1 : 0.6 }}
+              />
+              <span>-</span>
+              <Form.Control
+                type="number"
+                min="0"
+                value={formData.corners_solved_max || 8}
+                onChange={(e) => handleRangeChange('corners_solved', 'max', e.target.value)}
+                disabled={solvedType !== 'range'}
+                style={{ width: '70px', opacity: solvedType === 'range' ? 1 : 0.6 }}
               />
             </div>
           </div>

@@ -29,8 +29,15 @@ const QueryForm = ({ onSubmit }) => {
     edge_length: 0,
     edge_length_min: 0,
     edge_length_max: 18,
-    edges_cycle_breaks: 'random',
+    edge_cycle_breaks_type: 'random',
+    edge_cycle_breaks: 'random',
+    edge_cycle_breaks_min: 0,
+    edge_cycle_breaks_max: 6,
+    edges_flipped_type: 'random',
     edges_flipped: 'random',
+    edges_flipped_min: 0,
+    edges_flipped_max: 12,
+    edges_flipped: 6,   
     edges_solved: 'random',
     first_edges: '',
     corner_buffer: 'UFR',  // Set default buffer to UFR
@@ -51,6 +58,9 @@ const QueryForm = ({ onSubmit }) => {
     twist_clockwise: 'random',
     twist_counterclockwise: 'random',
     corner_parity: 'random',
+    corners_solved_type: 'random',
+    corners_solved_min: 0,
+    corners_solved_max: 8,
     first_corners: '',
     wing_buffer: 'UFr',
     wings_length_type: 'random',
@@ -165,12 +175,12 @@ const QueryForm = ({ onSubmit }) => {
       edge_length_type: formData.edge_length_type,
       edge_length_min: formData.edge_length_min,
       edge_length_max: formData.edge_length_max,
-      edges_cycle_breaks_type: formData.edges_cycle_breaks_type,
-      edges_cycle_breaks_min: formData.edges_cycle_breaks_min,
-      edges_cycle_breaks_max: formData.edges_cycle_breaks_max,
-      edge_flipped_type: formData.edge_flipped_type,
-      edge_flipped_min: formData.edge_flipped_min,
-      edge_flipped_max: formData.edge_flipped_max,
+      edge_cycle_breaks_type: formData.edge_cycle_breaks_type,
+      edge_cycle_breaks_min: formData.edge_cycle_breaks_min,
+      edge_cycle_breaks_max: formData.edge_cycle_breaks_max,
+      edges_flipped_type: formData.edges_flipped_type,
+      edges_flipped_min: formData.edges_flipped_min,
+      edges_flipped_max: formData.edges_flipped_max,
       edge_parity: formData.edge_parity,
       
       // Corners
@@ -257,6 +267,9 @@ const QueryForm = ({ onSubmit }) => {
         twist_clockwise: 'random',
         twist_counterclockwise: 'random',
         corner_parity: 'random',
+        corners_solved_type: 'random',
+        corners_solved_min: 0,
+        corners_solved_max: 8,
         first_corners: '',
         wing_buffer: 'UFr',
         wings_length_type: 'random',
@@ -329,9 +342,230 @@ const QueryForm = ({ onSubmit }) => {
       <Card.Body>
         <h2 className="text-primary text-center mb-4">BLD Scramble Generator</h2>
         
-        <Form onSubmit={(e) => {
+        <Form onSubmit={async (e) => {
           e.preventDefault();
-          onSubmit(formData);
+          
+          // Create a filtered payload based on selected options
+          const payload = {
+            // Always include these fields
+            scramble_type: formData.scramble_type,
+            letterScheme: formData.letterScheme,
+            scramble_count: formData.scramble_count,
+            generate_solutions: formData.generate_solutions
+          };
+          
+          // Add edge data if needed (3BLD, 4BLD, 5BLD or specific edge selections)
+          if (['3bld', '3bld_edges', '5bld', '5bld_edges'].includes(formData.scramble_type)) {
+            payload.edge_buffer = formData.edge_buffer;
+            
+            // Handle edge length based on selection
+            if (formData.edge_length_type === 'random') {
+              payload.edge_length_type = 'random';
+            } else {
+              payload.edge_length_type = 'range';  // Explicitly set type to 'range'
+              payload.edge_length_min = formData.edge_length_min;
+              payload.edge_length_max = formData.edge_length_max;
+            }
+            
+            // Handle cycle breaks based on selection
+            if (formData.edge_cycle_breaks_type === 'random') {
+              payload.edge_cycle_breaks_type = 'random';
+            } else {
+              payload.edge_cycle_breaks_type = 'range';  // Explicitly set type to 'range'
+              payload.edge_cycle_breaks_min = formData.edge_cycle_breaks_min;
+              payload.edge_cycle_breaks_max = formData.edge_cycle_breaks_max;
+            }
+            
+            // Handle flipped edges based on selection
+            if (formData.edges_flipped_type === 'random') {
+              payload.edges_flipped_type = 'random';
+            } else {
+              payload.edges_flipped_type = 'range';  // Explicitly set type to 'range'
+              payload.edges_flipped_min = formData.edges_flipped_min;
+              payload.edges_flipped_max = formData.edges_flipped_max;
+            }
+            
+            // Add solved edges
+            payload.edges_solved = formData.edges_solved;
+            
+            // Add edge parity
+            payload.edge_parity = formData.edge_parity;
+          }
+          
+          // Add corner data if needed (3BLD, 4BLD, 5BLD or specific corner selections)
+          if (['3bld', '3bld_corners', '4bld', '5bld'].includes(formData.scramble_type)) {
+            payload.corner_buffer = formData.corner_buffer;
+            
+            // Handle corner length based on selection
+            if (formData.corner_length_type === 'random') {
+              payload.corner_length_type = 'random';
+            } else {
+              payload.corner_length_type = 'range';  // Explicitly set type to 'range'
+              payload.corner_length_min = formData.corner_length_min;
+              payload.corner_length_max = formData.corner_length_max;
+            }
+            
+            // Handle cycle breaks based on selection
+            if (formData.corners_cycle_breaks_type === 'random') {
+              payload.corners_cycle_breaks_type = 'random';
+            } else {
+              payload.corners_cycle_breaks_type = 'range';  // Explicitly set type to 'range'
+              payload.corners_cycle_breaks_min = formData.corners_cycle_breaks_min;
+              payload.corners_cycle_breaks_max = formData.corners_cycle_breaks_max;
+            }
+            
+            // Add solved corners
+            payload.corners_solved = formData.corners_solved;
+            
+            // Add corner parity and twists
+            payload.corner_parity = formData.corner_parity;
+            
+            if (formData.corners_cw_twists_type === 'random') {
+              payload.corners_cw_twists_type = 'random';
+            } else {
+              payload.corners_cw_twists_type = 'range';  // Explicitly set type to 'range'
+              payload.corners_cw_twists_min = formData.corners_cw_twists_min;
+              payload.corners_cw_twists_max = formData.corners_cw_twists_max;
+            }
+            
+            if (formData.corners_ccw_twists_type === 'random') {
+              payload.corners_ccw_twists_type = 'random';
+            } else {
+              payload.corners_ccw_twists_type = 'range';  // Explicitly set type to 'range'
+              payload.corners_ccw_twists_min = formData.corners_ccw_twists_min;
+              payload.corners_ccw_twists_max = formData.corners_ccw_twists_max;
+            }
+          }
+          
+          // Add wing data if needed (4BLD, 5BLD)
+          if (['4bld', '4bld_wings', '5bld'].includes(formData.scramble_type)) {
+            payload.wing_buffer = formData.wing_buffer;
+            
+            // Handle wings length based on selection
+            if (formData.wings_length_type === 'random') {
+              payload.wings_length_type = 'random';
+            } else {
+              payload.wings_length_type = 'range';  // Explicitly set type to 'range'
+              payload.wings_length_min = formData.wings_length_min;
+              payload.wings_length_max = formData.wings_length_max;
+            }
+            
+            // Handle cycle breaks based on selection
+            if (formData.wings_cycle_breaks_type === 'random') {
+              payload.wings_cycle_breaks_type = 'random';
+            } else {
+              payload.wings_cycle_breaks_type = 'range';  // Explicitly set type to 'range'
+              payload.wings_cycle_breaks_min = formData.wings_cycle_breaks_min;
+              payload.wings_cycle_breaks_max = formData.wings_cycle_breaks_max;
+            }
+            
+            // Handle solved wings based on selection
+            if (formData.wings_solved_type === 'random') {
+              payload.wings_solved_type = 'random';
+            } else {
+              payload.wings_solved_type = 'range';  // Explicitly set type to 'range'
+              payload.wings_solved_min = formData.wings_solved_min;
+              payload.wings_solved_max = formData.wings_solved_max;
+            }
+            
+            // Add wing parity
+            payload.wing_parity = formData.wing_parity;
+          }
+          
+          // Add x-center data if needed (4BLD, 5BLD)
+          if (['4bld', '4bld_centers', '5bld'].includes(formData.scramble_type)) {
+            payload.xcenter_buffer = formData.xcenter_buffer;
+            
+            // Handle x-centers length based on selection
+            if (formData.x_centers_length_type === 'random') {
+              payload.x_centers_length_type = 'random';
+            } else {
+              payload.x_centers_length_type = 'range';  // Explicitly set type to 'range'
+              payload.x_centers_length_min = formData.x_centers_length_min;
+              payload.x_centers_length_max = formData.x_centers_length_max;
+            }
+            
+            // Handle cycle breaks based on selection
+            if (formData.x_centers_cycle_breaks_type === 'random') {
+              payload.x_centers_cycle_breaks_type = 'random';
+            } else {
+              payload.x_centers_cycle_breaks_type = 'range';  // Explicitly set type to 'range'
+              payload.x_centers_cycle_breaks_min = formData.x_centers_cycle_breaks_min;
+              payload.x_centers_cycle_breaks_max = formData.x_centers_cycle_breaks_max;
+            }
+            
+            // Handle solved x-centers based on selection
+            if (formData.x_centers_solved_type === 'random') {
+              payload.x_centers_solved_type = 'random';
+            } else {
+              payload.x_centers_solved_type = 'range';  // Explicitly set type to 'range'
+              payload.x_centers_solved_min = formData.x_centers_solved_min;
+              payload.x_centers_solved_max = formData.x_centers_solved_max;
+            }
+            
+            // Add x-center parity
+            payload.xcenter_parity = formData.xcenter_parity;
+          }
+          
+          // Add t-center data if needed (5BLD only)
+          if (['5bld'].includes(formData.scramble_type)) {
+            payload.tcenter_buffer = formData.tcenter_buffer;
+            
+            // Handle t-centers length based on selection
+            if (formData.t_centers_length_type === 'random') {
+              payload.t_centers_length_type = 'random';
+            } else {
+              payload.t_centers_length_type = 'range';  // Explicitly set type to 'range'
+              payload.t_centers_length_min = formData.t_centers_length_min;
+              payload.t_centers_length_max = formData.t_centers_length_max;
+            }
+            
+            // Handle cycle breaks based on selection
+            if (formData.t_centers_cycle_breaks_type === 'random') {
+              payload.t_centers_cycle_breaks_type = 'random';
+            } else {
+              payload.t_centers_cycle_breaks_type = 'range';  // Explicitly set type to 'range'
+              payload.t_centers_cycle_breaks_min = formData.t_centers_cycle_breaks_min;
+              payload.t_centers_cycle_breaks_max = formData.t_centers_cycle_breaks_max;
+            }
+            
+            // Handle solved t-centers based on selection
+            if (formData.t_centers_solved_type === 'random') {
+              payload.t_centers_solved_type = 'random';
+            } else {
+              payload.t_centers_solved_type = 'range';  // Explicitly set type to 'range'
+              payload.t_centers_solved_min = formData.t_centers_solved_min;
+              payload.t_centers_solved_max = formData.t_centers_solved_max;
+            }
+            
+            // Add t-center parity
+            payload.tcenter_parity = formData.tcenter_parity;
+          }
+          
+          // Add practice letters if any are selected
+          if (Object.values(formData.practiceLetters).some(arr => arr.length > 0)) {
+            payload.practiceLetters = formData.practiceLetters;
+          }
+          
+          try {
+            const response = await fetch('http://localhost:5000/query-scrambles', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(payload)
+            });
+            
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            
+            const data = await response.json();
+            onSubmit(data);
+          } catch (error) {
+            toast.error('Failed to generate scrambles. Please try again.');
+            console.error('Error:', error);
+          }
         }}>
           <Accordion defaultActiveKey={['0','1','2','6', '7']} alwaysOpen>
             <Accordion.Item eventKey="0">

@@ -7,7 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 const App = () => {
   const handleFormSubmit = async (formData) => {
     try {
-      const response = await fetch('http://localhost:5000/query', {
+      const response = await fetch('http://localhost:5000/query-scarmbels', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
