@@ -88,6 +88,146 @@ def generate_scrambles():
         query_conditions.append("scramble_type = ?")
         args.append(db_type)
     
+    # Check for letters to practice
+    # Edges letters to practice
+    if 'practiceLetters' in data and 'edges' in data['practiceLetters'] and data['practiceLetters']['edges'] and len(data['practiceLetters']['edges']) > 0:
+        if len(data['practiceLetters']['edges']) < 24:  # If not all letters are selected
+            # Map the position names to their letter scheme values
+            mapped_letters = []
+            for position in data['practiceLetters']['edges']:
+                # Get the letter from letter scheme or default mapping
+                letter = letter_scheme.get('edges', {}).get(position, BUFFER_MAPPINGS['edges'].get(position))
+                if letter:
+                    mapped_letters.append(letter)
+                else:
+                    mapped_letters.append(position)  # Fallback to the position name
+            
+            if mapped_letters:
+                placeholders = ', '.join(['?'] * len(mapped_letters))
+                
+                # Rest of the code as before, but using mapped_letters
+                like_conditions = []
+                for letter in mapped_letters:
+                    like_conditions.append(f"first_edges LIKE '%{letter}%'")
+                    
+                query_conditions.append("(" + " OR ".join(like_conditions) + ")")
+                query_conditions.append(f"NOT EXISTS (SELECT 1 FROM (SELECT substr(first_edges, i, 1) as char FROM (SELECT first_edges), (SELECT 1 as i UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9 UNION SELECT 10 UNION SELECT 11 UNION SELECT 12) WHERE i <= length(first_edges)) WHERE char NOT IN ({placeholders}))")
+                
+                for letter in mapped_letters:
+                    args.append(letter)
+
+# Corners letters to practice
+    if 'practiceLetters' in data and 'corners' in data['practiceLetters'] and data['practiceLetters']['corners'] and len(data['practiceLetters']['corners']) > 0:
+        if len(data['practiceLetters']['corners']) < 24:  # If not all letters are selected
+            # Map the position names (like "UBL") to their letter scheme values (like "A")
+            mapped_letters = []
+            for position in data['practiceLetters']['corners']:
+                # Get the letter from letter scheme or default mapping
+                letter = letter_scheme.get('corners', {}).get(position, BUFFER_MAPPINGS['corners'].get(position))
+                if letter:
+                    mapped_letters.append(letter)
+                else:
+                    mapped_letters.append(position)  # Fallback to the position name
+            
+            if mapped_letters:
+                placeholders = ', '.join(['?'] * len(mapped_letters))
+                
+                # Technique 1: Using LIKE for substring matching
+                like_conditions = []
+                for letter in mapped_letters:
+                    like_conditions.append(f"first_corners LIKE '%{letter}%'")
+                    
+                # Join with OR to ensure at least one of the practice letters is in first_corners
+                query_conditions.append("(" + " OR ".join(like_conditions) + ")")
+                
+                # Technique 2: Using a subquery to check that all characters in first_corners are in the practice list
+                query_conditions.append(f"NOT EXISTS (SELECT 1 FROM (SELECT substr(first_corners, i, 1) as char FROM (SELECT first_corners), (SELECT 1 as i UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9 UNION SELECT 10 UNION SELECT 11 UNION SELECT 12) WHERE i <= length(first_corners)) WHERE char NOT IN ({placeholders}))")
+                
+                # Add the mapped letters as parameters for the second condition
+                for letter in mapped_letters:
+                    args.append(letter)
+
+# Wings letters to practice
+    if 'practiceLetters' in data and 'wings' in data['practiceLetters'] and data['practiceLetters']['wings'] and len(data['practiceLetters']['wings']) > 0:
+        if len(data['practiceLetters']['wings']) < 24:  # If not all letters are selected
+            # Map the position names to their letter scheme values
+            mapped_letters = []
+            for position in data['practiceLetters']['wings']:
+                # Get the letter from letter scheme or default mapping
+                letter = letter_scheme.get('wings', {}).get(position, BUFFER_MAPPINGS['wings'].get(position))
+                if letter:
+                    mapped_letters.append(letter)
+                else:
+                    mapped_letters.append(position)  # Fallback to the position name
+            
+            if mapped_letters:
+                placeholders = ', '.join(['?'] * len(mapped_letters))
+                
+                # Technique 1: Using LIKE for substring matching
+                like_conditions = []
+                for letter in mapped_letters:
+                    like_conditions.append(f"first_wings LIKE '%{letter}%'")
+                    
+                query_conditions.append("(" + " OR ".join(like_conditions) + ")")
+                query_conditions.append(f"NOT EXISTS (SELECT 1 FROM (SELECT substr(first_wings, i, 1) as char FROM (SELECT first_wings), (SELECT 1 as i UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9 UNION SELECT 10 UNION SELECT 11 UNION SELECT 12 UNION SELECT 13 UNION SELECT 14 UNION SELECT 15 UNION SELECT 16 UNION SELECT 17 UNION SELECT 18 UNION SELECT 19 UNION SELECT 20 UNION SELECT 21 UNION SELECT 22 UNION SELECT 23 UNION SELECT 24) WHERE i <= length(first_wings)) WHERE char NOT IN ({placeholders}))")
+                
+                for letter in mapped_letters:
+                    args.append(letter)
+
+    # X-Centers letters to practice
+    if 'practiceLetters' in data and 'xCenters' in data['practiceLetters'] and data['practiceLetters']['xCenters'] and len(data['practiceLetters']['xCenters']) > 0:
+        if len(data['practiceLetters']['xCenters']) < 24:  # If not all letters are selected
+            # Map the position names to their letter scheme values
+            mapped_letters = []
+            for position in data['practiceLetters']['xCenters']:
+                # Get the letter from letter scheme or default mapping
+                letter = letter_scheme.get('xCenters', {}).get(position, BUFFER_MAPPINGS['xCenters'].get(position))
+                if letter:
+                    mapped_letters.append(letter)
+                else:
+                    mapped_letters.append(position)  # Fallback to the position name
+            
+            if mapped_letters:
+                placeholders = ', '.join(['?'] * len(mapped_letters))
+                
+                # Technique 1: Using LIKE for substring matching
+                like_conditions = []
+                for letter in mapped_letters:
+                    like_conditions.append(f"first_xcenters LIKE '%{letter}%'")
+                    
+                query_conditions.append("(" + " OR ".join(like_conditions) + ")")
+                query_conditions.append(f"NOT EXISTS (SELECT 1 FROM (SELECT substr(first_xcenters, i, 1) as char FROM (SELECT first_xcenters), (SELECT 1 as i UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9 UNION SELECT 10 UNION SELECT 11 UNION SELECT 12 UNION SELECT 13 UNION SELECT 14 UNION SELECT 15 UNION SELECT 16 UNION SELECT 17 UNION SELECT 18 UNION SELECT 19 UNION SELECT 20 UNION SELECT 21 UNION SELECT 22 UNION SELECT 23 UNION SELECT 24) WHERE i <= length(first_xcenters)) WHERE char NOT IN ({placeholders}))")
+                
+                for letter in mapped_letters:
+                    args.append(letter)
+
+    # T-Centers letters to practice
+    if 'practiceLetters' in data and 'tCenters' in data['practiceLetters'] and data['practiceLetters']['tCenters'] and len(data['practiceLetters']['tCenters']) > 0:
+        if len(data['practiceLetters']['tCenters']) < 24:  # If not all letters are selected
+            # Map the position names to their letter scheme values
+            mapped_letters = []
+            for position in data['practiceLetters']['tCenters']:
+                # Get the letter from letter scheme or default mapping
+                letter = letter_scheme.get('tCenters', {}).get(position, BUFFER_MAPPINGS['tCenters'].get(position))
+                if letter:
+                    mapped_letters.append(letter)
+                else:
+                    mapped_letters.append(position)  # Fallback to the position name
+            
+            if mapped_letters:
+                placeholders = ', '.join(['?'] * len(mapped_letters))
+                
+                # Technique 1: Using LIKE for substring matching
+                like_conditions = []
+                for letter in mapped_letters:
+                    like_conditions.append(f"first_tcenters LIKE '%{letter}%'")
+                    
+                query_conditions.append("(" + " OR ".join(like_conditions) + ")")
+                query_conditions.append(f"NOT EXISTS (SELECT 1 FROM (SELECT substr(first_tcenters, i, 1) as char FROM (SELECT first_tcenters), (SELECT 1 as i UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9 UNION SELECT 10 UNION SELECT 11 UNION SELECT 12 UNION SELECT 13 UNION SELECT 14 UNION SELECT 15 UNION SELECT 16 UNION SELECT 17 UNION SELECT 18 UNION SELECT 19 UNION SELECT 20 UNION SELECT 21 UNION SELECT 22 UNION SELECT 23 UNION SELECT 24) WHERE i <= length(first_tcenters)) WHERE char NOT IN ({placeholders}))")
+                
+                for letter in mapped_letters:
+                    args.append(letter)
+
     # Edge conditions - only add if not 'random'
     if 'edge_buffer' in data and data['edge_buffer'] != 'random':
         buffer_pos = data['edge_buffer']
@@ -291,9 +431,9 @@ def generate_scrambles():
     if query_conditions:
         final_query += " AND " + " AND ".join(query_conditions)
     
-    # Limit results based on scramble count
+    # Order by RANDOM() and limit results
     scramble_count = data.get('scramble_count', 1)
-    final_query += f" LIMIT {scramble_count}"
+    final_query += f" ORDER BY RANDOM() LIMIT {scramble_count}"
     
     # Print query for debugging
     print("Executing query:")
