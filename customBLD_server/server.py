@@ -88,173 +88,203 @@ def generate_scrambles():
         query_conditions.append("scramble_type = ?")
         args.append(db_type)
     
-    # Edge buffer mapping
-    if 'edge_buffer' in data:
+    # Edge conditions - only add if not 'random'
+    if 'edge_buffer' in data and data['edge_buffer'] != 'random':
         buffer_pos = data['edge_buffer']
-        # Try to get letter from letter scheme or fallback to default mapping
         buffer_letter = letter_scheme.get('edges', {}).get(buffer_pos, BUFFER_MAPPINGS['edges'].get(buffer_pos, buffer_pos))
         query_conditions.append("edge_buffer = ?")
         args.append(buffer_letter)
     
-    if 'edge_length_type' in data:
-        if data['edge_length_type'] == 'range':
-            query_conditions.append("edge_length BETWEEN ? AND ?")
-            args.append(data['edge_length_min'])
-            args.append(data['edge_length_max'])
+    # Edge length range
+    if 'edge_length_type' in data and data['edge_length_type'] == 'range':
+        query_conditions.append("edge_length BETWEEN ? AND ?")
+        args.append(data['edge_length_min'])
+        args.append(data['edge_length_max'])
     
-    if 'edge_cycle_breaks_type' in data:
-        if data['edge_cycle_breaks_type'] == 'range':
-            query_conditions.append("edges_cycle_breaks BETWEEN ? AND ?")
-            args.append(data['edge_cycle_breaks_min'])
-            args.append(data['edge_cycle_breaks_max'])
+    # Edge cycle breaks range
+    if 'edges_cycle_breaks_type' in data and data['edges_cycle_breaks_type'] == 'range':
+        query_conditions.append("edges_cycle_breaks BETWEEN ? AND ?")
+        args.append(data['edges_cycle_breaks_min'])
+        args.append(data['edges_cycle_breaks_max'])
     
-    if 'edges_flipped_type' in data:
-        if data['edges_flipped_type'] == 'range':
-            query_conditions.append("edges_flipped BETWEEN ? AND ?")
-            args.append(data['edges_flipped_min'])
-            args.append(data['edges_flipped_max'])
+    # Edges flipped range
+    if 'edges_flipped_type' in data and data['edges_flipped_type'] == 'range':
+        query_conditions.append("edges_flipped BETWEEN ? AND ?")
+        args.append(data['edges_flipped_min'])
+        args.append(data['edges_flipped_max'])
     
-    if 'edges_solved_type' in data:
-        if data['edges_solved_type'] == 'range':
-            query_conditions.append("edges_solved BETWEEN ? AND ?")
-            args.append(data['edges_solved_min'])
-            args.append(data['edges_solved_max'])
+    # Edges solved range
+    if 'edges_solved_type' in data and data['edges_solved_type'] == 'range':
+        query_conditions.append("edges_solved BETWEEN ? AND ?")
+        args.append(data['edges_solved_min'])
+        args.append(data['edges_solved_max'])
     
-    if 'edge_parity' in data:
-        query_conditions.append("corner_parity = ?")  # Note: Changed from edge_parity to corner_parity as in your schema
-        args.append(data['edge_parity'])
+    # Edge parity
+    if 'edge_parity' in data and data['edge_parity'] != 'random':
+        query_conditions.append("edge_parity = ?")
+        # Convert yes/no to string 'true'/'false'
+        if data['edge_parity'] == 'yes':
+            args.append('true')
+        elif data['edge_parity'] == 'no':
+            args.append('false')
+        else:
+            args.append(data['edge_parity'])
     
-    # Corner buffer mapping
-    if 'corner_buffer' in data:
+    # Corner conditions
+    if 'corner_buffer' in data and data['corner_buffer'] != 'random':
         buffer_pos = data['corner_buffer']
-        # Try to get letter from letter scheme or fallback to default mapping
         buffer_letter = letter_scheme.get('corners', {}).get(buffer_pos, BUFFER_MAPPINGS['corners'].get(buffer_pos, buffer_pos))
         query_conditions.append("corner_buffer = ?")
         args.append(buffer_letter)
     
-    if 'corner_length_type' in data:
-        if data['corner_length_type'] == 'range':
-            query_conditions.append("corner_length BETWEEN ? AND ?")
-            args.append(data['corner_length_min'])
-            args.append(data['corner_length_max'])
+    # Corner length range
+    if 'corner_length_type' in data and data['corner_length_type'] == 'range':
+        query_conditions.append("corner_length BETWEEN ? AND ?")
+        args.append(data['corner_length_min'])
+        args.append(data['corner_length_max'])
     
-    if 'corners_cycle_breaks_type' in data:
-        if data['corners_cycle_breaks_type'] == 'range':
-            query_conditions.append("corners_cycle_breaks BETWEEN ? AND ?")
-            args.append(data['corners_cycle_breaks_min'])
-            args.append(data['corners_cycle_breaks_max'])
+    # Corner cycle breaks range
+    if 'corners_cycle_breaks_type' in data and data['corners_cycle_breaks_type'] == 'range':
+        query_conditions.append("corners_cycle_breaks BETWEEN ? AND ?")
+        args.append(data['corners_cycle_breaks_min'])
+        args.append(data['corners_cycle_breaks_max'])
     
-    if 'corners_cw_twists_type' in data:
-        if data['corners_cw_twists_type'] == 'range':
-            query_conditions.append("twist_clockwise BETWEEN ? AND ?")
-            args.append(data['corners_cw_twists_min'])
-            args.append(data['corners_cw_twists_max'])
+    # Clockwise twists range
+    if 'corners_cw_twists_type' in data and data['corners_cw_twists_type'] == 'range':
+        query_conditions.append("twist_clockwise BETWEEN ? AND ?")
+        args.append(data['corners_cw_twists_min'])
+        args.append(data['corners_cw_twists_max'])
     
-    if 'corners_ccw_twists_type' in data:
-        if data['corners_ccw_twists_type'] == 'range':
-            query_conditions.append("twist_counterclockwise BETWEEN ? AND ?")
-            args.append(data['corners_ccw_twists_min'])
-            args.append(data['corners_ccw_twists_max'])
+    # Counterclockwise twists range
+    if 'corners_ccw_twists_type' in data and data['corners_ccw_twists_type'] == 'range':
+        query_conditions.append("twist_counterclockwise BETWEEN ? AND ?")
+        args.append(data['corners_ccw_twists_min'])
+        args.append(data['corners_ccw_twists_max'])
     
-    if 'corners_solved_type' in data:
-        if data['corners_solved_type'] == 'range':
-            query_conditions.append("corners_solved BETWEEN ? AND ?")
-            args.append(data['corners_solved_min'])
-            args.append(data['corners_solved_max'])
+    # Corners solved range
+    if 'corners_solved_type' in data and data['corners_solved_type'] == 'range':
+        query_conditions.append("corners_solved BETWEEN ? AND ?")
+        args.append(data['corners_solved_min'])
+        args.append(data['corners_solved_max'])
     
-    if 'corner_parity' in data:
+    # Corner parity
+    if 'corner_parity' in data and data['corner_parity'] != 'random':
         query_conditions.append("corner_parity = ?")
-        args.append(data['corner_parity'])
+        # Convert yes/no to string 'true'/'false'
+        if data['corner_parity'] == 'yes':
+            args.append('true')
+        elif data['corner_parity'] == 'no':
+            args.append('false')
+        else:
+            args.append(data['corner_parity'])
     
-    # Wing buffer mapping
-    if 'wing_buffer' in data:
+    # Wing conditions
+    if 'wing_buffer' in data and data['wing_buffer'] != 'random':
         buffer_pos = data['wing_buffer']
-        # Try to get letter from letter scheme or fallback to default mapping
         buffer_letter = letter_scheme.get('wings', {}).get(buffer_pos, BUFFER_MAPPINGS['wings'].get(buffer_pos, buffer_pos))
         query_conditions.append("wing_buffer = ?")
         args.append(buffer_letter)
     
-    if 'wings_length_type' in data:
-        if data['wings_length_type'] == 'range':
-            query_conditions.append("wings_length BETWEEN ? AND ?")
-            args.append(data['wings_length_min'])
-            args.append(data['wings_length_max'])
+    # Wings length range
+    if 'wings_length_type' in data and data['wings_length_type'] == 'range':
+        query_conditions.append("wings_length BETWEEN ? AND ?")
+        args.append(data['wings_length_min'])
+        args.append(data['wings_length_max'])
     
-    if 'wings_cycle_breaks_type' in data:
-        if data['wings_cycle_breaks_type'] == 'range':
-            query_conditions.append("wings_cycle_breaks BETWEEN ? AND ?")
-            args.append(data['wings_cycle_breaks_min'])
-            args.append(data['wings_cycle_breaks_max'])
+    # Wings cycle breaks range
+    if 'wings_cycle_breaks_type' in data and data['wings_cycle_breaks_type'] == 'range':
+        query_conditions.append("wings_cycle_breaks BETWEEN ? AND ?")
+        args.append(data['wings_cycle_breaks_min'])
+        args.append(data['wings_cycle_breaks_max'])
     
-    if 'wings_solved_type' in data:
-        if data['wings_solved_type'] == 'range':
-            query_conditions.append("wings_solved BETWEEN ? AND ?")
-            args.append(data['wings_solved_min'])
-            args.append(data['wings_solved_max'])
+    # Wings solved range
+    if 'wings_solved_type' in data and data['wings_solved_type'] == 'range':
+        query_conditions.append("wings_solved BETWEEN ? AND ?")
+        args.append(data['wings_solved_min'])
+        args.append(data['wings_solved_max'])
     
-    if 'wing_parity' in data:
+    # Wing parity
+    if 'wing_parity' in data and data['wing_parity'] != 'random':
         query_conditions.append("wing_parity = ?")
-        args.append(data['wing_parity'])
+        # Convert yes/no to string 'true'/'false'
+        if data['wing_parity'] == 'yes':
+            args.append('true')
+        elif data['wing_parity'] == 'no':
+            args.append('false')
+        else:
+            args.append(data['wing_parity'])
     
-    # X-Center buffer mapping
-    if 'xcenter_buffer' in data:
+    # X-Center conditions
+    if 'xcenter_buffer' in data and data['xcenter_buffer'] != 'random':
         buffer_pos = data['xcenter_buffer']
-        # Try to get letter from letter scheme or fallback to default mapping
         buffer_letter = letter_scheme.get('xCenters', {}).get(buffer_pos, BUFFER_MAPPINGS['xCenters'].get(buffer_pos, buffer_pos))
         query_conditions.append("xcenter_buffer = ?")
         args.append(buffer_letter)
     
-    if 'x_centers_length_type' in data:
-        if data['x_centers_length_type'] == 'range':
-            query_conditions.append("xcenter_length BETWEEN ? AND ?")
-            args.append(data['x_centers_length_min'])
-            args.append(data['x_centers_length_max'])
+    # X-Center length range
+    if 'xcenter_length_type' in data and data['xcenter_length_type'] == 'range':
+        query_conditions.append("xcenter_length BETWEEN ? AND ?")
+        args.append(data['xcenter_length_min'])
+        args.append(data['xcenter_length_max'])
     
-    if 'x_centers_cycle_breaks_type' in data:
-        if data['x_centers_cycle_breaks_type'] == 'range':
-            query_conditions.append("xcenters_cycle_breaks BETWEEN ? AND ?")
-            args.append(data['x_centers_cycle_breaks_min'])
-            args.append(data['x_centers_cycle_breaks_max'])
+    # X-Center cycle breaks range
+    if 'xcenters_cycle_breaks_type' in data and data['xcenters_cycle_breaks_type'] == 'range':
+        query_conditions.append("xcenters_cycle_breaks BETWEEN ? AND ?")
+        args.append(data['xcenters_cycle_breaks_min'])
+        args.append(data['xcenters_cycle_breaks_max'])
     
-    if 'x_centers_solved_type' in data:
-        if data['x_centers_solved_type'] == 'range':
-            query_conditions.append("xcenters_solved BETWEEN ? AND ?")
-            args.append(data['x_centers_solved_min'])
-            args.append(data['x_centers_solved_max'])
+    # X-Center solved range
+    if 'xcenters_solved_type' in data and data['xcenters_solved_type'] == 'range':
+        query_conditions.append("xcenters_solved BETWEEN ? AND ?")
+        args.append(data['xcenters_solved_min'])
+        args.append(data['xcenters_solved_max'])
     
-    if 'xcenter_parity' in data:
+    # X-Center parity
+    if 'xcenter_parity' in data and data['xcenter_parity'] != 'random':
         query_conditions.append("xcenter_parity = ?")
-        args.append(data['xcenter_parity'])
+        # Convert yes/no to string 'true'/'false'
+        if data['xcenter_parity'] == 'yes':
+            args.append('true')
+        elif data['xcenter_parity'] == 'no':
+            args.append('false')
+        else:
+            args.append(data['xcenter_parity'])
     
-    # T-Center buffer mapping
-    if 'tcenter_buffer' in data:
+    # T-Center conditions
+    if 'tcenter_buffer' in data and data['tcenter_buffer'] != 'random':
         buffer_pos = data['tcenter_buffer']
-        # Try to get letter from letter scheme or fallback to default mapping
         buffer_letter = letter_scheme.get('tCenters', {}).get(buffer_pos, BUFFER_MAPPINGS['tCenters'].get(buffer_pos, buffer_pos))
         query_conditions.append("tcenter_buffer = ?")
         args.append(buffer_letter)
     
-    if 't_centers_length_type' in data:
-        if data['t_centers_length_type'] == 'range':
-            query_conditions.append("tcenter_length BETWEEN ? AND ?")
-            args.append(data['t_centers_length_min'])
-            args.append(data['t_centers_length_max'])
+    # T-Center length range
+    if 'tcenter_length_type' in data and data['tcenter_length_type'] == 'range':
+        query_conditions.append("tcenter_length BETWEEN ? AND ?")
+        args.append(data['tcenter_length_min'])
+        args.append(data['tcenter_length_max'])
     
-    if 't_centers_cycle_breaks_type' in data:
-        if data['t_centers_cycle_breaks_type'] == 'range':
-            query_conditions.append("tcenters_cycle_breaks BETWEEN ? AND ?")
-            args.append(data['t_centers_cycle_breaks_min'])
-            args.append(data['t_centers_cycle_breaks_max'])
+    # T-Center cycle breaks range
+    if 'tcenters_cycle_breaks_type' in data and data['tcenters_cycle_breaks_type'] == 'range':
+        query_conditions.append("tcenters_cycle_breaks BETWEEN ? AND ?")
+        args.append(data['tcenters_cycle_breaks_min'])
+        args.append(data['tcenters_cycle_breaks_max'])
     
-    if 't_centers_solved_type' in data:
-        if data['t_centers_solved_type'] == 'range':
-            query_conditions.append("tcenters_solved BETWEEN ? AND ?")
-            args.append(data['t_centers_solved_min'])
-            args.append(data['t_centers_solved_max'])
+    # T-Center solved range
+    if 'tcenters_solved_type' in data and data['tcenters_solved_type'] == 'range':
+        query_conditions.append("tcenters_solved BETWEEN ? AND ?")
+        args.append(data['tcenters_solved_min'])
+        args.append(data['tcenters_solved_max'])
     
-    if 'tcenter_parity' in data:
+    # T-Center parity
+    if 'tcenter_parity' in data and data['tcenter_parity'] != 'random':
         query_conditions.append("tcenter_parity = ?")
-        args.append(data['tcenter_parity'])
+        # Convert yes/no to string 'true'/'false'
+        if data['tcenter_parity'] == 'yes':
+            args.append('true')
+        elif data['tcenter_parity'] == 'no':
+            args.append('false')
+        else:
+            args.append(data['tcenter_parity'])
     
     # Build the final query
     final_query = base_query
@@ -277,7 +307,7 @@ def generate_scrambles():
             # Replace the first ? with quoted string
             sql_for_viewer = sql_for_viewer.replace('?', f"'{param}'", 1)
         else:
-            # Replace the first ? with number
+            # Replace the first ? with number or boolean
             sql_for_viewer = sql_for_viewer.replace('?', str(param), 1)
     
     print("\nReady-to-use SQL query for viewer:")
@@ -286,11 +316,81 @@ def generate_scrambles():
     # Execute query
     results = query_db(final_query, args)
     
-    # Print results for debugging
-    print(f"Query returned {len(results) if results else 0} results")
-    if results:
-        return results    
+    # Return results
+    scrambles = []
+    solutions = []
+    metadata = []
     
+    if results:
+        for result in results:
+            # Add the scramble
+            scrambles.append(result[2])  # Index 2 is scramble column
+            
+            # Add the solution if requested
+            if data.get('generate_solutions') == True:
+                solutions.append(result[3] if result[3] else "No solution available")  # Index 3 is rotations_to_apply
+            
+            # Extract and add metadata for this scramble based on your table structure
+            scramble_metadata = {
+                "id": result[0] if len(result) > 0 else None,
+                "scramble_type": result[1] if len(result) > 1 else None,
+                "scramble": result[2] if len(result) > 2 else None,
+                "rotations_to_apply": result[3] if len(result) > 3 else None,
+                "edge_buffer": result[4] if len(result) > 4 else None,
+                "edges": result[5] if len(result) > 5 else None,
+                "edge_length": result[6] if len(result) > 6 else None,
+                "edges_cycle_breaks": result[7] if len(result) > 7 else None,
+                "edges_flipped": result[8] if len(result) > 8 else None,
+                "edges_solved": result[9] if len(result) > 9 else None,
+                "flips": result[10] if len(result) > 10 else None,
+                "first_edges": result[11] if len(result) > 11 else None,
+                "corner_buffer": result[12] if len(result) > 12 else None,
+                "corners": result[13] if len(result) > 13 else None,
+                "corner_length": result[14] if len(result) > 14 else None,
+                "corners_cycle_breaks": result[15] if len(result) > 15 else None,
+                "twist_clockwise": result[16] if len(result) > 16 else None,
+                "twist_counterclockwise": result[17] if len(result) > 17 else None,
+                "corners_twisted": result[18] if len(result) > 18 else None,
+                "corners_solved": result[19] if len(result) > 19 else None,
+                "corner_parity": result[20] if len(result) > 20 else None,
+                "first_corners": result[21] if len(result) > 21 else None,
+                "wing_buffer": result[22] if len(result) > 22 else None,
+                "wings": result[23] if len(result) > 23 else None,
+                "wings_length": result[24] if len(result) > 24 else None,
+                "wings_cycle_breaks": result[25] if len(result) > 25 else None,
+                "wings_solved": result[26] if len(result) > 26 else None,
+                "wing_parity": result[27] if len(result) > 27 else None,
+                "first_wings": result[28] if len(result) > 28 else None,
+                "xcenter_buffer": result[29] if len(result) > 29 else None,
+                "xcenters": result[30] if len(result) > 30 else None,
+                "xcenter_length": result[31] if len(result) > 31 else None,
+                "xcenters_cycle_breaks": result[32] if len(result) > 32 else None,
+                "xcenters_solved": result[33] if len(result) > 33 else None,
+                "xcenter_parity": result[34] if len(result) > 34 else None,
+                "first_xcenters": result[35] if len(result) > 35 else None,
+                "tcenter_buffer": result[36] if len(result) > 36 else None,
+                "tcenters": result[37] if len(result) > 37 else None,
+                "tcenter_length": result[38] if len(result) > 38 else None,
+                "tcenters_cycle_breaks": result[39] if len(result) > 39 else None,
+                "tcenters_solved": result[40] if len(result) > 40 else None,
+                "tcenter_parity": result[41] if len(result) > 41 else None,
+                "first_tcenters": result[42] if len(result) > 42 else None
+            }
+            metadata.append(scramble_metadata)
+    
+    # Also return a debug object with the query information
+    debug_info = {
+        "query": final_query,
+        "parameters": args,
+        "sql_for_viewer": sql_for_viewer,
+        "result_count": len(results) if results else 0
+    }
+    
+    # Return the complete response with scrambles, solutions, and metadata
+    return jsonify({
+        "metadata": metadata,
+        "debug": debug_info if app.debug else None  # Only include debug info in debug mode
+    })
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

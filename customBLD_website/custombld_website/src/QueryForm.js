@@ -337,6 +337,12 @@ const QueryForm = ({ onSubmit }) => {
     </Form.Group>
   );
 
+  const convertYesNoToBoolean = (value) => {
+    if (value === 'yes') return true;
+    if (value === 'no') return false;
+    return value; // Return as-is for other values like 'random'
+  };
+
   return (
     <Card className="p-4 my-4 shadow-sm bg-light">
       <Card.Body>
@@ -351,8 +357,16 @@ const QueryForm = ({ onSubmit }) => {
             scramble_type: formData.scramble_type,
             letterScheme: formData.letterScheme,
             scramble_count: formData.scramble_count,
-            generate_solutions: formData.generate_solutions
+            // Convert 'yes'/'no' to true/false for generate_solutions
+            generate_solutions: convertYesNoToBoolean(formData.generate_solutions)
           };
+          
+          // For other yes/no fields like parities, update them as well:
+          payload.edge_parity = convertYesNoToBoolean(formData.edge_parity);
+          payload.corner_parity = convertYesNoToBoolean(formData.corner_parity);
+          payload.wing_parity = convertYesNoToBoolean(formData.wing_parity);
+          payload.xcenter_parity = convertYesNoToBoolean(formData.xcenter_parity);
+          payload.tcenter_parity = convertYesNoToBoolean(formData.tcenter_parity);
           
           // Add edge data if needed (3BLD, 4BLD, 5BLD or specific edge selections)
           if (['3bld', '3bld_edges', '5bld', '5bld_edges'].includes(formData.scramble_type)) {
