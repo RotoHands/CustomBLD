@@ -3103,7 +3103,7 @@ public class FourBldCube extends ThreeBldCube implements BldCube {
 
         public String getStatstics() {
                 return "'Corners_len': '" + getCornerLength() + "'" + "\n'Corners_cycle_breaks': '"
-                                + getCornerBreakInNum() + "'" + "\n'Conrners_solved': '" + getNumPreSolvedCorners()
+                                + getCornerBreakInNum() + "'" + "\n'Corners_solved': '" + getNumPreSolvedCorners()
                                 + "'" +
                                 "\n'Corners_twists': '" + getNumPreTwistedCorners() + "'" + "\n'Corners_parity': '"
                                 + hasCornerParity() + "'" + "\n'Wings_len': '" + getWingLength() + "'"

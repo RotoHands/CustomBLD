@@ -1337,7 +1337,7 @@ public class FiveBldCube extends FourBldCube implements BldCube {
     }
 
     public String getStatstics() {
-        return "'Corners_len': '" + getCornerLength() + "'" + "\n'Corners_cycle_breaks': '" + getCornerBreakInNum() +"'" + "\n'Conrners_solved': '" + getNumPreSolvedCorners() + "'" +
+        return "'Corners_len': '" + getCornerLength() + "'" + "\n'Corners_cycle_breaks': '" + getCornerBreakInNum() +"'" + "\n'Corners_solved': '" + getNumPreSolvedCorners() + "'" +
                 "\n'Corners_twists': '" + getNumPreTwistedCorners() + "'" + "\n'Corners_parity': '" +  hasCornerParity() +"'" + "\n'Edges_len': '" + getEdgeLength() + "'"
                 + "\n'Edges_cycle_breaks': '" + getEdgeBreakInNum() + "'" + "\n'Edges_solved': '" + getNumPreSolvedEdges() + "'" + "\n'Edges_flipped' : '" + getNumPreFlippedEdges() + "'"
                 + "\n'Wings_len': '" + getWingLength() + "'" + "\n'Wings_cycle_breaks' :'" + getWingBreakInNum() + "'"
