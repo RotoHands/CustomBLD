@@ -79,6 +79,211 @@ const CornerSection = ({ formData, handleChange, handlePracticeLetterChange }) =
     });
   };
 
+  const renderRangeControl = (fieldName, type, defaultMax) => (
+    <div className="d-flex align-items-center gap-2 ms-3">
+      <Form.Control
+        type="number"
+        min="0"
+        placeholder="0"
+        value={formData[`${fieldName}_min`] === 0 ? "0" : (formData[`${fieldName}_min`] !== undefined ? formData[`${fieldName}_min`] : "0")}
+        onChange={(e) => {
+          // Get the raw value directly from the input
+          const rawValue = e.target.value;
+          
+          // Handle selection and replacement - this is key for replacing 0 with 1
+          if (e.target.selectionStart === e.target.selectionEnd && e.target.selectionStart === 0) {
+            // If cursor is at the beginning and user types, replace the entire value
+            const parsed = parseInt(rawValue, 10);
+            if (!isNaN(parsed)) {
+              const currentMax = formData[`${fieldName}_max`] || defaultMax;
+              
+              // If the new min is greater than current max, update max too
+              if (parsed > currentMax) {
+                // First update min
+                handleChange({
+                  target: {
+                    name: `${fieldName}_min`,
+                    value: parsed,
+                    type: 'number'
+                  }
+                });
+                
+                // Then update max to match the new min
+                handleChange({
+                  target: {
+                    name: `${fieldName}_max`,
+                    value: parsed,
+                    type: 'number'
+                  }
+                });
+              } else {
+                // Otherwise just update min
+                handleChange({
+                  target: {
+                    name: `${fieldName}_min`,
+                    value: parsed,
+                    type: 'number'
+                  }
+                });
+              }
+              return;
+            }
+          }
+          
+          // Normal handling for other cases
+          let processedValue;
+          
+          if (rawValue === '') {
+            processedValue = 0; // Default to 0 when empty
+          } else {
+            // Parse as number, ensuring we handle 0 correctly
+            const parsed = parseInt(rawValue, 10);
+            processedValue = isNaN(parsed) ? 0 : parsed;
+          }
+          
+          // Check if we need to update the max value too
+          const currentMax = formData[`${fieldName}_max`] || defaultMax;
+          if (processedValue > currentMax) {
+            // First update min
+            handleChange({
+              target: {
+                name: `${fieldName}_min`,
+                value: processedValue,
+                type: 'number'
+              }
+            });
+            
+            // Then update max to match the new min
+            handleChange({
+              target: {
+                name: `${fieldName}_max`,
+                value: processedValue,
+                type: 'number'
+              }
+            });
+          } else {
+            // Just update min if no max adjustment needed
+            handleChange({
+              target: {
+                name: `${fieldName}_min`,
+                value: processedValue,
+                type: 'number'
+              }
+            });
+          }
+        }}
+        disabled={type !== 'range'}
+        style={{ width: '70px', opacity: type === 'range' ? 1 : 0.6 }}
+        onFocus={(e) => {
+          // Select all text when the input is focused
+          e.target.select();
+        }}
+      />
+      <span>-</span>
+      <Form.Control
+        type="number"
+        min="0"
+        placeholder={defaultMax.toString()}
+        value={formData[`${fieldName}_max`] === 0 ? "0" : (formData[`${fieldName}_max`] || defaultMax)}
+        onChange={(e) => {
+          // Get the raw value directly from the input
+          const rawValue = e.target.value;
+          
+          // Handle selection and replacement - this is key for replacing 0 with 1
+          if (e.target.selectionStart === e.target.selectionEnd && e.target.selectionStart === 0) {
+            // If cursor is at the beginning and user types, replace the entire value
+            const parsed = parseInt(rawValue, 10);
+            if (!isNaN(parsed)) {
+              const currentMin = formData[`${fieldName}_min`] || 0;
+              
+              // If the new max is less than current min (but not 0), update min too
+              if (parsed !== 0 && parsed < currentMin) {
+                // Update min to match the new max
+                handleChange({
+                  target: {
+                    name: `${fieldName}_min`,
+                    value: parsed,
+                    type: 'number'
+                  }
+                });
+              }
+              
+              // Always update max
+              handleChange({
+                target: {
+                  name: `${fieldName}_max`,
+                  value: parsed,
+                  type: 'number'
+                }
+              });
+              return;
+            }
+          }
+          
+          // Special handling for backspace/delete when the value is "1"
+          if (rawValue === '' && e.nativeEvent.inputType === 'deleteContentBackward') {
+            handleChange({
+              target: {
+                name: `${fieldName}_max`,
+                value: 0,
+                type: 'number'
+              }
+            });
+            return;
+          }
+          
+          // Normal handling for other cases
+          let processedValue;
+          
+          if (rawValue === '') {
+            processedValue = 0; // Default to 0 when empty
+          } else {
+            // Parse as number, ensuring we handle 0 correctly
+            const parsed = parseInt(rawValue, 10);
+            processedValue = isNaN(parsed) ? 0 : parsed;
+          }
+          
+          // Check if the new max is less than min (but not 0)
+          const currentMin = formData[`${fieldName}_min`] || 0;
+          if (processedValue !== 0 && processedValue < currentMin) {
+            // First update max
+            handleChange({
+              target: {
+                name: `${fieldName}_max`,
+                value: processedValue,
+                type: 'number'
+              }
+            });
+            
+            // Then update min to match the new max
+            handleChange({
+              target: {
+                name: `${fieldName}_min`,
+                value: processedValue,
+                type: 'number'
+              }
+            });
+          } else {
+            // Otherwise just update max
+            handleChange({
+              target: {
+                name: `${fieldName}_max`,
+                value: processedValue,
+                type: 'number'
+              }
+            });
+          }
+        }}
+        disabled={type !== 'range'}
+        style={{ width: '70px', opacity: type === 'range' ? 1 : 0.6 }}
+        onFocus={(e) => {
+          // Select all text when the input is focused
+          e.target.select();
+        }}
+      />
+    </div>
+  );
+
   return (
     <>
       <Form.Group as={Row} className="mb-3">
@@ -119,25 +324,7 @@ const CornerSection = ({ formData, handleChange, handlePracticeLetterChange }) =
               checked={lengthType === 'range'}
               onChange={() => handleTypeChange('corner_length', 'range', setLengthType)}
             />
-            <div className="d-flex align-items-center gap-2 ms-3">
-              <Form.Control
-                type="number"
-                min="0"
-                value={formData.corner_length_min || 0}
-                onChange={(e) => handleRangeChange('corner_length', 'min', e.target.value)}
-                disabled={lengthType !== 'range'}
-                style={{ width: '70px', opacity: lengthType === 'range' ? 1 : 0.6 }}
-              />
-              <span>-</span>
-              <Form.Control
-                type="number"
-                min="0"
-                value={formData.corner_length_max || 16}
-                onChange={(e) => handleRangeChange('corner_length', 'max', e.target.value)}
-                disabled={lengthType !== 'range'}
-                style={{ width: '70px', opacity: lengthType === 'range' ? 1 : 0.6 }}
-              />
-            </div>
+            {renderRangeControl('corner_length', lengthType, 16)}
           </div>
         </Col>
       </Form.Group>
@@ -161,25 +348,7 @@ const CornerSection = ({ formData, handleChange, handlePracticeLetterChange }) =
               checked={cycleBreaksType === 'range'}
               onChange={() => handleTypeChange('corners_cycle_breaks', 'range', setCycleBreaksType)}
             />
-            <div className="d-flex align-items-center gap-2 ms-3">
-              <Form.Control
-                type="number"
-                min="0"
-                value={formData.corners_cycle_breaks_min || 0}
-                onChange={(e) => handleRangeChange('corners_cycle_breaks', 'min', e.target.value)}
-                disabled={cycleBreaksType !== 'range'}
-                style={{ width: '70px', opacity: cycleBreaksType === 'range' ? 1 : 0.6 }}
-              />
-              <span>-</span>
-              <Form.Control
-                type="number"
-                min="0"
-                value={formData.corners_cycle_breaks_max || 7}
-                onChange={(e) => handleRangeChange('corners_cycle_breaks', 'max', e.target.value)}
-                disabled={cycleBreaksType !== 'range'}
-                style={{ width: '70px', opacity: cycleBreaksType === 'range' ? 1 : 0.6 }}
-              />
-            </div>
+            {renderRangeControl('corners_cycle_breaks', cycleBreaksType, 7)}
           </div>
         </Col>
       </Form.Group>
@@ -203,25 +372,7 @@ const CornerSection = ({ formData, handleChange, handlePracticeLetterChange }) =
               checked={cwTwistsType === 'range'}
               onChange={() => handleTypeChange('corners_cw_twists', 'range', setCwTwistsType)}
             />
-            <div className="d-flex align-items-center gap-2 ms-3">
-              <Form.Control
-                type="number"
-                min="0"
-                value={formData.corners_cw_twists_min || 0}
-                onChange={(e) => handleRangeChange('corners_cw_twists', 'min', e.target.value)}
-                disabled={cwTwistsType !== 'range'}
-                style={{ width: '70px', opacity: cwTwistsType === 'range' ? 1 : 0.6 }}
-              />
-              <span>-</span>
-              <Form.Control
-                type="number"
-                min="0"
-                value={formData.corners_cw_twists_max || 7}
-                onChange={(e) => handleRangeChange('corners_cw_twists', 'max', e.target.value)}
-                disabled={cwTwistsType !== 'range'}
-                style={{ width: '70px', opacity: cwTwistsType === 'range' ? 1 : 0.6 }}
-              />
-            </div>
+            {renderRangeControl('corners_cw_twists', cwTwistsType, 7)}
           </div>
         </Col>
       </Form.Group>
@@ -245,25 +396,7 @@ const CornerSection = ({ formData, handleChange, handlePracticeLetterChange }) =
               checked={ccwTwistsType === 'range'}
               onChange={() => handleTypeChange('corners_ccw_twists', 'range', setCcwTwistsType)}
             />
-            <div className="d-flex align-items-center gap-2 ms-3">
-              <Form.Control
-                type="number"
-                min="0"
-                value={formData.corners_ccw_twists_min || 0}
-                onChange={(e) => handleRangeChange('corners_ccw_twists', 'min', e.target.value)}
-                disabled={ccwTwistsType !== 'range'}
-                style={{ width: '70px', opacity: ccwTwistsType === 'range' ? 1 : 0.6 }}
-              />
-              <span>-</span>
-              <Form.Control
-                type="number"
-                min="0"
-                value={formData.corners_ccw_twists_max || 7}
-                onChange={(e) => handleRangeChange('corners_ccw_twists', 'max', e.target.value)}
-                disabled={ccwTwistsType !== 'range'}
-                style={{ width: '70px', opacity: ccwTwistsType === 'range' ? 1 : 0.6 }}
-              />
-            </div>
+            {renderRangeControl('corners_ccw_twists', ccwTwistsType, 7)}
           </div>
         </Col>
       </Form.Group>
@@ -287,25 +420,7 @@ const CornerSection = ({ formData, handleChange, handlePracticeLetterChange }) =
               checked={solvedType === 'range'}
               onChange={() => handleTypeChange('corners_solved', 'range', setSolvedType)}
             />
-            <div className="d-flex align-items-center gap-2 ms-3">
-              <Form.Control
-                type="number"
-                min="0"
-                value={formData.corners_solved_min || 0}
-                onChange={(e) => handleRangeChange('corners_solved', 'min', e.target.value)}
-                disabled={solvedType !== 'range'}
-                style={{ width: '70px', opacity: solvedType === 'range' ? 1 : 0.6 }}
-              />
-              <span>-</span>
-              <Form.Control
-                type="number"
-                min="0"
-                value={formData.corners_solved_max || 8}
-                onChange={(e) => handleRangeChange('corners_solved', 'max', e.target.value)}
-                disabled={solvedType !== 'range'}
-                style={{ width: '70px', opacity: solvedType === 'range' ? 1 : 0.6 }}
-              />
-            </div>
+            {renderRangeControl('corners_solved', solvedType, 8)}
           </div>
         </Col>
       </Form.Group>
