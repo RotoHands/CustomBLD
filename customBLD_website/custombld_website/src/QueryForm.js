@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Button, Card, Accordion } from 'react-bootstrap';
+import { Form, Button, Card, Accordion, Row, Col, InputGroup } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import EdgeSection from './components/EdgeSection';
@@ -58,9 +58,6 @@ const QueryForm = ({ onSubmit }) => {
     twist_clockwise: 'random',
     twist_counterclockwise: 'random',
     corner_parity: 'random',
-    corners_solved_type: 'random',
-    corners_solved_min: 0,
-    corners_solved_max: 8,
     first_corners: '',
     wing_buffer: 'UFr',
     wings_length_type: 'random',
@@ -118,11 +115,56 @@ const QueryForm = ({ onSubmit }) => {
   }, []);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    const { name, value, type } = e.target;
+    
+    // Special handling for number inputs
+      // Check if the value is empty (allow deletion)
+      if (value === '') {
+        setFormData(prev => ({ ...prev, [name]: '' }));
+        return;
+      }
+      
+      // Parse the value as a number - use parseFloat to handle decimal numbers too
+      const numberValue = parseFloat(value);
+      
+      // Check if it's a valid number (including zero)
+      if (!isNaN(numberValue)) {
+        // Log the value being set to debug
+        console.log(`Setting ${name} to ${numberValue}`);
+        
+        setFormData(prev => {
+          const newData = { ...prev, [name]: numberValue };
+          
+          // Only adjust min/max relationships when explicitly needed,
+          // not on every input change which can cause the value to revert
+          if (name.endsWith('_min')) {
+            const maxField = name.replace('_min', '_max');
+            const maxValue = prev[maxField];
+            
+            // Only adjust if max value exists and is less than the new min
+            // But don't adjust if max is 0, which is a valid min bound
+            if (maxValue !== undefined && maxValue !== '' && numberValue > maxValue && maxValue !== 0) {
+              newData[maxField] = numberValue;
+            }
+          } else if (name.endsWith('_max')) {
+            const minField = name.replace('_max', '_min');
+            const minValue = prev[minField];
+            
+            // Only adjust if min value exists and is greater than the new max
+            // But don't adjust if the new max is 0, this is a special case
+            if (minValue !== undefined && minValue !== '' && numberValue < minValue && numberValue !== 0) {
+              newData[minField] = numberValue;
+            }
+          }
+          
+          return newData;
+        });
+        return;
+      }
+    
+    
+    // Normal handling for other input types
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleLetterChange = (piece, pos, value) => {
@@ -267,9 +309,6 @@ const QueryForm = ({ onSubmit }) => {
         twist_clockwise: 'random',
         twist_counterclockwise: 'random',
         corner_parity: 'random',
-        corners_solved_type: 'random',
-        corners_solved_min: 0,
-        corners_solved_max: 8,
         first_corners: '',
         wing_buffer: 'UFr',
         wings_length_type: 'random',
@@ -325,22 +364,53 @@ const QueryForm = ({ onSubmit }) => {
     }
   };
 
-  const renderNumberSelect = (name, min, max, label) => (
-    <Form.Group className="mb-3">
-      <Form.Label>{label}</Form.Label>
-      <Form.Select name={name} value={formData[name]} onChange={handleChange}>
-        <option value="random">random</option>
-        {[...Array(max - min + 1)].map((_, i) => (
-          <option key={i + min} value={i + min}>{i + min}</option>
-        ))}
-      </Form.Select>
-    </Form.Group>
-  );
-
-  const convertYesNoToBoolean = (value) => {
-    if (value === 'yes') return true;
-    if (value === 'no') return false;
-    return value; // Return as-is for other values like 'random'
+  const renderNumberSelect = (piece, type, min, max, step = 1) => {
+    const baseFieldName = `${piece}_${type}`;
+    const minFieldName = `${baseFieldName}_min`;
+    const maxFieldName = `${baseFieldName}_max`;
+    const typeFieldName = `${baseFieldName}_type`;
+  
+    return (
+      <Row className="mb-3">
+        <Col md={4}>
+          <Form.Select
+            name={typeFieldName}
+            value={formData[typeFieldName] || 'random'}
+            onChange={handleChange}
+          >
+            <option value="random">Random</option>
+            <option value="range">Range</option>
+          </Form.Select>
+        </Col>
+        <Col md={8}>
+          <InputGroup>
+            <Form.Control
+              type="number"
+              name={minFieldName}
+              placeholder="Min"
+              value={formData[minFieldName] === 0 ? "0" : (formData[minFieldName] || '')}
+              onChange={handleChange}
+              min={0}
+              max={max}
+              step={step}
+              disabled={formData[typeFieldName] !== 'range'}
+            />
+            <InputGroup.Text>to</InputGroup.Text>
+            <Form.Control
+              type="number"
+              name={maxFieldName}
+              placeholder="Max"
+              value={formData[maxFieldName] === 0 ? "0" : (formData[maxFieldName] || '')}
+              onChange={handleChange}
+              min={0}
+              max={max}
+              step={step}
+              disabled={formData[typeFieldName] !== 'range'}
+            />
+          </InputGroup>
+        </Col>
+      </Row>
+    );
   };
 
   return (
@@ -357,16 +427,8 @@ const QueryForm = ({ onSubmit }) => {
             scramble_type: formData.scramble_type,
             letterScheme: formData.letterScheme,
             scramble_count: formData.scramble_count,
-            // Convert 'yes'/'no' to true/false for generate_solutions
-            generate_solutions: convertYesNoToBoolean(formData.generate_solutions)
+            generate_solutions: formData.generate_solutions
           };
-          
-          // For other yes/no fields like parities, update them as well:
-          payload.edge_parity = convertYesNoToBoolean(formData.edge_parity);
-          payload.corner_parity = convertYesNoToBoolean(formData.corner_parity);
-          payload.wing_parity = convertYesNoToBoolean(formData.wing_parity);
-          payload.xcenter_parity = convertYesNoToBoolean(formData.xcenter_parity);
-          payload.tcenter_parity = convertYesNoToBoolean(formData.tcenter_parity);
           
           // Add edge data if needed (3BLD, 4BLD, 5BLD or specific edge selections)
           if (['3bld', '3bld_edges', '5bld', '5bld_edges'].includes(formData.scramble_type)) {
@@ -376,7 +438,6 @@ const QueryForm = ({ onSubmit }) => {
             if (formData.edge_length_type === 'random') {
               payload.edge_length_type = 'random';
             } else {
-              payload.edge_length_type = 'range';  // Explicitly set type to 'range'
               payload.edge_length_min = formData.edge_length_min;
               payload.edge_length_max = formData.edge_length_max;
             }
@@ -385,25 +446,23 @@ const QueryForm = ({ onSubmit }) => {
             if (formData.edge_cycle_breaks_type === 'random') {
               payload.edge_cycle_breaks_type = 'random';
             } else {
-              payload.edge_cycle_breaks_type = 'range';  // Explicitly set type to 'range'
               payload.edge_cycle_breaks_min = formData.edge_cycle_breaks_min;
               payload.edge_cycle_breaks_max = formData.edge_cycle_breaks_max;
             }
             
-            // Handle flipped edges based on selection
+            // Add edge parity
+            payload.edge_parity = formData.edge_parity;
+
+            // Add flipped edges based on selection
             if (formData.edges_flipped_type === 'random') {
               payload.edges_flipped_type = 'random';
             } else {
-              payload.edges_flipped_type = 'range';  // Explicitly set type to 'range'
               payload.edges_flipped_min = formData.edges_flipped_min;
               payload.edges_flipped_max = formData.edges_flipped_max;
             }
             
             // Add solved edges
             payload.edges_solved = formData.edges_solved;
-            
-            // Add edge parity
-            payload.edge_parity = formData.edge_parity;
           }
           
           // Add corner data if needed (3BLD, 4BLD, 5BLD or specific corner selections)
@@ -414,7 +473,6 @@ const QueryForm = ({ onSubmit }) => {
             if (formData.corner_length_type === 'random') {
               payload.corner_length_type = 'random';
             } else {
-              payload.corner_length_type = 'range';  // Explicitly set type to 'range'
               payload.corner_length_min = formData.corner_length_min;
               payload.corner_length_max = formData.corner_length_max;
             }
@@ -423,13 +481,9 @@ const QueryForm = ({ onSubmit }) => {
             if (formData.corners_cycle_breaks_type === 'random') {
               payload.corners_cycle_breaks_type = 'random';
             } else {
-              payload.corners_cycle_breaks_type = 'range';  // Explicitly set type to 'range'
               payload.corners_cycle_breaks_min = formData.corners_cycle_breaks_min;
               payload.corners_cycle_breaks_max = formData.corners_cycle_breaks_max;
             }
-            
-            // Add solved corners
-            payload.corners_solved = formData.corners_solved;
             
             // Add corner parity and twists
             payload.corner_parity = formData.corner_parity;
@@ -437,7 +491,6 @@ const QueryForm = ({ onSubmit }) => {
             if (formData.corners_cw_twists_type === 'random') {
               payload.corners_cw_twists_type = 'random';
             } else {
-              payload.corners_cw_twists_type = 'range';  // Explicitly set type to 'range'
               payload.corners_cw_twists_min = formData.corners_cw_twists_min;
               payload.corners_cw_twists_max = formData.corners_cw_twists_max;
             }
@@ -445,10 +498,12 @@ const QueryForm = ({ onSubmit }) => {
             if (formData.corners_ccw_twists_type === 'random') {
               payload.corners_ccw_twists_type = 'random';
             } else {
-              payload.corners_ccw_twists_type = 'range';  // Explicitly set type to 'range'
               payload.corners_ccw_twists_min = formData.corners_ccw_twists_min;
               payload.corners_ccw_twists_max = formData.corners_ccw_twists_max;
             }
+
+            // Add solved corners
+            payload.corners_solved = formData.corners_solved;
           }
           
           // Add wing data if needed (4BLD, 5BLD)
@@ -459,7 +514,6 @@ const QueryForm = ({ onSubmit }) => {
             if (formData.wings_length_type === 'random') {
               payload.wings_length_type = 'random';
             } else {
-              payload.wings_length_type = 'range';  // Explicitly set type to 'range'
               payload.wings_length_min = formData.wings_length_min;
               payload.wings_length_max = formData.wings_length_max;
             }
@@ -468,7 +522,6 @@ const QueryForm = ({ onSubmit }) => {
             if (formData.wings_cycle_breaks_type === 'random') {
               payload.wings_cycle_breaks_type = 'random';
             } else {
-              payload.wings_cycle_breaks_type = 'range';  // Explicitly set type to 'range'
               payload.wings_cycle_breaks_min = formData.wings_cycle_breaks_min;
               payload.wings_cycle_breaks_max = formData.wings_cycle_breaks_max;
             }
@@ -477,7 +530,6 @@ const QueryForm = ({ onSubmit }) => {
             if (formData.wings_solved_type === 'random') {
               payload.wings_solved_type = 'random';
             } else {
-              payload.wings_solved_type = 'range';  // Explicitly set type to 'range'
               payload.wings_solved_min = formData.wings_solved_min;
               payload.wings_solved_max = formData.wings_solved_max;
             }
@@ -494,7 +546,6 @@ const QueryForm = ({ onSubmit }) => {
             if (formData.x_centers_length_type === 'random') {
               payload.x_centers_length_type = 'random';
             } else {
-              payload.x_centers_length_type = 'range';  // Explicitly set type to 'range'
               payload.x_centers_length_min = formData.x_centers_length_min;
               payload.x_centers_length_max = formData.x_centers_length_max;
             }
@@ -503,7 +554,6 @@ const QueryForm = ({ onSubmit }) => {
             if (formData.x_centers_cycle_breaks_type === 'random') {
               payload.x_centers_cycle_breaks_type = 'random';
             } else {
-              payload.x_centers_cycle_breaks_type = 'range';  // Explicitly set type to 'range'
               payload.x_centers_cycle_breaks_min = formData.x_centers_cycle_breaks_min;
               payload.x_centers_cycle_breaks_max = formData.x_centers_cycle_breaks_max;
             }
@@ -512,7 +562,6 @@ const QueryForm = ({ onSubmit }) => {
             if (formData.x_centers_solved_type === 'random') {
               payload.x_centers_solved_type = 'random';
             } else {
-              payload.x_centers_solved_type = 'range';  // Explicitly set type to 'range'
               payload.x_centers_solved_min = formData.x_centers_solved_min;
               payload.x_centers_solved_max = formData.x_centers_solved_max;
             }
@@ -529,7 +578,6 @@ const QueryForm = ({ onSubmit }) => {
             if (formData.t_centers_length_type === 'random') {
               payload.t_centers_length_type = 'random';
             } else {
-              payload.t_centers_length_type = 'range';  // Explicitly set type to 'range'
               payload.t_centers_length_min = formData.t_centers_length_min;
               payload.t_centers_length_max = formData.t_centers_length_max;
             }
@@ -538,7 +586,6 @@ const QueryForm = ({ onSubmit }) => {
             if (formData.t_centers_cycle_breaks_type === 'random') {
               payload.t_centers_cycle_breaks_type = 'random';
             } else {
-              payload.t_centers_cycle_breaks_type = 'range';  // Explicitly set type to 'range'
               payload.t_centers_cycle_breaks_min = formData.t_centers_cycle_breaks_min;
               payload.t_centers_cycle_breaks_max = formData.t_centers_cycle_breaks_max;
             }
@@ -547,7 +594,6 @@ const QueryForm = ({ onSubmit }) => {
             if (formData.t_centers_solved_type === 'random') {
               payload.t_centers_solved_type = 'random';
             } else {
-              payload.t_centers_solved_type = 'range';  // Explicitly set type to 'range'
               payload.t_centers_solved_min = formData.t_centers_solved_min;
               payload.t_centers_solved_max = formData.t_centers_solved_max;
             }
