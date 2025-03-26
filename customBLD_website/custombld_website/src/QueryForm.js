@@ -585,6 +585,7 @@ const QueryForm = ({ onSubmit }) => {
               payload.wings_length_type = 'random';
             } else {
               payload.wings_length_type = 'range';
+              // Always use the literal range values, even for 0-0
               payload.wings_length_min = formData.wings_length_min;
               payload.wings_length_max = formData.wings_length_max;
             }
@@ -594,6 +595,7 @@ const QueryForm = ({ onSubmit }) => {
               payload.wings_cycle_breaks_type = 'random';
             } else {
               payload.wings_cycle_breaks_type = 'range';
+              // Always use the literal range values, even for 0-0
               payload.wings_cycle_breaks_min = formData.wings_cycle_breaks_min;
               payload.wings_cycle_breaks_max = formData.wings_cycle_breaks_max;
             }
@@ -621,6 +623,7 @@ const QueryForm = ({ onSubmit }) => {
               payload.x_centers_length_type = 'random';
             } else {
               payload.x_centers_length_type = 'range';
+              // Always use the literal range values, even for 0-0
               payload.x_centers_length_min = formData.x_centers_length_min;
               payload.x_centers_length_max = formData.x_centers_length_max;
             }
@@ -630,6 +633,7 @@ const QueryForm = ({ onSubmit }) => {
               payload.x_centers_cycle_breaks_type = 'random';
             } else {
               payload.x_centers_cycle_breaks_type = 'range';
+              // Always use the literal range values, even for 0-0
               payload.x_centers_cycle_breaks_min = formData.x_centers_cycle_breaks_min;
               payload.x_centers_cycle_breaks_max = formData.x_centers_cycle_breaks_max;
             }
@@ -657,6 +661,7 @@ const QueryForm = ({ onSubmit }) => {
               payload.t_centers_length_type = 'random';
             } else {
               payload.t_centers_length_type = 'range';
+              // Always use the literal range values, even for 0-0
               payload.t_centers_length_min = formData.t_centers_length_min;
               payload.t_centers_length_max = formData.t_centers_length_max;
             }
@@ -666,6 +671,7 @@ const QueryForm = ({ onSubmit }) => {
               payload.t_centers_cycle_breaks_type = 'random';
             } else {
               payload.t_centers_cycle_breaks_type = 'range';
+              // Always use the literal range values, even for 0-0
               payload.t_centers_cycle_breaks_min = formData.t_centers_cycle_breaks_min;
               payload.t_centers_cycle_breaks_max = formData.t_centers_cycle_breaks_max;
             }
