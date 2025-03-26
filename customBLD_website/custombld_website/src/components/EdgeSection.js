@@ -319,7 +319,7 @@ const EdgeSection = ({ formData, handleChange, renderNumberSelect, handlePractic
               id="cycle-breaks-random"
               label="random"
               checked={cycleBreaksType === 'random'}
-              onChange={() => handleTypeChange('edges_cycle_breaks', 'random', setCycleBreaksType)}
+              onChange={() => handleTypeChange('edge_cycle_breaks', 'random', setCycleBreaksType)}
               className="me-3"
             />
             <Form.Check
@@ -327,9 +327,9 @@ const EdgeSection = ({ formData, handleChange, renderNumberSelect, handlePractic
               id="cycle-breaks-range"
               label="range"
               checked={cycleBreaksType === 'range'}
-              onChange={() => handleTypeChange('edges_cycle_breaks', 'range', setCycleBreaksType)}
+              onChange={() => handleTypeChange('edge_cycle_breaks', 'range', setCycleBreaksType)}
             />
-            {renderRangeControl('edges_cycle_breaks', cycleBreaksType, 10)}
+            {renderRangeControl('edge_cycle_breaks', cycleBreaksType, 10)}
           </div>
         </Col>
       </Form.Group>

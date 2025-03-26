@@ -37,8 +37,13 @@ const QueryForm = ({ onSubmit }) => {
     edges_flipped: 'random',
     edges_flipped_min: 0,
     edges_flipped_max: 12,
+
     edges_flipped: 6,   
     edges_solved: 'random',
+    edges_solved_type: 'random',
+    edges_solved_min : 0,
+    edges_solved_max : 12,
+    edge_parity: 'random',
     first_edges: '',
     corner_buffer: 'UFR',  // Set default buffer to UFR
     corner_length_type: 'random',
@@ -57,6 +62,9 @@ const QueryForm = ({ onSubmit }) => {
     corners_ccw_twists_max: 7,
     twist_clockwise: 'random',
     twist_counterclockwise: 'random',
+    corners_solved_type: 'random',
+    corners_solved_min: 0,  
+    corners_solved_max: 8,
     corner_parity: 'random',
     first_corners: '',
     wing_buffer: 'UFr',
@@ -119,6 +127,7 @@ const QueryForm = ({ onSubmit }) => {
     
     // Special handling for number inputs
       // Check if the value is empty (allow deletion)
+    if (type === 'number') {
       if (value === '') {
         setFormData(prev => ({ ...prev, [name]: '' }));
         return;
@@ -161,7 +170,7 @@ const QueryForm = ({ onSubmit }) => {
         });
         return;
       }
-    
+    }
     
     // Normal handling for other input types
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -223,6 +232,9 @@ const QueryForm = ({ onSubmit }) => {
       edges_flipped_type: formData.edges_flipped_type,
       edges_flipped_min: formData.edges_flipped_min,
       edges_flipped_max: formData.edges_flipped_max,
+      edges_solved_type: formData.edges_solved_type,
+      edges_solved_min: formData.edges_solved_min,
+      edges_solved_max: formData.edges_solved_max,
       edge_parity: formData.edge_parity,
       
       // Corners
@@ -234,6 +246,17 @@ const QueryForm = ({ onSubmit }) => {
       corners_cycle_breaks_min: formData.corners_cycle_breaks_min,
       corners_cycle_breaks_max: formData.corners_cycle_breaks_max,
       corner_parity: formData.corner_parity,
+      corners_cw_twists_type: formData.corners_cw_twists_type,
+      corners_cw_twists_min: formData.corners_cw_twists_min,
+      corners_cw_twists_max: formData.corners_cw_twists_max,
+      corners_ccw_twists_type: formData.corners_ccw_twists_type,
+      corners_ccw_twists_min: formData.corners_ccw_twists_min,
+      corners_ccw_twists_max: formData.corners_ccw_twists_max,
+      twist_clockwise: formData.twist_clockwise,
+      twist_counterclockwise: formData.twist_counterclockwise,
+      corners_solved_min: formData.corners_solved_min,
+      corners_solved_max: formData.corners_solved_max,
+      corners_solved_type: formData.corners_solved_type,
       
       // Wings
       wing_buffer: formData.wing_buffer,
@@ -290,6 +313,9 @@ const QueryForm = ({ onSubmit }) => {
         edges_cycle_breaks: 'random',
         edges_flipped: 'random',
         edges_solved: 'random',
+        edges_solved_min : 0,
+        edges_solved_max : 12,
+        edge_parity: 'random',
         first_edges: '',
         corner_buffer: 'UFR',  // Set default buffer to UBL
         corner_length_type: 'random',
@@ -438,14 +464,23 @@ const QueryForm = ({ onSubmit }) => {
             if (formData.edge_length_type === 'random') {
               payload.edge_length_type = 'random';
             } else {
-              payload.edge_length_min = formData.edge_length_min;
-              payload.edge_length_max = formData.edge_length_max;
+              payload.edge_length_type = 'range';
+              
+              // Special case: if both min and max are 0, set a flag for empty
+              if (formData.edge_length_min === 0 && formData.edge_length_max === 0) {
+                payload.edge_length_empty = true;
+              } else {
+                payload.edge_length_min = formData.edge_length_min;
+                payload.edge_length_max = formData.edge_length_max;
+              }
             }
             
             // Handle cycle breaks based on selection
             if (formData.edge_cycle_breaks_type === 'random') {
               payload.edge_cycle_breaks_type = 'random';
             } else {
+              payload.edge_cycle_breaks_type = 'range';
+              // Always use the literal range values, even for 0-0
               payload.edge_cycle_breaks_min = formData.edge_cycle_breaks_min;
               payload.edge_cycle_breaks_max = formData.edge_cycle_breaks_max;
             }
@@ -453,16 +488,25 @@ const QueryForm = ({ onSubmit }) => {
             // Add edge parity
             payload.edge_parity = formData.edge_parity;
 
-            // Add flipped edges based on selection
+            // For flipped edges - don't use the empty flag
             if (formData.edges_flipped_type === 'random') {
               payload.edges_flipped_type = 'random';
             } else {
+              payload.edges_flipped_type = 'range';
+              // Always use the literal range values, even for 0-0
               payload.edges_flipped_min = formData.edges_flipped_min;
               payload.edges_flipped_max = formData.edges_flipped_max;
             }
             
-            // Add solved edges
-            payload.edges_solved = formData.edges_solved;
+            // For solved edges - don't use the empty flag
+            if (formData.edges_solved_type === 'random') {
+              payload.edges_solved_type = 'random';
+            } else {
+              payload.edges_solved_type = 'range';
+              // Always use the literal range values, even for 0-0
+              payload.edges_solved_min = formData.edges_solved_min;
+              payload.edges_solved_max = formData.edges_solved_max;
+            }
           }
           
           // Add corner data if needed (3BLD, 4BLD, 5BLD or specific corner selections)
@@ -473,24 +517,41 @@ const QueryForm = ({ onSubmit }) => {
             if (formData.corner_length_type === 'random') {
               payload.corner_length_type = 'random';
             } else {
-              payload.corner_length_min = formData.corner_length_min;
-              payload.corner_length_max = formData.corner_length_max;
+              payload.corner_length_type = 'range';
+              
+              // Special case: if both min and max are 0, set a flag for empty
+              if (formData.corner_length_min === 0 && formData.corner_length_max === 0) {
+                payload.corner_length_empty = true;
+              } else {
+                payload.corner_length_min = formData.corner_length_min;
+                payload.corner_length_max = formData.corner_length_max;
+              }
             }
             
             // Handle cycle breaks based on selection
             if (formData.corners_cycle_breaks_type === 'random') {
               payload.corners_cycle_breaks_type = 'random';
             } else {
-              payload.corners_cycle_breaks_min = formData.corners_cycle_breaks_min;
-              payload.corners_cycle_breaks_max = formData.corners_cycle_breaks_max;
+              payload.corners_cycle_breaks_type = 'range';
+              
+              // Special case: if both min and max are 0, set a flag for empty
+              if (formData.corners_cycle_breaks_min === 0 && formData.corners_cycle_breaks_max === 0) {
+                payload.corners_cycle_breaks_empty = true;
+              } else {
+                payload.corners_cycle_breaks_min = formData.corners_cycle_breaks_min;
+                payload.corners_cycle_breaks_max = formData.corners_cycle_breaks_max;
+              }
             }
             
             // Add corner parity and twists
             payload.corner_parity = formData.corner_parity;
             
+            // For corner twists - don't use the empty flag
             if (formData.corners_cw_twists_type === 'random') {
               payload.corners_cw_twists_type = 'random';
             } else {
+              payload.corners_cw_twists_type = 'range';
+              // Always use the literal range values, even for 0-0
               payload.corners_cw_twists_min = formData.corners_cw_twists_min;
               payload.corners_cw_twists_max = formData.corners_cw_twists_max;
             }
@@ -498,12 +559,21 @@ const QueryForm = ({ onSubmit }) => {
             if (formData.corners_ccw_twists_type === 'random') {
               payload.corners_ccw_twists_type = 'random';
             } else {
+              payload.corners_ccw_twists_type = 'range';
+              // Always use the literal range values, even for 0-0
               payload.corners_ccw_twists_min = formData.corners_ccw_twists_min;
               payload.corners_ccw_twists_max = formData.corners_ccw_twists_max;
             }
 
-            // Add solved corners
-            payload.corners_solved = formData.corners_solved;
+            // For solved corners - don't use the empty flag
+            if (formData.corners_solved_type === 'random') {
+              payload.corners_solved_type = 'random';
+            } else {
+              payload.corners_solved_type = 'range';
+              // Always use the literal range values, even for 0-0
+              payload.corners_solved_min = formData.corners_solved_min;
+              payload.corners_solved_max = formData.corners_solved_max;
+            }
           }
           
           // Add wing data if needed (4BLD, 5BLD)
@@ -514,6 +584,7 @@ const QueryForm = ({ onSubmit }) => {
             if (formData.wings_length_type === 'random') {
               payload.wings_length_type = 'random';
             } else {
+              payload.wings_length_type = 'range';
               payload.wings_length_min = formData.wings_length_min;
               payload.wings_length_max = formData.wings_length_max;
             }
@@ -522,14 +593,17 @@ const QueryForm = ({ onSubmit }) => {
             if (formData.wings_cycle_breaks_type === 'random') {
               payload.wings_cycle_breaks_type = 'random';
             } else {
+              payload.wings_cycle_breaks_type = 'range';
               payload.wings_cycle_breaks_min = formData.wings_cycle_breaks_min;
               payload.wings_cycle_breaks_max = formData.wings_cycle_breaks_max;
             }
             
-            // Handle solved wings based on selection
+            // For solved wings - don't use the empty flag  
             if (formData.wings_solved_type === 'random') {
               payload.wings_solved_type = 'random';
             } else {
+              payload.wings_solved_type = 'range';
+              // Always use the literal range values, even for 0-0
               payload.wings_solved_min = formData.wings_solved_min;
               payload.wings_solved_max = formData.wings_solved_max;
             }
@@ -546,6 +620,7 @@ const QueryForm = ({ onSubmit }) => {
             if (formData.x_centers_length_type === 'random') {
               payload.x_centers_length_type = 'random';
             } else {
+              payload.x_centers_length_type = 'range';
               payload.x_centers_length_min = formData.x_centers_length_min;
               payload.x_centers_length_max = formData.x_centers_length_max;
             }
@@ -554,14 +629,17 @@ const QueryForm = ({ onSubmit }) => {
             if (formData.x_centers_cycle_breaks_type === 'random') {
               payload.x_centers_cycle_breaks_type = 'random';
             } else {
+              payload.x_centers_cycle_breaks_type = 'range';
               payload.x_centers_cycle_breaks_min = formData.x_centers_cycle_breaks_min;
               payload.x_centers_cycle_breaks_max = formData.x_centers_cycle_breaks_max;
             }
             
-            // Handle solved x-centers based on selection
+            // For solved x-centers - don't use the empty flag
             if (formData.x_centers_solved_type === 'random') {
               payload.x_centers_solved_type = 'random';
             } else {
+              payload.x_centers_solved_type = 'range';
+              // Always use the literal range values, even for 0-0
               payload.x_centers_solved_min = formData.x_centers_solved_min;
               payload.x_centers_solved_max = formData.x_centers_solved_max;
             }
@@ -578,6 +656,7 @@ const QueryForm = ({ onSubmit }) => {
             if (formData.t_centers_length_type === 'random') {
               payload.t_centers_length_type = 'random';
             } else {
+              payload.t_centers_length_type = 'range';
               payload.t_centers_length_min = formData.t_centers_length_min;
               payload.t_centers_length_max = formData.t_centers_length_max;
             }
@@ -586,14 +665,17 @@ const QueryForm = ({ onSubmit }) => {
             if (formData.t_centers_cycle_breaks_type === 'random') {
               payload.t_centers_cycle_breaks_type = 'random';
             } else {
+              payload.t_centers_cycle_breaks_type = 'range';
               payload.t_centers_cycle_breaks_min = formData.t_centers_cycle_breaks_min;
               payload.t_centers_cycle_breaks_max = formData.t_centers_cycle_breaks_max;
             }
             
-            // Handle solved t-centers based on selection
+            // For solved t-centers - don't use the empty flag
             if (formData.t_centers_solved_type === 'random') {
               payload.t_centers_solved_type = 'random';
             } else {
+              payload.t_centers_solved_type = 'range';
+              // Always use the literal range values, even for 0-0
               payload.t_centers_solved_min = formData.t_centers_solved_min;
               payload.t_centers_solved_max = formData.t_centers_solved_max;
             }

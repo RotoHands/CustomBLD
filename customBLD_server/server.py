@@ -236,24 +236,28 @@ def generate_scrambles():
         args.append(buffer_letter)
     
     # Edge length range
-    if 'edge_length_type' in data and data['edge_length_type'] == 'range':
+    if 'edge_length_empty' in data and data['edge_length_empty']:
+        query_conditions.append("edge_length IS NULL")
+    elif 'edge_length_type' in data and data['edge_length_type'] == 'range':
         query_conditions.append("edge_length BETWEEN ? AND ?")
         args.append(data['edge_length_min'])
         args.append(data['edge_length_max'])
     
     # Edge cycle breaks range
-    if 'edges_cycle_breaks_type' in data and data['edges_cycle_breaks_type'] == 'range':
+    if 'edge_cycle_breaks_empty' in data and data['edge_cycle_breaks_empty']:
+        query_conditions.append("edges_cycle_breaks IS NULL")
+    elif 'edge_cycle_breaks_type' in data and data['edge_cycle_breaks_type'] == 'range':
         query_conditions.append("edges_cycle_breaks BETWEEN ? AND ?")
-        args.append(data['edges_cycle_breaks_min'])
-        args.append(data['edges_cycle_breaks_max'])
+        args.append(data['edge_cycle_breaks_min'])
+        args.append(data['edge_cycle_breaks_max'])
     
-    # Edges flipped range
+    # Edges flipped range - always use BETWEEN, even for 0-0
     if 'edges_flipped_type' in data and data['edges_flipped_type'] == 'range':
         query_conditions.append("edges_flipped BETWEEN ? AND ?")
         args.append(data['edges_flipped_min'])
         args.append(data['edges_flipped_max'])
     
-    # Edges solved range
+    # Edges solved range - always use BETWEEN, even for 0-0
     if 'edges_solved_type' in data and data['edges_solved_type'] == 'range':
         query_conditions.append("edges_solved BETWEEN ? AND ?")
         args.append(data['edges_solved_min'])
@@ -278,30 +282,34 @@ def generate_scrambles():
         args.append(buffer_letter)
     
     # Corner length range
-    if 'corner_length_type' in data and data['corner_length_type'] == 'range':
+    if 'corner_length_empty' in data and data['corner_length_empty']:
+        query_conditions.append("corner_length IS NULL")
+    elif 'corner_length_type' in data and data['corner_length_type'] == 'range':
         query_conditions.append("corner_length BETWEEN ? AND ?")
         args.append(data['corner_length_min'])
         args.append(data['corner_length_max'])
     
     # Corner cycle breaks range
-    if 'corners_cycle_breaks_type' in data and data['corners_cycle_breaks_type'] == 'range':
+    if 'corners_cycle_breaks_empty' in data and data['corners_cycle_breaks_empty']:
+        query_conditions.append("corners_cycle_breaks IS NULL")
+    elif 'corners_cycle_breaks_type' in data and data['corners_cycle_breaks_type'] == 'range':
         query_conditions.append("corners_cycle_breaks BETWEEN ? AND ?")
         args.append(data['corners_cycle_breaks_min'])
         args.append(data['corners_cycle_breaks_max'])
     
-    # Clockwise twists range
+    # Clockwise twists range - always use BETWEEN, even for 0-0
     if 'corners_cw_twists_type' in data and data['corners_cw_twists_type'] == 'range':
         query_conditions.append("twist_clockwise BETWEEN ? AND ?")
         args.append(data['corners_cw_twists_min'])
         args.append(data['corners_cw_twists_max'])
     
-    # Counterclockwise twists range
+    # Counterclockwise twists range - always use BETWEEN, even for 0-0
     if 'corners_ccw_twists_type' in data and data['corners_ccw_twists_type'] == 'range':
         query_conditions.append("twist_counterclockwise BETWEEN ? AND ?")
         args.append(data['corners_ccw_twists_min'])
         args.append(data['corners_ccw_twists_max'])
     
-    # Corners solved range
+    # Corners solved range - always use BETWEEN, even for 0-0
     if 'corners_solved_type' in data and data['corners_solved_type'] == 'range':
         query_conditions.append("corners_solved BETWEEN ? AND ?")
         args.append(data['corners_solved_min'])
@@ -326,18 +334,22 @@ def generate_scrambles():
         args.append(buffer_letter)
     
     # Wings length range
-    if 'wings_length_type' in data and data['wings_length_type'] == 'range':
+    if 'wings_length_empty' in data and data['wings_length_empty']:
+        query_conditions.append("wings_length IS NULL")
+    elif 'wings_length_type' in data and data['wings_length_type'] == 'range':
         query_conditions.append("wings_length BETWEEN ? AND ?")
         args.append(data['wings_length_min'])
         args.append(data['wings_length_max'])
     
     # Wings cycle breaks range
-    if 'wings_cycle_breaks_type' in data and data['wings_cycle_breaks_type'] == 'range':
+    if 'wings_cycle_breaks_empty' in data and data['wings_cycle_breaks_empty']:
+        query_conditions.append("wings_cycle_breaks IS NULL")
+    elif 'wings_cycle_breaks_type' in data and data['wings_cycle_breaks_type'] == 'range':
         query_conditions.append("wings_cycle_breaks BETWEEN ? AND ?")
         args.append(data['wings_cycle_breaks_min'])
         args.append(data['wings_cycle_breaks_max'])
     
-    # Wings solved range
+    # Wings solved range - always use BETWEEN, even for 0-0
     if 'wings_solved_type' in data and data['wings_solved_type'] == 'range':
         query_conditions.append("wings_solved BETWEEN ? AND ?")
         args.append(data['wings_solved_min'])
@@ -362,22 +374,26 @@ def generate_scrambles():
         args.append(buffer_letter)
     
     # X-Center length range
-    if 'xcenter_length_type' in data and data['xcenter_length_type'] == 'range':
+    if 'x_centers_length_empty' in data and data['x_centers_length_empty']:
+        query_conditions.append("xcenter_length IS NULL")
+    elif 'x_centers_length_type' in data and data['x_centers_length_type'] == 'range':
         query_conditions.append("xcenter_length BETWEEN ? AND ?")
-        args.append(data['xcenter_length_min'])
-        args.append(data['xcenter_length_max'])
+        args.append(data['x_centers_length_min'])
+        args.append(data['x_centers_length_max'])
     
     # X-Center cycle breaks range
-    if 'xcenters_cycle_breaks_type' in data and data['xcenters_cycle_breaks_type'] == 'range':
+    if 'x_centers_cycle_breaks_empty' in data and data['x_centers_cycle_breaks_empty']:
+        query_conditions.append("xcenters_cycle_breaks IS NULL")
+    elif 'x_centers_cycle_breaks_type' in data and data['x_centers_cycle_breaks_type'] == 'range':
         query_conditions.append("xcenters_cycle_breaks BETWEEN ? AND ?")
-        args.append(data['xcenters_cycle_breaks_min'])
-        args.append(data['xcenters_cycle_breaks_max'])
+        args.append(data['x_centers_cycle_breaks_min'])
+        args.append(data['x_centers_cycle_breaks_max'])
     
-    # X-Center solved range
-    if 'xcenters_solved_type' in data and data['xcenters_solved_type'] == 'range':
+    # X-Centers solved range - always use BETWEEN, even for 0-0
+    if 'x_centers_solved_type' in data and data['x_centers_solved_type'] == 'range':
         query_conditions.append("xcenters_solved BETWEEN ? AND ?")
-        args.append(data['xcenters_solved_min'])
-        args.append(data['xcenters_solved_max'])
+        args.append(data['x_centers_solved_min'])
+        args.append(data['x_centers_solved_max'])
     
     # X-Center parity
     if 'xcenter_parity' in data and data['xcenter_parity'] != 'random':
@@ -398,22 +414,26 @@ def generate_scrambles():
         args.append(buffer_letter)
     
     # T-Center length range
-    if 'tcenter_length_type' in data and data['tcenter_length_type'] == 'range':
+    if 't_centers_length_empty' in data and data['t_centers_length_empty']:
+        query_conditions.append("tcenter_length IS NULL")
+    elif 't_centers_length_type' in data and data['t_centers_length_type'] == 'range':
         query_conditions.append("tcenter_length BETWEEN ? AND ?")
-        args.append(data['tcenter_length_min'])
-        args.append(data['tcenter_length_max'])
+        args.append(data['t_centers_length_min'])
+        args.append(data['t_centers_length_max'])
     
     # T-Center cycle breaks range
-    if 'tcenters_cycle_breaks_type' in data and data['tcenters_cycle_breaks_type'] == 'range':
+    if 't_centers_cycle_breaks_empty' in data and data['t_centers_cycle_breaks_empty']:
+        query_conditions.append("tcenters_cycle_breaks IS NULL")
+    elif 't_centers_cycle_breaks_type' in data and data['t_centers_cycle_breaks_type'] == 'range':
         query_conditions.append("tcenters_cycle_breaks BETWEEN ? AND ?")
-        args.append(data['tcenters_cycle_breaks_min'])
-        args.append(data['tcenters_cycle_breaks_max'])
+        args.append(data['t_centers_cycle_breaks_min'])
+        args.append(data['t_centers_cycle_breaks_max'])
     
-    # T-Center solved range
-    if 'tcenters_solved_type' in data and data['tcenters_solved_type'] == 'range':
+    # T-Centers solved range - always use BETWEEN, even for 0-0
+    if 't_centers_solved_type' in data and data['t_centers_solved_type'] == 'range':
         query_conditions.append("tcenters_solved BETWEEN ? AND ?")
-        args.append(data['tcenters_solved_min'])
-        args.append(data['tcenters_solved_max'])
+        args.append(data['t_centers_solved_min'])
+        args.append(data['t_centers_solved_max'])
     
     # T-Center parity
     if 'tcenter_parity' in data and data['tcenter_parity'] != 'random':
