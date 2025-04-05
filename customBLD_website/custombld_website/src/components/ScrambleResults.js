@@ -176,14 +176,14 @@ const ScrambleResults = ({ results }) => {
                    (result.twist_counterclockwise && !isExplicitlyZero(result.twist_counterclockwise)) ? (
                     <span className="ms-2">
                       {result.twist_clockwise && !isExplicitlyZero(result.twist_clockwise) && (
-                        <span>Twist CW: <code>{result.twist_clockwise}</code></span>
+                        <span>Twist Cw: <code>{result.twist_clockwise}</code></span>
                       )}
                       {result.twist_clockwise && !isExplicitlyZero(result.twist_clockwise) && 
                        result.twist_counterclockwise && !isExplicitlyZero(result.twist_counterclockwise) && (
                         <span> | </span>
                       )}
                       {result.twist_counterclockwise && !isExplicitlyZero(result.twist_counterclockwise) && (
-                        <span>Twist CCW: <code>{result.twist_counterclockwise}</code></span>
+                        <span>Twist Ccw: <code>{result.twist_counterclockwise}</code></span>
                       )}
                     </span>
                   ) : null}
