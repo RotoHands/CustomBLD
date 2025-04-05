@@ -518,14 +518,9 @@ const QueryForm = ({ onSubmit }) => {
               payload.corner_length_type = 'random';
             } else {
               payload.corner_length_type = 'range';
-              
-              // Special case: if both min and max are 0, set a flag for empty
-              if (formData.corner_length_min === 0 && formData.corner_length_max === 0) {
-                payload.corner_length_empty = true;
-              } else {
-                payload.corner_length_min = formData.corner_length_min;
-                payload.corner_length_max = formData.corner_length_max;
-              }
+              // Always use the literal range values, even for 0-0
+              payload.corner_length_min = formData.corner_length_min;
+              payload.corner_length_max = formData.corner_length_max;
             }
             
             // Handle cycle breaks based on selection
@@ -533,20 +528,15 @@ const QueryForm = ({ onSubmit }) => {
               payload.corners_cycle_breaks_type = 'random';
             } else {
               payload.corners_cycle_breaks_type = 'range';
-              
-              // Special case: if both min and max are 0, set a flag for empty
-              if (formData.corners_cycle_breaks_min === 0 && formData.corners_cycle_breaks_max === 0) {
-                payload.corners_cycle_breaks_empty = true;
-              } else {
-                payload.corners_cycle_breaks_min = formData.corners_cycle_breaks_min;
-                payload.corners_cycle_breaks_max = formData.corners_cycle_breaks_max;
-              }
+              // Always use the literal range values, even for 0-0
+              payload.corners_cycle_breaks_min = formData.corners_cycle_breaks_min;
+              payload.corners_cycle_breaks_max = formData.corners_cycle_breaks_max;
             }
             
-            // Add corner parity and twists
+            // Add corner parity
             payload.corner_parity = formData.corner_parity;
             
-            // For corner twists - don't use the empty flag
+            // For clockwise twists - check the length of twist_clockwise
             if (formData.corners_cw_twists_type === 'random') {
               payload.corners_cw_twists_type = 'random';
             } else {
@@ -554,8 +544,11 @@ const QueryForm = ({ onSubmit }) => {
               // Always use the literal range values, even for 0-0
               payload.corners_cw_twists_min = formData.corners_cw_twists_min;
               payload.corners_cw_twists_max = formData.corners_cw_twists_max;
+              // Add a flag to indicate we want to check the data length
+              payload.corners_cw_twists_length = true;
             }
             
+            // For counterclockwise twists - check the length of twist_counterclockwise
             if (formData.corners_ccw_twists_type === 'random') {
               payload.corners_ccw_twists_type = 'random';
             } else {
@@ -563,9 +556,11 @@ const QueryForm = ({ onSubmit }) => {
               // Always use the literal range values, even for 0-0
               payload.corners_ccw_twists_min = formData.corners_ccw_twists_min;
               payload.corners_ccw_twists_max = formData.corners_ccw_twists_max;
+              // Add a flag to indicate we want to check the data length
+              payload.corners_ccw_twists_length = true;
             }
 
-            // For solved corners - don't use the empty flag
+            // For solved corners
             if (formData.corners_solved_type === 'random') {
               payload.corners_solved_type = 'random';
             } else {

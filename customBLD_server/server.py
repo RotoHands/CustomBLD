@@ -297,18 +297,36 @@ def generate_scrambles():
         args.append(data['corners_cycle_breaks_min'])
         args.append(data['corners_cycle_breaks_max'])
     
-    # Clockwise twists range - always use BETWEEN, even for 0-0
+    # Clockwise twists range - check the length of data
     if 'corners_cw_twists_type' in data and data['corners_cw_twists_type'] == 'range':
-        query_conditions.append("twist_clockwise BETWEEN ? AND ?")
-        args.append(data['corners_cw_twists_min'])
-        args.append(data['corners_cw_twists_max'])
-    
-    # Counterclockwise twists range - always use BETWEEN, even for 0-0
+        if 'corners_cw_twists_length' in data and data['corners_cw_twists_length']:
+            # Query the length of the twist_clockwise field
+            query_conditions.append("length(twist_clockwise) BETWEEN ? AND ?")
+            if data['corners_cw_twists_min'] == 0:
+                args.append(0)
+            else :
+                args.append(2*(data['corners_cw_twists_min']-1)+1)
+            if data['corners_cw_twists_max'] == 0:
+                args.append(0)
+            else:
+                args.append(2*(data['corners_cw_twists_max']-1)+1)
+        
+
+    # Counterclockwise twists range - check the length of data
     if 'corners_ccw_twists_type' in data and data['corners_ccw_twists_type'] == 'range':
-        query_conditions.append("twist_counterclockwise BETWEEN ? AND ?")
-        args.append(data['corners_ccw_twists_min'])
-        args.append(data['corners_ccw_twists_max'])
-    
+        if 'corners_ccw_twists_length' in data and data['corners_ccw_twists_length']:
+            # Query the length of the twist_counterclockwise field
+            query_conditions.append("length(twist_counterclockwise) BETWEEN ? AND ?")
+            if data['corners_ccw_twists_min'] == 0:
+                args.append(0)
+            else:
+                args.append(2*(data['corners_ccw_twists_min']-1)+1)
+            if data['corners_ccw_twists_max'] == 0:
+                args.append(0)
+            else:
+                args.append(2*(data['corners_ccw_twists_max']-1)+1)
+       
+
     # Corners solved range - always use BETWEEN, even for 0-0
     if 'corners_solved_type' in data and data['corners_solved_type'] == 'range':
         query_conditions.append("corners_solved BETWEEN ? AND ?")
