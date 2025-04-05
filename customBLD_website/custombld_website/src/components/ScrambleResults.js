@@ -211,10 +211,10 @@ const ScrambleResults = ({ results }) => {
                 
                 {/* Show numeric stats at the end of the solution block */}
                 <div className="mb-2 ms-3 small stats-section">
-                  {result.wings_length && <div>Length: {result.wings_length}</div>}
-                  {result.wings_cycle_breaks && !isExplicitlyZero(result.wings_cycle_breaks) && <div>Cycle breaks: {result.wings_cycle_breaks}</div>}
-                  {result.wings_solved && !isExplicitlyZero(result.wings_solved) && <div>Solved wings: {result.wings_solved}</div>}
-                  {result.wing_parity && <div>Parity: {result.wing_parity}</div>}
+                  {shouldShowStat(result.wings_length) && <div>Length: {result.wings_length}</div>}
+                  {shouldShowStat(result.wings_cycle_breaks) && <div>Cycle breaks: {result.wings_cycle_breaks}</div>}
+                  {shouldShowStat(result.wings_solved) && <div>Solved wings: {result.wings_solved}</div>}
+                  {shouldShowStat(result.wing_parity) && <div>Parity: {result.wing_parity}</div>}
                 </div>
               </>
             )}
@@ -228,10 +228,10 @@ const ScrambleResults = ({ results }) => {
                 
                 {/* Show numeric stats at the end of the solution block */}
                 <div className="mb-2 ms-3 small stats-section">
-                  {result.xcenter_length && <div>Length: {result.xcenter_length}</div>}
-                  {result.xcenters_cycle_breaks && !isExplicitlyZero(result.xcenters_cycle_breaks) && <div>Cycle breaks: {result.xcenters_cycle_breaks}</div>}
-                  {result.xcenters_solved && !isExplicitlyZero(result.xcenters_solved) && <div>Solved X-centers: {result.xcenters_solved}</div>}
-                  {result.xcenter_parity && <div>Parity: {result.xcenter_parity}</div>}
+                  {shouldShowStat(result.xcenter_length) && <div>Length: {result.xcenter_length}</div>}
+                  {shouldShowStat(result.xcenters_cycle_breaks) && <div>Cycle breaks: {result.xcenters_cycle_breaks}</div>}
+                  {shouldShowStat(result.xcenters_solved) && <div>Solved X-centers: {result.xcenters_solved}</div>}
+                  {shouldShowStat(result.xcenter_parity) && <div>Parity: {result.xcenter_parity}</div>}
                 </div>
               </>
             )}
@@ -245,10 +245,10 @@ const ScrambleResults = ({ results }) => {
                 
                 {/* Show numeric stats at the end of the solution block */}
                 <div className="mb-2 ms-3 small stats-section">
-                  {result.tcenter_length && <div>Length: {result.tcenter_length}</div>}
-                  {result.tcenters_cycle_breaks && !isExplicitlyZero(result.tcenters_cycle_breaks) && <div>Cycle breaks: {result.tcenters_cycle_breaks}</div>}
-                  {result.tcenters_solved && !isExplicitlyZero(result.tcenters_solved) && <div>Solved T-centers: {result.tcenters_solved}</div>}
-                  {result.tcenter_parity && <div>Parity: {result.tcenter_parity}</div>}
+                  {shouldShowStat(result.tcenter_length) && <div>Length: {result.tcenter_length}</div>}
+                  {shouldShowStat(result.tcenters_cycle_breaks) && <div>Cycle breaks: {result.tcenters_cycle_breaks}</div>}
+                  {shouldShowStat(result.tcenters_solved) && <div>Solved T-centers: {result.tcenters_solved}</div>}
+                  {shouldShowStat(result.tcenter_parity) && <div>Parity: {result.tcenter_parity}</div>}
                 </div>
               </>
             )}

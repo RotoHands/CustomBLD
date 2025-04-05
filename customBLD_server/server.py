@@ -43,8 +43,8 @@ BUFFER_MAPPINGS = {
     "BU": "Q", "BL": "R", "BD": "S", "BR": "T",
     "DF": "U", "DR": "V", "DB": "W", "DL": "X"
   },
-  "wings": {
-    "UBr": "A", "URf": "B", "UFl": "C", "ULb": "D",
+   "wings": {
+    "UBl": "A", "URb": "B", "UFr": "C", "ULf": "D",
     "LUf": "E", "LFd": "F", "LDb": "G", "LBu": "H",
     "FUr": "I", "FRd": "J", "FDl": "K", "FLu": "L",
     "RUb": "M", "RBd": "N", "RDf": "O", "RFu": "P",
