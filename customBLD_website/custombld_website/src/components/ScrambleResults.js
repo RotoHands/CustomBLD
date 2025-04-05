@@ -20,7 +20,7 @@ const ScrambleResults = ({ results }) => {
   const indexOfFirstScramble = indexOfLastScramble - scramblesPerPage;
   const currentScrambles = results.slice(indexOfFirstScramble, indexOfLastScramble);
 
-  // Prepare data for CSV download - include all columns
+  // Modify the CSV data preparation function
   const prepareCsvData = () => {
     // Create a comprehensive header with all possible fields
     const headers = [
@@ -132,28 +132,25 @@ const ScrambleResults = ({ results }) => {
     return true; // Show all other values
   };
 
-  // Function to render solution with all stats as text
+  // Update the renderSolution function to show solution as the rotation
   const renderSolution = (result) => {
-    // Add this inside your renderSolution function to debug the values
-    console.log('Edges solved value:', {
-      value: result.edges_solved,
-      type: typeof result.edges_solved,
-      isZero: result.edges_solved === 0,
-      isStringZero: result.edges_solved === '0',
-      parsed: Number(result.edges_solved),
-      shouldShow: shouldShowStat(result.edges_solved)
-    });
-    
     return (
       <Collapse in={showSolutions[result.id]}>
         <div className="mt-2">
           <div className="p-3 bg-light rounded solution-container">
+            {/* Rotation information at the beginning */}
+            {result.solution && (
+              <div className="mb-1">
+                <strong>Rotations:</strong> <code>{result.solution}</code>
+              </div>
+            )}
+            
             {/* Edges section */}
             {result.edges && (
               <>
                 <div className="mb-1">
                   <strong>Edges:</strong> <code>{result.edges}</code>
-                  {result.edges_flipped && !isExplicitlyZero(result.edges_flipped) && (
+                  {shouldShowStat(result.edges_flipped) && (
                     <span className="ms-2">Flips: <code>{result.flips}</code></span>
                   )}
                 </div>
@@ -380,6 +377,18 @@ const ScrambleResults = ({ results }) => {
           margin-top: 0.25rem;
           padding-top: 0.25rem;
           border-top: 1px dotted #dee2e6;
+        }
+        
+        .rotation-info {
+          padding: 0.5rem;
+          background-color: #f8f9fa;
+          border-left: 3px solid #007bff;
+          margin-bottom: 1rem;
+        }
+        
+        .rotation-info code {
+          font-weight: bold;
+          font-size: 1.2em;
         }
       `}</style>
     </Card>

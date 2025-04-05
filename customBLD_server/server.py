@@ -20,7 +20,7 @@ SCRAMBLE_TYPE_MAP = {
     '4bld_centers': '444cto',
     '4bld_wings': '444edo',
     '5bld': '555bld',
-    '5bld_edges': '5edge',
+    '5bld_edges_corners': '5edge',
     '3bld_corners': 'corners',
     '3bld_edges': 'edges'
 }

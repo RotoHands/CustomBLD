@@ -459,7 +459,7 @@ const QueryForm = ({ onSubmit }) => {
           };
           
           // Add edge data if needed (3BLD, 4BLD, 5BLD or specific edge selections)
-          if (['3bld', '3bld_edges', '5bld', '5bld_edges'].includes(formData.scramble_type)) {
+          if (['3bld', '3bld_edges', '5bld', '5bld_edges_corners'].includes(formData.scramble_type)) {
             payload.edge_buffer = formData.edge_buffer;
             
             // Handle edge length based on selection
