@@ -69,6 +69,35 @@ BUFFER_MAPPINGS = {
   }
 }
 
+# Add a new function to map letters from database to user's letter scheme
+def map_letters(sequence, piece_type, letter_scheme):
+    if not sequence:
+        return ""
+    
+    # Create reverse mapping (letter to position)
+    reverse_mapping = {}
+    for pos, letter in BUFFER_MAPPINGS[piece_type].items():
+        reverse_mapping[letter] = pos
+    
+    result = []
+    for letter in sequence:
+        # Skip non-letter characters
+        if not letter.isalpha():
+            result.append(letter)
+            continue
+            
+        # Find the position in base mapping that corresponds to this letter
+        pos = reverse_mapping.get(letter)
+        if pos:
+            # Get the user's letter for this position
+            user_letter = letter_scheme.get(piece_type, {}).get(pos, letter)
+            result.append(user_letter)
+        else:
+            # If position not found, keep the original letter
+            result.append(letter)
+    
+    return ''.join(result)
+
 @app.route('/query-scrambles', methods=['POST'])
 def generate_scrambles():
     data = request.json
@@ -95,8 +124,8 @@ def generate_scrambles():
             # Map the position names to their letter scheme values
             mapped_letters = []
             for position in data['practiceLetters']['edges']:
-                # Get the letter from letter scheme or default mapping
-                letter = letter_scheme.get('edges', {}).get(position, BUFFER_MAPPINGS['edges'].get(position))
+                # Get the letter from standard mapping
+                letter = BUFFER_MAPPINGS['edges'].get(position)
                 if letter:
                     mapped_letters.append(letter)
                 else:
@@ -122,8 +151,8 @@ def generate_scrambles():
             # Map the position names (like "UBL") to their letter scheme values (like "A")
             mapped_letters = []
             for position in data['practiceLetters']['corners']:
-                # Get the letter from letter scheme or default mapping
-                letter = letter_scheme.get('corners', {}).get(position, BUFFER_MAPPINGS['corners'].get(position))
+                # Get the letter from standard mapping
+                letter = BUFFER_MAPPINGS['corners'].get(position)
                 if letter:
                     mapped_letters.append(letter)
                 else:
@@ -153,8 +182,8 @@ def generate_scrambles():
             # Map the position names to their letter scheme values
             mapped_letters = []
             for position in data['practiceLetters']['wings']:
-                # Get the letter from letter scheme or default mapping
-                letter = letter_scheme.get('wings', {}).get(position, BUFFER_MAPPINGS['wings'].get(position))
+                # Get the letter from standard mapping
+                letter = BUFFER_MAPPINGS['wings'].get(position)
                 if letter:
                     mapped_letters.append(letter)
                 else:
@@ -180,8 +209,8 @@ def generate_scrambles():
             # Map the position names to their letter scheme values
             mapped_letters = []
             for position in data['practiceLetters']['xCenters']:
-                # Get the letter from letter scheme or default mapping
-                letter = letter_scheme.get('xCenters', {}).get(position, BUFFER_MAPPINGS['xCenters'].get(position))
+                # Get the letter from standard mapping
+                letter = BUFFER_MAPPINGS['xCenters'].get(position)
                 if letter:
                     mapped_letters.append(letter)
                 else:
@@ -207,8 +236,8 @@ def generate_scrambles():
             # Map the position names to their letter scheme values
             mapped_letters = []
             for position in data['practiceLetters']['tCenters']:
-                # Get the letter from letter scheme or default mapping
-                letter = letter_scheme.get('tCenters', {}).get(position, BUFFER_MAPPINGS['tCenters'].get(position))
+                # Get the letter from standard mapping 
+                letter = BUFFER_MAPPINGS['tCenters'].get(position)
                 if letter:
                     mapped_letters.append(letter)
                 else:
@@ -231,7 +260,7 @@ def generate_scrambles():
     # Edge conditions - only add if not 'random'
     if 'edge_buffer' in data and data['edge_buffer'] != 'random':
         buffer_pos = data['edge_buffer']
-        buffer_letter = letter_scheme.get('edges', {}).get(buffer_pos, BUFFER_MAPPINGS['edges'].get(buffer_pos, buffer_pos))
+        buffer_letter = BUFFER_MAPPINGS['edges'].get(buffer_pos, buffer_pos)
         query_conditions.append("edge_buffer = ?")
         args.append(buffer_letter)
     
@@ -277,7 +306,7 @@ def generate_scrambles():
     # Corner conditions
     if 'corner_buffer' in data and data['corner_buffer'] != 'random':
         buffer_pos = data['corner_buffer']
-        buffer_letter = letter_scheme.get('corners', {}).get(buffer_pos, BUFFER_MAPPINGS['corners'].get(buffer_pos, buffer_pos))
+        buffer_letter = BUFFER_MAPPINGS['corners'].get(buffer_pos, buffer_pos)
         query_conditions.append("corner_buffer = ?")
         args.append(buffer_letter)
     
@@ -347,7 +376,7 @@ def generate_scrambles():
     # Wing conditions
     if 'wing_buffer' in data and data['wing_buffer'] != 'random':
         buffer_pos = data['wing_buffer']
-        buffer_letter = letter_scheme.get('wings', {}).get(buffer_pos, BUFFER_MAPPINGS['wings'].get(buffer_pos, buffer_pos))
+        buffer_letter = BUFFER_MAPPINGS['wings'].get(buffer_pos, buffer_pos)
         query_conditions.append("wing_buffer = ?")
         args.append(buffer_letter)
     
@@ -387,7 +416,7 @@ def generate_scrambles():
     # X-Center conditions
     if 'xcenter_buffer' in data and data['xcenter_buffer'] != 'random':
         buffer_pos = data['xcenter_buffer']
-        buffer_letter = letter_scheme.get('xCenters', {}).get(buffer_pos, BUFFER_MAPPINGS['xCenters'].get(buffer_pos, buffer_pos))
+        buffer_letter = BUFFER_MAPPINGS['xCenters'].get(buffer_pos, buffer_pos)
         query_conditions.append("xcenter_buffer = ?")
         args.append(buffer_letter)
     
@@ -427,7 +456,7 @@ def generate_scrambles():
     # T-Center conditions
     if 'tcenter_buffer' in data and data['tcenter_buffer'] != 'random':
         buffer_pos = data['tcenter_buffer']
-        buffer_letter = letter_scheme.get('tCenters', {}).get(buffer_pos, BUFFER_MAPPINGS['tCenters'].get(buffer_pos, buffer_pos))
+        buffer_letter = BUFFER_MAPPINGS['tCenters'].get(buffer_pos, buffer_pos)
         query_conditions.append("tcenter_buffer = ?")
         args.append(buffer_letter)
     
@@ -619,6 +648,36 @@ def generate_scrambles():
                 "first_tcenters": result[42] if len(result) > 42 else None
             }
             
+            # Map letter sequences to the user's letter scheme
+            if row.get('edges'):
+                row['edges'] = map_letters(row['edges'], 'edges', letter_scheme)
+            if row.get('corners'):
+                row['corners'] = map_letters(row['corners'], 'corners', letter_scheme)
+            if row.get('wings'):
+                row['wings'] = map_letters(row['wings'], 'wings', letter_scheme)
+            if row.get('xcenters'):
+                row['xcenters'] = map_letters(row['xcenters'], 'xCenters', letter_scheme)
+            if row.get('tcenters'):
+                row['tcenters'] = map_letters(row['tcenters'], 'tCenters', letter_scheme)
+            if row.get('first_edges'):
+                row['first_edges'] = map_letters(row['first_edges'], 'edges', letter_scheme)
+            if row.get('first_corners'):
+                row['first_corners'] = map_letters(row['first_corners'], 'corners', letter_scheme)
+            if row.get('first_wings'):
+                row['first_wings'] = map_letters(row['first_wings'], 'wings', letter_scheme)
+            if row.get('first_xcenters'):
+                row['first_xcenters'] = map_letters(row['first_xcenters'], 'xCenters', letter_scheme)
+            if row.get('first_tcenters'):
+                row['first_tcenters'] = map_letters(row['first_tcenters'], 'tCenters', letter_scheme)
+            
+            # Map flips and twists
+            if row.get('flips'):
+                row['flips'] = map_letters(row['flips'], 'edges', letter_scheme)
+            if row.get('twist_clockwise'):
+                row['twist_clockwise'] = map_letters(row['twist_clockwise'], 'corners', letter_scheme)
+            if row.get('twist_counterclockwise'):
+                row['twist_counterclockwise'] = map_letters(row['twist_counterclockwise'], 'corners', letter_scheme)
+                
             # Format the result for the frontend with safer access to keys
             formatted_result = {
                 'id': row['id'] or '',

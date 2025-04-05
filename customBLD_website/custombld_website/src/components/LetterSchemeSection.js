@@ -53,7 +53,7 @@ const LetterSchemeSection = ({ formData, handleLetterChange }) => {
     try {
       const savedScheme = localStorage.getItem('letterScheme');
       console.log("Retrieved saved scheme:", savedScheme);
-      
+
       if (savedScheme) {
         const parsed = JSON.parse(savedScheme);
         Object.entries(parsed).forEach(([piece, letters]) => {
@@ -82,7 +82,7 @@ const LetterSchemeSection = ({ formData, handleLetterChange }) => {
             "DF": "U", "DR": "V", "DB": "W", "DL": "X"
           },
           "wings": {
-            "UBr": "A", "URf": "B", "UFl": "C", "ULb": "D",
+            "UBl": "A", "URb": "B", "UFr": "C", "ULf": "D",
             "LUf": "E", "LFd": "F", "LDb": "G", "LBu": "H",
             "FUr": "I", "FRd": "J", "FDl": "K", "FLu": "L",
             "RUb": "M", "RBd": "N", "RDf": "O", "RFu": "P",
@@ -114,13 +114,13 @@ const LetterSchemeSection = ({ formData, handleLetterChange }) => {
             "DFL": "U", "DRF": "V", "DBR": "W", "DLB": "X"
           }
         };
-        
+
         Object.entries(defaultScheme).forEach(([piece, letters]) => {
           Object.entries(letters).forEach(([pos, letter]) => {
             handleLetterChange(piece, pos, letter);
           });
         });
-        
+
         // Save the default scheme
         localStorage.setItem('letterScheme', JSON.stringify(defaultScheme));
       }
@@ -178,7 +178,7 @@ const LetterSchemeSection = ({ formData, handleLetterChange }) => {
   );
 
   const getPositionsForPiece = (piece) => {
-    switch(piece) {
+    switch (piece) {
       case 'corners': return cornerPositions;
       case 'edges': return edgePositions;
       case 'wings': return wingPositions;
@@ -223,12 +223,12 @@ const LetterSchemeSection = ({ formData, handleLetterChange }) => {
   return (
     <div className="letter-scheme-section">
       {renderBaseScheme()}
-      
-      <Form.Check 
+
+      <Form.Check
         type="checkbox"
         label="Customize Corner Letters"
         checked={showCustomScheme.corners}
-        onChange={e => setShowCustomScheme({...showCustomScheme, corners: e.target.checked})}
+        onChange={e => setShowCustomScheme({ ...showCustomScheme, corners: e.target.checked })}
         className="mb-2"
       />
       {showCustomScheme.corners && (
@@ -238,11 +238,11 @@ const LetterSchemeSection = ({ formData, handleLetterChange }) => {
         </>
       )}
 
-      <Form.Check 
+      <Form.Check
         type="checkbox"
         label="Customize Edge Letters"
         checked={showCustomScheme.edges}
-        onChange={e => setShowCustomScheme({...showCustomScheme, edges: e.target.checked})}
+        onChange={e => setShowCustomScheme({ ...showCustomScheme, edges: e.target.checked })}
         className="mb-2"
       />
       {showCustomScheme.edges && (
@@ -252,11 +252,11 @@ const LetterSchemeSection = ({ formData, handleLetterChange }) => {
         </>
       )}
 
-      <Form.Check 
+      <Form.Check
         type="checkbox"
         label="Customize Wing Letters"
         checked={showCustomScheme.wings}
-        onChange={e => setShowCustomScheme({...showCustomScheme, wings: e.target.checked})}
+        onChange={e => setShowCustomScheme({ ...showCustomScheme, wings: e.target.checked })}
         className="mb-2"
       />
       {showCustomScheme.wings && (
@@ -266,11 +266,11 @@ const LetterSchemeSection = ({ formData, handleLetterChange }) => {
         </>
       )}
 
-      <Form.Check 
+      <Form.Check
         type="checkbox"
         label="Customize X-Center Letters"
         checked={showCustomScheme.xCenters}
-        onChange={e => setShowCustomScheme({...showCustomScheme, xCenters: e.target.checked})}
+        onChange={e => setShowCustomScheme({ ...showCustomScheme, xCenters: e.target.checked })}
         className="mb-2"
       />
       {showCustomScheme.xCenters && (
@@ -280,11 +280,11 @@ const LetterSchemeSection = ({ formData, handleLetterChange }) => {
         </>
       )}
 
-      <Form.Check 
+      <Form.Check
         type="checkbox"
         label="Customize T-Center Letters"
         checked={showCustomScheme.tCenters}
-        onChange={e => setShowCustomScheme({...showCustomScheme, tCenters: e.target.checked})}
+        onChange={e => setShowCustomScheme({ ...showCustomScheme, tCenters: e.target.checked })}
         className="mb-2"
       />
       {showCustomScheme.tCenters && (
@@ -296,28 +296,28 @@ const LetterSchemeSection = ({ formData, handleLetterChange }) => {
 
       <div className="d-flex justify-content-between mt-4 mb-4">
         <div>
-          <Button 
-            variant="primary" 
+          <Button
+            variant="primary"
             onClick={saveSettings}
             className="me-2"
           >
             Save Letter Scheme
           </Button>
-          <Button 
-            variant="success" 
+          <Button
+            variant="success"
             onClick={applyToAllPieces}
           >
             Apply Letter Scheme to All Pieces
           </Button>
         </div>
-        <Button 
-          variant="outline-danger" 
+        <Button
+          variant="outline-danger"
           onClick={resetSettings}
         >
           Reset to Default
         </Button>
       </div>
-        
+
       {hasChanges && (
         <div className="alert alert-warning">
           You have unsaved changes
