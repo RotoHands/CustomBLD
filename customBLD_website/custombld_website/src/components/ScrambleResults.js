@@ -112,13 +112,38 @@ const ScrambleResults = ({ results }) => {
     }));
   };
 
-  // Function to check if a value is explicitly 0
+  // Enhanced function to check if a value is exactly zero (handles various formats)
   const isExplicitlyZero = (value) => {
-    return value !== null && value !== undefined && Number(value) === 0;
+    // Convert to string and trim to handle whitespace
+    if (value === null || value === undefined) return false;
+    
+    // Handle numeric values directly
+    if (typeof value === 'number') return value === 0;
+    
+    // Handle string values by converting to number
+    const stringValue = String(value).trim();
+    return stringValue === '0' || stringValue === '' || Number(stringValue) === 0;
+  };
+
+  // Or use a simpler approach with a function that directly checks if a value should be shown
+  const shouldShowStat = (value) => {
+    if (!value && value !== 0) return false; // Handles null, undefined, empty strings
+    if (value === 0 || value === '0') return false; // Handles numeric and string zeros
+    return true; // Show all other values
   };
 
   // Function to render solution with all stats as text
   const renderSolution = (result) => {
+    // Add this inside your renderSolution function to debug the values
+    console.log('Edges solved value:', {
+      value: result.edges_solved,
+      type: typeof result.edges_solved,
+      isZero: result.edges_solved === 0,
+      isStringZero: result.edges_solved === '0',
+      parsed: Number(result.edges_solved),
+      shouldShow: shouldShowStat(result.edges_solved)
+    });
+    
     return (
       <Collapse in={showSolutions[result.id]}>
         <div className="mt-2">
@@ -135,10 +160,10 @@ const ScrambleResults = ({ results }) => {
                 
                 {/* Show numeric stats at the end of the solution block */}
                 <div className="mb-2 ms-3 small stats-section">
-                  {result.edge_length && <div>Length: {result.edge_length}</div>}
-                  {result.edges_cycle_breaks && <div>Cycle breaks: {result.edges_cycle_breaks}</div>}
-                  {result.edges_solved && <div>Solved edges: {result.edges_solved}</div>}
-                  {result.edge_parity && <div>Parity: {result.edge_parity}</div>}
+                  {shouldShowStat(result.edge_length) && <div>Length: {result.edge_length}</div>}
+                  {shouldShowStat(result.edges_cycle_breaks) && <div>Cycle breaks: {result.edges_cycle_breaks}</div>}
+                  {shouldShowStat(result.edges_solved) && <div>Solved edges: {result.edges_solved}</div>}
+                  {shouldShowStat(result.edge_parity) && <div>Parity: {result.edge_parity}</div>}
                 </div>
               </>
             )}
@@ -169,10 +194,10 @@ const ScrambleResults = ({ results }) => {
                 
                 {/* Show numeric stats at the end of the solution block */}
                 <div className="mb-2 ms-3 small stats-section">
-                  {result.corner_length && <div>Length: {result.corner_length}</div>}
-                  {result.corners_cycle_breaks && !isExplicitlyZero(result.corners_cycle_breaks) && <div>Cycle breaks: {result.corners_cycle_breaks}</div>}
-                  {result.corners_solved && !isExplicitlyZero(result.corners_solved) && <div>Solved corners: {result.corners_solved}</div>}
-                  {result.corner_parity && <div>Parity: {result.corner_parity}</div>}
+                  {shouldShowStat(result.corner_length) && <div>Length: {result.corner_length}</div>}
+                  {shouldShowStat(result.corners_cycle_breaks) && <div>Cycle breaks: {result.corners_cycle_breaks}</div>}
+                  {shouldShowStat(result.corners_solved) && <div>Solved corners: {result.corners_solved}</div>}
+                  {shouldShowStat(result.corner_parity) && <div>Parity: {result.corner_parity}</div>}
                 </div>
               </>
             )}
