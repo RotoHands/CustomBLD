@@ -3,7 +3,7 @@ from flask_cors import CORS
 import sqlite3
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})  # More specific CORS configuration
 
 def query_db(query, args=(), one=False):
     con = sqlite3.connect(r'db_solves\all_solves.db')
@@ -471,7 +471,8 @@ def generate_scrambles():
     
     # Order by RANDOM() and limit results
     scramble_count = data.get('scramble_count', 1)
-    final_query += f" ORDER BY RANDOM() LIMIT {scramble_count}"
+    # final_query += f" Order by RANDOM() LIMIT {scramble_count}"
+    final_query += f" LIMIT {scramble_count}"
     
     # Print query for debugging
     print("Executing query:")
@@ -501,6 +502,8 @@ def generate_scrambles():
     
     if results:
         for result in results:
+            print("Result:", result)
+            print(result[10])
             # Add the scramble
             scrambles.append(result[2])  # Index 2 is scramble column
             
@@ -564,11 +567,146 @@ def generate_scrambles():
         "result_count": len(results) if results else 0
     }
     
-    # Return the complete response with scrambles, solutions, and metadata
-    return jsonify({
-        "metadata": metadata,
-        "debug": debug_info if app.debug else None  # Only include debug info in debug mode
+    # Prepare the response
+    results_to_return = []
+    
+    if results:
+        for result in results:
+            # Convert tuple to dictionary for easier access
+            row = {
+                "id": result[0],
+                "scramble_type": result[1],
+                "scramble": result[2],
+                "solution": result[3],
+                "edge_buffer": result[4],
+                "edges": result[5],
+                "edge_length": result[6],
+                "edges_cycle_breaks": result[7],
+                "edges_flipped": result[8],
+                "edges_solved": result[9],
+                "flips": result[10],
+                "first_edges": result[11],
+                "corner_buffer": result[12],
+                "corners": result[13],
+                "corner_length": result[14],
+                "corners_cycle_breaks": result[15],
+                "twist_clockwise": result[16],
+                "twist_counterclockwise": result[17],
+                "corners_twisted": result[18],
+                "corners_solved": result[19],
+                "corner_parity": result[20],
+                "first_corners": result[21],
+                "wing_buffer": result[22],
+                "wings": result[23],
+                "wings_length": result[24],
+                "wings_cycle_breaks": result[25],
+                "wings_solved": result[26],
+                "wing_parity": result[27],
+                "first_wings": result[28],
+                "xcenter_buffer": result[29],
+                "xcenters": result[30],
+                "xcenter_length": result[31],
+                "xcenters_cycle_breaks": result[32],
+                "xcenters_solved": result[33],
+                "xcenter_parity": result[34],
+                "first_xcenters": result[35],
+                "tcenter_buffer": result[36],
+                "tcenters": result[37],
+                "tcenter_length": result[38],
+                "tcenters_cycle_breaks": result[39],
+                "tcenters_solved": result[40],
+                "tcenter_parity": result[41],
+                "first_tcenters": result[42] if len(result) > 42 else None
+            }
+            
+            # Format the result for the frontend with safer access to keys
+            formatted_result = {
+                'id': row['id'] or '',
+                'scramble_type': row.get('scramble_type', ''),
+                'scramble': row['scramble'] or '',
+                'solution': row['solution'] or '',
+                
+                # Edge data
+                'edge_buffer': row.get('edge_buffer', ''),
+                'edges': row.get('edges', ''),
+                'edge_length': row.get('edge_length', ''),
+                'edges_cycle_breaks': row.get('edges_cycle_breaks', ''),
+                'edges_flipped': row.get('edges_flipped', ''),
+                'edges_solved': row.get('edges_solved', ''),
+                'flips': row.get('flips', ''),
+                'first_edges': row.get('first_edges', ''),
+                'edge_parity': row.get('edge_parity', ''),
+                
+                # Corner data
+                'corner_buffer': row.get('corner_buffer', ''),
+                'corners': row.get('corners', ''),
+                'corner_length': row.get('corner_length', ''),
+                'corners_cycle_breaks': row.get('corners_cycle_breaks', ''),
+                'twist_clockwise': row.get('twist_clockwise', ''),
+                'twist_counterclockwise': row.get('twist_counterclockwise', ''),
+                'corners_twisted': row.get('corners_twisted', ''),
+                'corners_solved': row.get('corners_solved', ''),
+                'corner_parity': row.get('corner_parity', ''),
+                'first_corners': row.get('first_corners', ''),
+                
+                # Wing data
+                'wing_buffer': row.get('wing_buffer', ''),
+                'wings': row.get('wings', ''),
+                'wings_length': row.get('wings_length', ''),
+                'wings_cycle_breaks': row.get('wings_cycle_breaks', ''),
+                'wings_solved': row.get('wings_solved', ''),
+                'wing_parity': row.get('wing_parity', ''),
+                'first_wings': row.get('first_wings', ''),
+                
+                # X-Center data
+                'xcenter_buffer': row.get('xcenter_buffer', ''),
+                'xcenters': row.get('xcenters', ''),
+                'xcenter_length': row.get('xcenter_length', ''),
+                'xcenters_cycle_breaks': row.get('xcenters_cycle_breaks', ''),
+                'xcenters_solved': row.get('xcenters_solved', ''),
+                'xcenter_parity': row.get('xcenter_parity', ''),
+                'first_xcenters': row.get('first_xcenters', ''),
+                
+                # T-Center data
+                'tcenter_buffer': row.get('tcenter_buffer', ''),
+                'tcenters': row.get('tcenters', ''),
+                'tcenter_length': row.get('tcenter_length', ''),
+                'tcenters_cycle_breaks': row.get('tcenters_cycle_breaks', ''),
+                'tcenters_solved': row.get('tcenters_solved', ''),
+                'tcenter_parity': row.get('tcenter_parity', ''),
+                'first_tcenters': row.get('first_tcenters', '')
+            }
+
+            results_to_return.append(formatted_result)
+    
+    print("\nFinal results:")
+    for result in results_to_return:
+        for key, value in result.items():
+            if isinstance(value, str):
+                value = value.replace('\n', ' ').replace('\r', '')
+            print(f"{key}: {value}")
+    # Return the formatted results along with debug info
+    response = jsonify({
+        'results': results_to_return,
+        'debug': debug_info if data.get('debug') else None,
+        'count': len(results_to_return)
     })
+    
+    # Add explicit CORS headers
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+    response.headers.add('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+    
+    return response
+
+# Add an OPTIONS route handler for preflight requests
+@app.route('/query-scrambles', methods=['OPTIONS'])
+def options():
+    response = jsonify({'status': 'success'})
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+    response.headers.add('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+    return response
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

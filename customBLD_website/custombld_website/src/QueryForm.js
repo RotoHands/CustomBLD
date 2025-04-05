@@ -115,6 +115,8 @@ const QueryForm = ({ onSubmit }) => {
     generate_solutions: 'yes'
   });
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   useEffect(() => {
     const savedForm = localStorage.getItem('scrambleForm');
     if (savedForm) {
@@ -445,9 +447,9 @@ const QueryForm = ({ onSubmit }) => {
         <h2 className="text-primary text-center mb-4">BLD Scramble Generator</h2>
         
         <Form onSubmit={async (e) => {
-          e.preventDefault();
+          e.preventDefault(); // Make sure to prevent default form submission
           
-          // Create a filtered payload based on selected options
+          // Construct the payload based on form data
           const payload = {
             // Always include these fields
             scramble_type: formData.scramble_type,
@@ -691,23 +693,39 @@ const QueryForm = ({ onSubmit }) => {
           }
           
           try {
+            setIsSubmitting(true);
+            
+            // Use the full URL to your Flask server
             const response = await fetch('http://localhost:5000/query-scrambles', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
+                'Accept': 'application/json'
               },
-              body: JSON.stringify(payload)
+              body: JSON.stringify(payload),
+              credentials: 'omit', // Try with different credentials options
+              mode: 'cors'  // Explicitly set CORS mode
             });
             
+            console.log('Response status:', response.status);
+            
             if (!response.ok) {
-              throw new Error('Network response was not ok');
+              const errorText = await response.text();
+              console.error('Error response:', errorText);
+              throw new Error(`Server error: ${response.status} - ${errorText}`);
             }
             
             const data = await response.json();
-            onSubmit(data);
+            console.log('Received data:', data);
+            
+            // Pass results back to parent through onSubmit callback
+            onSubmit(data.results || []);
           } catch (error) {
-            toast.error('Failed to generate scrambles. Please try again.');
-            console.error('Error:', error);
+            console.error('Error fetching scrambles:', error);
+            // You can show an error message or pass the error to parent
+            onSubmit([], error.message);
+          } finally {
+            setIsSubmitting(false);
           }
         }}>
           <Accordion defaultActiveKey={['0','1','2','6', '7']} alwaysOpen>
@@ -830,8 +848,20 @@ const QueryForm = ({ onSubmit }) => {
           </div>
 
           <div className="d-grid gap-2 mt-4">
-            <Button variant="primary" size="lg" type="submit">
-              Generate Custom Scrambles!
+            <Button 
+              variant="primary" 
+              size="lg" 
+              type="submit"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  Generating...
+                </>
+              ) : (
+                'Generate Custom Scrambles!'
+              )}
             </Button>
           </div>
         </Form>
