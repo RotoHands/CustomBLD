@@ -1,4 +1,5 @@
 package cubes;
+
 import java.io.*;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
@@ -17,7 +18,8 @@ public class FiveCube {
     public long time5x5 = 0;
 
     public void setUpCube5x5(String scramble_file_name, String scramble_type, String solve_file_name,
-            Boolean changeSchemeBase) {
+            Boolean changeSchemeBase, String cornerBuffer, String edgeBuffer, String wingBuffer,
+            String xcenterBuffer, String tcenterBuffer) {
 
         Globals g = new Globals();
         String[] cornerScheme = { "א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט", "י", "כ", "ל", "מ", "נ", "ס",
@@ -45,11 +47,11 @@ public class FiveCube {
         // g.four.setCornerScheme(cornerScheme);
         // g.four.setWingScheme(wingScheme4x4);
         // g.four.setXCenterScheme(XCenterScheme);
-        g.five.setCornerBuffer("C");
-        g.five.setWingBuffer("C", true);
-        g.five.setXCenterBuffer("C");
-        g.five.setTCenterBuffer("C");
-        g.five.setEdgeBuffer("C");
+        g.five.setCornerBuffer(cornerBuffer);
+        g.five.setWingBuffer(wingBuffer, changeSchemeBase);
+        g.five.setXCenterBuffer(xcenterBuffer);
+        g.five.setTCenterBuffer(tcenterBuffer);
+        g.five.setEdgeBuffer(edgeBuffer);
 
         StringBuilder temp = new StringBuilder();
         try {
@@ -132,11 +134,45 @@ public class FiveCube {
 
     }
 
+    public void setUpCube5x5(String scramble_file_name, String scramble_type, String solve_file_name,
+            Boolean changeSchemeBase) {
+        // Call the parameterized version with default buffers
+        setUpCube5x5(scramble_file_name, scramble_type, solve_file_name, changeSchemeBase,
+                "C", "C", "C", "C", "C");
+    }
+
     public static void main(String[] args) throws FileNotFoundException {
 
         String scramble_type = args[0];
         String arg_bool = args[1];
         Boolean changeSchemeBase = Boolean.parseBoolean(arg_bool);
+
+        // Default buffers
+        String cornerBuffer = "C";
+        String edgeBuffer = "C";
+        String wingBuffer = "C";
+        String xcenterBuffer = "C";
+        String tcenterBuffer = "C";
+
+        // Parse buffer arguments
+        for (int i = 2; i < args.length; i++) {
+            if (args[i].equals("--corner_buffer") && i + 1 < args.length) {
+                cornerBuffer = args[i + 1];
+                i++; // Skip the next argument (the value)
+            } else if (args[i].equals("--edge_buffer") && i + 1 < args.length) {
+                edgeBuffer = args[i + 1];
+                i++; // Skip the next argument (the value)
+            } else if (args[i].equals("--wing_buffer") && i + 1 < args.length) {
+                wingBuffer = args[i + 1];
+                i++; // Skip the next argument (the value)
+            } else if (args[i].equals("--xcenter_buffer") && i + 1 < args.length) {
+                xcenterBuffer = args[i + 1];
+                i++; // Skip the next argument (the value)
+            } else if (args[i].equals("--tcenter_buffer") && i + 1 < args.length) {
+                tcenterBuffer = args[i + 1];
+                i++; // Skip the next argument (the value)
+            }
+        }
 
         String folderPath = "txt_files\\";
         File folder = new File(folderPath);
@@ -159,9 +195,17 @@ public class FiveCube {
 
         long startTime = System.nanoTime();
 
+        // Set the buffers on the Globals instance
+        Globals g = new Globals();
+        g.five.setCornerBuffer(cornerBuffer);
+        g.five.setEdgeBuffer(edgeBuffer);
+        g.five.setWingBuffer(wingBuffer, changeSchemeBase);
+        g.five.setXCenterBuffer(xcenterBuffer);
+        g.five.setTCenterBuffer(tcenterBuffer);
+
         // Call the method
         c.setUpCube5x5(scrambleFileName, scramble_type,
-                solveFileName, changeSchemeBase);
+                solveFileName, changeSchemeBase, cornerBuffer, edgeBuffer, wingBuffer, xcenterBuffer, tcenterBuffer);
 
         // Measure the end time
         long endTime = System.nanoTime();

@@ -17,7 +17,8 @@ public class ThreeCube {
         private static final int THREAD_COUNT = 8; // Number of threads
         private static final int BATCH_SIZE = 5000; // Scrambles per thread
 
-        public void setUpCube3x3(String scramble_file_name, String scramble_type, String solve_file_name) {
+        public void setUpCube3x3(String scramble_file_name, String scramble_type, String solve_file_name,
+                        String cornerBuffer, String edgeBuffer) {
 
                 Globals g = new Globals();
                 String[] cornerScheme = { "א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט", "י", "כ", "ל", "מ", "נ", "ס",
@@ -44,8 +45,10 @@ public class ThreeCube {
 
                 // g.three.setCornerScheme(cornerScheme);
                 // g.three.setEdgeScheme(edgeScheme);
-                g.three.setCornerBuffer("C");
-                g.three.setEdgeBuffer("C");
+                g.three.setCornerBuffer(cornerBuffer);
+                g.three.setEdgeBuffer(edgeBuffer);
+                String corner_buffer_str = "'Corner_buffer':" + "'" + cornerBuffer + "'";
+                String edge_buffer_str = "'Edge_buffer':" + "'" + edgeBuffer + "'";
                 StringBuilder temp = new StringBuilder();
                 try {
                         PrintWriter writer = new PrintWriter(solve_file_name, "UTF-8");
@@ -59,8 +62,10 @@ public class ThreeCube {
                         String[] parts_sol;
                         String[] parts_stats;
 
-                        edge_buffer = g.three.getEdgeBuffer();
-                        corner_buffer = g.three.getCornerBuffer();
+                        // edge_buffer = g.three.getEdgeBuffer();
+                        // corner_buffer = g.three.getCornerBuffer();
+                        // System.out.println(edge_buffer);
+                        // System.out.println(corner_buffer);
                         int i = 0;
                         try {
                                 reader = new BufferedReader(new FileReader(scramble_file_name));
@@ -76,9 +81,9 @@ public class ThreeCube {
                                                         .append(",")
                                                         .append(scrambleString)
                                                         .append(",")
-                                                        .append(edge_buffer)
+                                                        .append(edge_buffer_str)
                                                         .append(",")
-                                                        .append(corner_buffer)
+                                                        .append(corner_buffer_str)
                                                         .append(",")
                                                         .append(String.join(",", parts_sol))
                                                         .append(",")
@@ -112,13 +117,32 @@ public class ThreeCube {
 
         }
 
+        public void setUpCube3x3(String scramble_file_name, String scramble_type, String solve_file_name) {
+                // Call the parameterized version with default buffers
+                setUpCube3x3(scramble_file_name, scramble_type, solve_file_name, "C", "C");
+        }
+
         public static void main(String[] args) throws FileNotFoundException {
 
                 String scramble_type = args[0];
 
+                // Default buffers
+                String cornerBuffer = "C";
+                String edgeBuffer = "C";
+                System.out.println("args: " + Arrays.toString(args));
+                for (int i = 1; i < args.length; i++) {
+                        if (args[i].equals("--corner_buffer") && i + 1 < args.length) {
+                                cornerBuffer = args[i + 1];
+                                i++; // Skip the next argument (the value)
+                        } else if (args[i].equals("--edge_buffer") && i + 1 < args.length) {
+                                edgeBuffer = args[i + 1];
+                                i++; // Skip the next argument (the value)
+                        }
+                }
+
                 String folderPath = "txt_files\\";
                 File folder = new File(folderPath);
-              
+
                 File newestFile = null;
                 for (File file : folder.listFiles(
                                 (dir, name) -> name.startsWith(scramble_type) && name.contains("_scrambles"))) {
@@ -126,7 +150,7 @@ public class ThreeCube {
                                 newestFile = file;
                         }
                 }
-              
+
                 String scrambleFileName = newestFile.getAbsolutePath();
 
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
@@ -138,9 +162,12 @@ public class ThreeCube {
 
                 long startTime = System.nanoTime();
 
+                // Set the buffers on the Globals instance
+                Globals g = new Globals();
+
                 // Call the method
                 c.setUpCube3x3(scrambleFileName, scramble_type,
-                                solveFileName);
+                                solveFileName, cornerBuffer, edgeBuffer);
 
                 // Measure the end time
                 long endTime = System.nanoTime();

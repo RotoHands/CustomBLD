@@ -4,9 +4,15 @@ const os = require('os');
 
 const workerCount = os.cpus().length; // Use the number of CPU cores
 
-function generateScramblesInWorker(count, type) {
+function generateScramblesInWorker(count, type, buffers = {}) {
   return new Promise((resolve, reject) => {
-    const worker = new Worker('./scrambles_generator/scramble_worker.js', { workerData: { count, type } });
+    const worker = new Worker('./scrambles_generator/scramble_worker.js', { 
+      workerData: { 
+        count, 
+        type,
+        buffers 
+      } 
+    });
     worker.on('message', resolve); // Receive result from the worker
     worker.on('error', reject);   // Handle errors
     worker.on('exit', code => {
@@ -15,14 +21,13 @@ function generateScramblesInWorker(count, type) {
   });
 }
 
-async function generateScrambles(numScrambles, scrambleType) {
-
+async function generateScrambles(numScrambles, scrambleType, buffers = {}) {
   const tasks = [];
   const scramblesPerWorker = Math.ceil(numScrambles / workerCount); // Divide tasks evenly across workers
 
   // Spawn workers
   for (let i = 0; i < workerCount; i++) {
-    tasks.push(generateScramblesInWorker(scramblesPerWorker, scrambleType));
+    tasks.push(generateScramblesInWorker(scramblesPerWorker, scrambleType, buffers));
   }
 
   // Wait for all workers to finish
@@ -53,11 +58,22 @@ function generateRandomFileName(extension = "txt") {
 function main() {
   const numScrambles = parseInt(process.argv[2], 10);
   const scrambleType = process.argv[3];
+  
+  // Parse buffer arguments from command line
+  const buffers = {};
+  for (let i = 4; i < process.argv.length; i += 2) {
+    if (process.argv[i].startsWith('--') && i + 1 < process.argv.length) {
+      const bufferType = process.argv[i].substring(2); // Remove '--' prefix
+      buffers[bufferType] = process.argv[i + 1];
+    }
+  }
+  
   if (isNaN(numScrambles) || !scrambleType) {
+    console.error("Missing required arguments: numScrambles, scrambleType");
     process.exit(1);
   }
 
-  generateScrambles(numScrambles, scrambleType).catch(err => console.error(err));
+  generateScrambles(numScrambles, scrambleType, buffers).catch(err => console.error(err));
 }
 
 // Example usage

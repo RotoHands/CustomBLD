@@ -1,4 +1,5 @@
 package cubes;
+
 import java.io.*;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
@@ -9,7 +10,7 @@ import java.time.format.DateTimeFormatter;
 public class FourCube {
 
     public void setUpCube4x4(String scramble_file_name, String scramble_type, String solve_file_name,
-            Boolean changeSchemeBase) {
+            Boolean changeSchemeBase, String cornerBuffer, String wingBuffer, String xcenterBuffer) {
 
         Globals g = new Globals();
         String[] cornerScheme = { "א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט", "י", "כ", "ל", "מ", "נ", "ס",
@@ -37,9 +38,9 @@ public class FourCube {
         // g.four.setCornerScheme(cornerScheme);
         // g.four.setWingScheme(wingScheme4x4);
         // g.four.setXCenterScheme(XCenterScheme);
-        g.four.setCornerBuffer("C");
-        g.four.setWingBuffer("C", changeSchemeBase);
-        g.four.setXCenterBuffer("C");
+        g.four.setCornerBuffer(cornerBuffer);
+        g.four.setWingBuffer(wingBuffer, changeSchemeBase);
+        g.four.setXCenterBuffer(xcenterBuffer);
 
         StringBuilder temp = new StringBuilder();
         try {
@@ -116,11 +117,37 @@ public class FourCube {
 
     }
 
+    public void setUpCube4x4(String scramble_file_name, String scramble_type, String solve_file_name,
+            Boolean changeSchemeBase) {
+        // Call the parameterized version with default buffers
+        setUpCube4x4(scramble_file_name, scramble_type, solve_file_name, changeSchemeBase, "C", "C", "C");
+    }
+
     public static void main(String[] args) throws FileNotFoundException {
 
         String scramble_type = args[0];
         String arg_bool = args[1];
         Boolean changeSchemeBase = Boolean.parseBoolean(arg_bool);
+
+        // Default buffers
+        String cornerBuffer = "C";
+        String wingBuffer = "C";
+        String xcenterBuffer = "C";
+
+        // Parse buffer arguments
+        for (int i = 2; i < args.length; i++) {
+            if (args[i].equals("--corner_buffer") && i + 1 < args.length) {
+                cornerBuffer = args[i + 1];
+                i++; // Skip the next argument (the value)
+            } else if (args[i].equals("--wing_buffer") && i + 1 < args.length) {
+                wingBuffer = args[i + 1];
+                i++; // Skip the next argument (the value)
+            } else if (args[i].equals("--xcenter_buffer") && i + 1 < args.length) {
+                xcenterBuffer = args[i + 1];
+                i++; // Skip the next argument (the value)
+            }
+        }
+
         String folderPath = "txt_files\\";
         File folder = new File(folderPath);
         File newestFile = null;
@@ -142,9 +169,15 @@ public class FourCube {
 
         long startTime = System.nanoTime();
 
+        // Set the buffers on the Globals instance
+        Globals g = new Globals();
+        g.four.setCornerBuffer(cornerBuffer);
+        g.four.setWingBuffer(wingBuffer, changeSchemeBase);
+        g.four.setXCenterBuffer(xcenterBuffer);
+
         // Call the method
         c.setUpCube4x4(scrambleFileName, scramble_type,
-                solveFileName, changeSchemeBase);
+                solveFileName, changeSchemeBase, cornerBuffer, wingBuffer, xcenterBuffer);
 
         // Measure the end time
         long endTime = System.nanoTime();

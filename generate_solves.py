@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-def analyze_solves(scramble_type, change_base_scheme):
+def analyze_solves(scramble_type, change_base_scheme, buffers):
     if scramble_type in ["333ni","corners","edges"]:
         cmd = [
             "java.exe",
@@ -14,6 +14,13 @@ def analyze_solves(scramble_type, change_base_scheme):
             "cubes/ThreeCube",
             scramble_type
         ]
+        # Add buffer arguments for 3BLD
+        if buffers.get("corner_buffer"):
+            cmd.append("--corner_buffer")
+            cmd.append(buffers.get("corner_buffer"))
+        if buffers.get("edge_buffer"):
+            cmd.append("--edge_buffer")
+            cmd.append(buffers.get("edge_buffer"))
     if scramble_type in ["555bld", "5edge"]:
         cmd = [
             "java.exe",
@@ -23,6 +30,22 @@ def analyze_solves(scramble_type, change_base_scheme):
             scramble_type,
             change_base_scheme
         ]
+        # Add buffer arguments for 5BLD
+        if buffers.get("corner_buffer"):
+            cmd.append("--corner_buffer")
+            cmd.append(buffers.get("corner_buffer"))
+        if buffers.get("edge_buffer"):
+            cmd.append("--edge_buffer")
+            cmd.append(buffers.get("edge_buffer"))
+        if buffers.get("wing_buffer"):
+            cmd.append("--wing_buffer")
+            cmd.append(buffers.get("wing_buffer"))
+        if buffers.get("xcenter_buffer"):
+            cmd.append("--xcenter_buffer")
+            cmd.append(buffers.get("xcenter_buffer"))
+        if buffers.get("tcenter_buffer"):
+            cmd.append("--tcenter_buffer")
+            cmd.append(buffers.get("tcenter_buffer"))
     
     if scramble_type in ["444bld", "444cto", "444edo"]:
         cmd = [
@@ -33,6 +56,18 @@ def analyze_solves(scramble_type, change_base_scheme):
             scramble_type,
             change_base_scheme
         ]
+        # Add buffer arguments for 4BLD
+        if buffers.get("corner_buffer"):
+            cmd.append("--corner_buffer")
+            cmd.append(buffers.get("corner_buffer"))
+        if buffers.get("wing_buffer"):
+            cmd.append("--wing_buffer")
+            cmd.append(buffers.get("wing_buffer"))
+        if buffers.get("xcenter_buffer"):
+            cmd.append("--xcenter_buffer")
+            cmd.append(buffers.get("xcenter_buffer"))
+    
+    print("cmd: ", cmd)
     result = subprocess.run(cmd)
 
 
@@ -42,14 +77,21 @@ def delete_csv_files(scramble_type):
     for file_name in csv_files:
         os.remove(file_name)
 
-def run_subprocess(count, scramble_type, process_id):
+def run_subprocess(count, scramble_type, process_id, buffers=None):
     """Run the Node.js subprocess for a specific range of scrambles."""
     print(f"Starting process {process_id} for {count} scrambles of type {scramble_type}...")
     try:
-        subprocess.run(
-            ["node", "scrambles_generator\scramble_generator.js", str(count), scramble_type],
-            check=True
-        )
+        cmd = ["node", "scrambles_generator\scramble_generator.js", str(count), scramble_type]
+        
+        # Add buffer parameters if they exist
+        if buffers:
+            for buffer_type, buffer_value in buffers.items():
+                if buffer_value:
+                    cmd.append(f"--{buffer_type}")
+                    cmd.append(buffer_value)
+        
+        print(cmd)
+        subprocess.run(cmd, check=True)
     except subprocess.CalledProcessError as e:
         print(f"Subprocess {process_id} failed: {e}")
 
@@ -72,7 +114,7 @@ def merge_files(scramble_type):
     except Exception as e:
         print(f"Error during file merge: {e}")
 
-def generate_scrambles(total_count, scramble_type, num_threads):
+def generate_scrambles(total_count, scramble_type, num_threads, buffers=None):
     """Generate scrambles using multithreaded subprocesses."""
     scrambles_per_thread = total_count // num_threads
     remaining_scrambles = total_count % num_threads
@@ -84,7 +126,7 @@ def generate_scrambles(total_count, scramble_type, num_threads):
                 count = scrambles_per_thread + (1 if i < remaining_scrambles else 0)
                 if count > 0:
                     futures.append(
-                        executor.submit(run_subprocess, count, scramble_type, i + 1)
+                        executor.submit(run_subprocess, count, scramble_type, i + 1, buffers)
                     )
             for future in as_completed(futures):
                 future.result()  # Wait for all subprocesses to complete
@@ -101,11 +143,28 @@ def main():
         "--threads", type=int, default=1,
         help="The number of threads (subprocesses) to run concurrently."
     )
+    # Add buffer arguments
+    parser.add_argument("--corner_buffer", help="Corner buffer position letter (default: C)")
+    parser.add_argument("--edge_buffer", help="Edge buffer position letter (default: C)")
+    parser.add_argument("--wing_buffer", help="Wing buffer position letter (default: C)")
+    parser.add_argument("--xcenter_buffer", help="X-Center buffer position letter (default: C)")
+    parser.add_argument("--tcenter_buffer", help="T-Center buffer position letter (default: C)")
+    
     args = parser.parse_args()
 
-    generate_scrambles(args.count, args.scramble_type, args.threads)
+    # Create a buffer dictionary to pass to analyze_solves
+    buffers = {
+        "corner_buffer": args.corner_buffer,
+        "edge_buffer": args.edge_buffer,
+        "wing_buffer": args.wing_buffer,
+        "xcenter_buffer": args.xcenter_buffer,
+        "tcenter_buffer": args.tcenter_buffer
+    }
+
+    generate_scrambles(args.count, args.scramble_type, args.threads, buffers)
     merge_files(args.scramble_type)
-    analyze_solves(args.scramble_type, args.change_base_scheme)
+    print("buffers: ", buffers)
+    analyze_solves(args.scramble_type, args.change_base_scheme, buffers)
     subprocess.run(["python", "db_solves/solves_to_csv.py", args.scramble_type])
     subprocess.run(["python", "db_solves/create_db_script.py", args.scramble_type])
 
