@@ -8,60 +8,72 @@ def main():
         {
             "type": "333ni", 
             "corner_buffer": "A", 
-            "edge_buffer": "C"
+            "edge_buffer": "C",
+            "count": "2000"  # Number of scrambles to generate
         },
         # Uncomment and customize these for other scramble types
         # {
         #     "type": "edges",
         #     "corner_buffer": "C",
-        #     "edge_buffer": "C"
+        #     "edge_buffer": "C",
+        #     "count": "1000"
         # },
         # {
         #     "type": "corners",
         #     "corner_buffer": "C",
-        #     "edge_buffer": "C"
+        #     "edge_buffer": "C",
+        #     "count": "1000"
         # },
-        # {
-        #     "type": "444bld",
-        #     "corner_buffer": "C",
-        #     "wing_buffer": "C",
-        #     "xcenter_buffer": "C"
-        # },
+        {
+            "type": "444bld",
+            "corner_buffer": "A",
+            "wing_buffer": "A",
+            "xcenter_buffer": "A",
+            "count": "100"  
+        },
         # {
         #     "type": "444cto",
         #     "corner_buffer": "C",
         #     "wing_buffer": "C",
-        #     "xcenter_buffer": "C"
+        #     "xcenter_buffer": "C",
+        #     "count": "500"
         # },
         # {
         #     "type": "444edo",
         #     "corner_buffer": "C",
         #     "wing_buffer": "C",
-        #     "xcenter_buffer": "C"
-        # },
-        # {
-        #     "type": "555bld",
-        #     "corner_buffer": "C",
-        #     "edge_buffer": "C",
-        #     "wing_buffer": "C",
         #     "xcenter_buffer": "C",
-        #     "tcenter_buffer": "C"
+        #     "count": "500"
         # },
+        {
+            "type": "555bld",
+            "corner_buffer": "C",
+            "edge_buffer": "C",
+            "wing_buffer": "C",
+            "xcenter_buffer": "C",
+            "tcenter_buffer": "C",
+            "count": "100"  
+        },
         # {
         #     "type": "5edge",
         #     "corner_buffer": "C",
         #     "edge_buffer": "C",
         #     "wing_buffer": "C",
         #     "xcenter_buffer": "C",
-        #     "tcenter_buffer": "C"
+        #     "tcenter_buffer": "C",
+        #     "count": "100"
         # }
     ]
 
-    count_scramble = "1000"
+    # Default count if not specified in the config
+    default_count = "1000"
     change_base_scheme = "true"
     
     for config in scramble_configs:
         scramble_type = config["type"]
+        
+        # Get count from config or use default
+        count_scramble = config.get("count", default_count)
         
         # Build command with buffer arguments
         cmd = [
@@ -84,7 +96,7 @@ def main():
         if "tcenter_buffer" in config:
             cmd.extend(["--tcenter_buffer", config["tcenter_buffer"]])
 
-        print(f"Generating {scramble_type} scrambles with buffers: {config}")
+        print(f"Generating {count_scramble} {scramble_type} scrambles with buffers: {config}")
         subprocess.run(cmd)
 
 if __name__ == '__main__':

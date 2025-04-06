@@ -53,6 +53,12 @@ public class FiveCube {
         g.five.setTCenterBuffer(tcenterBuffer);
         g.five.setEdgeBuffer(edgeBuffer);
 
+        String corner_buffer_str = "'Corner_buffer':" + "'" + cornerBuffer + "'";
+        String edge_buffer_str = "'Edge_buffer':" + "'" + edgeBuffer + "'";
+        String wing_buffer_str = "'Wings_buffer':" + "'" + wingBuffer + "'";
+        String xcenter_buffer_str = "'XCenter_buffer':" + "'" + xcenterBuffer + "'";
+        String tcenter_buffer_str = "'TCenter_buffer':" + "'" + tcenterBuffer + "'";
+
         StringBuilder temp = new StringBuilder();
         try {
             PrintWriter writer = new PrintWriter(solve_file_name, "UTF-8");
@@ -69,11 +75,11 @@ public class FiveCube {
             String[] parts_sol;
             String[] parts_stats;
 
-            edge_buffer = g.five.getEdgeBuffer();
-            corner_buffer = g.five.getCornerBuffer();
-            xcenter_buffer = g.five.getXCenterBuffer();
-            tcenter_buffer = g.five.getTCenterBuffer();
-            wing_buffer = g.five.getWingsBuffer();
+            // edge_buffer = g.five.getEdgeBuffer();
+            // corner_buffer = g.five.getCornerBuffer();
+            // xcenter_buffer = g.five.getXCenterBuffer();
+            // tcenter_buffer = g.five.getTCenterBuffer();
+            // wing_buffer = g.five.getWingsBuffer();
             int i = 0;
             try {
                 reader = new BufferedReader(new FileReader(scramble_file_name));
@@ -92,15 +98,15 @@ public class FiveCube {
                             .append(",")
                             .append(scrambleString)
                             .append(",")
-                            .append(edge_buffer)
+                            .append(edge_buffer_str)
                             .append(",")
-                            .append(corner_buffer)
+                            .append(corner_buffer_str)
                             .append(",")
-                            .append(wing_buffer)
+                            .append(wing_buffer_str)
                             .append(",")
-                            .append(xcenter_buffer)
+                            .append(xcenter_buffer_str)
                             .append(",")
-                            .append(tcenter_buffer)
+                            .append(tcenter_buffer_str)
                             .append(",")
                             .append(String.join(",", parts_sol))
                             .append(",")
