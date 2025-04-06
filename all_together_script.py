@@ -5,6 +5,107 @@ import sys
 import os
 import threading
 
+def print_combination_summary():
+    """Print a summary of all potential scramble combinations and total counts"""
+    print("\n" + "="*80)
+    print("SCRAMBLE GENERATION SUMMARY - ALL POSSIBLE COMBINATIONS")
+    print("="*80)
+    
+    # Edge buffers
+    edge_buffers = ["UF", "FU", "DF", "UR"]
+    print(f"Edge Buffers ({len(edge_buffers)}): {', '.join(edge_buffers)}")
+    
+    # Corner buffers
+    corner_buffers = ["UFR", "UBL", "UFL", "RDF"]
+    print(f"Corner Buffers ({len(corner_buffers)}): {', '.join(corner_buffers)}")
+    
+    # Wing buffers
+    wing_buffers = ["UFr", "DFr", "FUr"]
+    print(f"Wing Buffers ({len(wing_buffers)}): {', '.join(wing_buffers)}")
+    
+    # X-center buffers
+    xcenter_buffers = ["Ufr", "Ubl", "Ubr", "Ufl"]
+    print(f"X-Center Buffers ({len(xcenter_buffers)}): {', '.join(xcenter_buffers)}")
+    
+    # T-center buffers
+    tcenter_buffers = ["Uf", "Ub", "Ur", "Ul"]
+    print(f"T-Center Buffers ({len(tcenter_buffers)}): {', '.join(tcenter_buffers)}")
+    
+    print("\nMAXIMUM COMBINATIONS PER SCRAMBLE TYPE:")
+    
+    # 3BLD combinations
+    bld3_combos = len(edge_buffers) * len(corner_buffers)
+    print(f"3BLD:                  {bld3_combos} combinations (edges × corners)")
+    
+    # 4BLD combinations
+    bld4_combos = len(corner_buffers) * len(wing_buffers) * len(xcenter_buffers)
+    print(f"4BLD:                  {bld4_combos} combinations (corners × wings × xcenters)")
+    
+    # 5BLD combinations
+    bld5_combos = len(corner_buffers) * len(edge_buffers) * len(wing_buffers) * len(xcenter_buffers) * len(tcenter_buffers)
+    print(f"5BLD:                  {bld5_combos} combinations (all buffers)")
+    
+    # Edge only combinations
+    edge_combos = len(edge_buffers)
+    print(f"Edges Only:            {edge_combos} combinations (edges)")
+    
+    # Corner only combinations
+    corner_combos = len(corner_buffers)
+    print(f"Corners Only:          {corner_combos} combinations (corners)")
+    
+    # 4BLD centers only combinations
+    center4_combos = len(xcenter_buffers)
+    print(f"4BLD Centers Only:     {center4_combos} combinations (xcenters)")
+    
+    # 4BLD wings only combinations
+    wings4_combos = len(wing_buffers)
+    print(f"4BLD Wings Only:       {wings4_combos} combinations (wings)")
+    
+    # 5BLD Edges+Corners combinations
+    ec5_combos = len(corner_buffers) * len(edge_buffers)
+    print(f"5BLD Edges+Corners:    {ec5_combos} combinations (corners × edges)")
+    
+    print("\nSCRAMBLE COUNTS PER TYPE (if all combinations enabled):")
+    
+    # Define default counts
+    counts = {
+        "3BLD": 10000,
+        "4BLD": 100,
+        "5BLD": 50,
+        "Edges Only": 5000,
+        "Corners Only": 5000,
+        "4BLD Centers Only": 300,
+        "4BLD Wings Only": 300,
+        "5BLD Edges+Corners": 100
+    }
+    
+    # Calculate totals
+    print(f"3BLD:                  {counts['3BLD']} × {bld3_combos} = {counts['3BLD']*bld3_combos:,} scrambles")
+    print(f"4BLD:                  {counts['4BLD']} × {bld4_combos} = {counts['4BLD']*bld4_combos:,} scrambles")
+    print(f"5BLD:                  {counts['5BLD']} × {bld5_combos} = {counts['5BLD']*bld5_combos:,} scrambles")
+    print(f"Edges Only:            {counts['Edges Only']} × {edge_combos} = {counts['Edges Only']*edge_combos:,} scrambles")
+    print(f"Corners Only:          {counts['Corners Only']} × {corner_combos} = {counts['Corners Only']*corner_combos:,} scrambles")
+    print(f"4BLD Centers Only:     {counts['4BLD Centers Only']} × {center4_combos} = {counts['4BLD Centers Only']*center4_combos:,} scrambles")
+    print(f"4BLD Wings Only:       {counts['4BLD Wings Only']} × {wings4_combos} = {counts['4BLD Wings Only']*wings4_combos:,} scrambles")
+    print(f"5BLD Edges+Corners:    {counts['5BLD Edges+Corners']} × {ec5_combos} = {counts['5BLD Edges+Corners']*ec5_combos:,} scrambles")
+    
+    grand_total = (
+        counts['3BLD']*bld3_combos +
+        counts['4BLD']*bld4_combos +
+        counts['5BLD']*bld5_combos +
+        counts['Edges Only']*edge_combos +
+        counts['Corners Only']*corner_combos +
+        counts['4BLD Centers Only']*center4_combos +
+        counts['4BLD Wings Only']*wings4_combos +
+        counts['5BLD Edges+Corners']*ec5_combos
+    )
+    
+    print(f"\nMAXIMUM TOTAL (all combinations): {grand_total:,} scrambles")
+    print("="*80)
+    
+    # User input to continue
+    input("\nPress Enter to continue to configuration...")
+
 def progress_bar(process, total_time=None):
     """Display a progress bar while a subprocess is running"""
     chars = '|/-\\'
@@ -58,6 +159,9 @@ def estimate_time(scramble_type, count):
     return base_time + overhead
 
 def main():
+    # Display summary of all possible combinations
+    print_combination_summary()
+    
     # Define buffer options for each piece type
     edge_buffers = {
         "UF": "C",
@@ -134,10 +238,10 @@ def main():
     
     # Scramble types to generate - set True/False for each type
     GENERATE_3BLD = True              # Full 3x3 BLD scrambles
-    GENERATE_4BLD = True              # Full 4x4 BLD scrambles
-    GENERATE_5BLD = True              # Full 5x5 BLD scrambles
-    GENERATE_EDGES_ONLY = True       # 3x3 edges-only scrambles
-    GENERATE_CORNERS_ONLY = True     # 3x3 corners-only scrambles
+    GENERATE_4BLD = False              # Full 4x4 BLD scrambles
+    GENERATE_5BLD = False             # Full 5x5 BLD scrambles
+    GENERATE_EDGES_ONLY = False       # 3x3 edges-only scrambles
+    GENERATE_CORNERS_ONLY = False     # 3x3 corners-only scrambles
     GENERATE_4BLD_CENTERS_ONLY = False # 4x4 centers-only scrambles
     GENERATE_4BLD_WINGS_ONLY = False   # 4x4 wings-only scrambles
     GENERATE_5BLD_EDGES_CORNERS = False # 5x5 edges+corners (5edge) scrambles
@@ -155,7 +259,100 @@ def main():
     # =====================================================================
     # END OF CONFIGURATION
     # =====================================================================
-
+    
+    # Display active configuration summary
+    print("\n" + "="*80)
+    print("ACTIVE CONFIGURATION SUMMARY")
+    print("="*80)
+    
+    print("\nENABLED SCRAMBLE TYPES:")
+    enabled_types = []
+    if GENERATE_3BLD: enabled_types.append(f"3BLD ({COUNT_3BLD} per combo)")
+    if GENERATE_4BLD: enabled_types.append(f"4BLD ({COUNT_4BLD} per combo)")
+    if GENERATE_5BLD: enabled_types.append(f"5BLD ({COUNT_5BLD} per combo)")
+    if GENERATE_EDGES_ONLY: enabled_types.append(f"Edges Only ({COUNT_EDGES_ONLY} per combo)")
+    if GENERATE_CORNERS_ONLY: enabled_types.append(f"Corners Only ({COUNT_CORNERS_ONLY} per combo)")
+    if GENERATE_4BLD_CENTERS_ONLY: enabled_types.append(f"4BLD Centers Only ({COUNT_4BLD_CENTERS_ONLY} per combo)")
+    if GENERATE_4BLD_WINGS_ONLY: enabled_types.append(f"4BLD Wings Only ({COUNT_4BLD_WINGS_ONLY} per combo)")
+    if GENERATE_5BLD_EDGES_CORNERS: enabled_types.append(f"5BLD Edges+Corners ({COUNT_5BLD_EDGES_CORNERS} per combo)")
+    
+    if not enabled_types:
+        print("  No scramble types enabled")
+    else:
+        for type_name in enabled_types:
+            print(f"  • {type_name}")
+    
+    print("\nACTIVE BUFFER CONFIGURATIONS:")
+    print(f"  Edge buffers:     {len(USE_EDGE_BUFFERS)} active ({', '.join(USE_EDGE_BUFFERS)})")
+    print(f"  Corner buffers:   {len(USE_CORNER_BUFFERS)} active ({', '.join(USE_CORNER_BUFFERS)})")
+    print(f"  Wing buffers:     {len(USE_WING_BUFFERS)} active ({', '.join(USE_WING_BUFFERS)})")
+    print(f"  X-center buffers: {len(USE_XCENTER_BUFFERS)} active ({', '.join(USE_XCENTER_BUFFERS)})")
+    print(f"  T-center buffers: {len(USE_TCENTER_BUFFERS)} active ({', '.join(USE_TCENTER_BUFFERS)})")
+    
+    # Calculate active combinations
+    print("\nACTIVE COMBINATIONS:")
+    active_combos = {}
+    active_counts = {}
+    
+    if GENERATE_3BLD:
+        active_combos["3BLD"] = len(USE_EDGE_BUFFERS) * len(USE_CORNER_BUFFERS)
+        active_counts["3BLD"] = active_combos["3BLD"] * COUNT_3BLD
+        print(f"  3BLD:                  {active_combos['3BLD']} combinations = {active_counts['3BLD']:,} scrambles")
+    
+    if GENERATE_4BLD:
+        active_combos["4BLD"] = len(USE_CORNER_BUFFERS) * len(USE_WING_BUFFERS) * len(USE_XCENTER_BUFFERS)
+        active_counts["4BLD"] = active_combos["4BLD"] * COUNT_4BLD
+        print(f"  4BLD:                  {active_combos['4BLD']} combinations = {active_counts['4BLD']:,} scrambles")
+    
+    if GENERATE_5BLD:
+        active_combos["5BLD"] = len(USE_CORNER_BUFFERS) * len(USE_EDGE_BUFFERS) * len(USE_WING_BUFFERS) * len(USE_XCENTER_BUFFERS) * len(USE_TCENTER_BUFFERS)
+        active_counts["5BLD"] = active_combos["5BLD"] * COUNT_5BLD
+        print(f"  5BLD:                  {active_combos['5BLD']} combinations = {active_counts['5BLD']:,} scrambles")
+    
+    if GENERATE_EDGES_ONLY:
+        active_combos["Edges"] = len(USE_EDGE_BUFFERS)
+        active_counts["Edges"] = active_combos["Edges"] * COUNT_EDGES_ONLY
+        print(f"  Edges Only:            {active_combos['Edges']} combinations = {active_counts['Edges']:,} scrambles")
+    
+    if GENERATE_CORNERS_ONLY:
+        active_combos["Corners"] = len(USE_CORNER_BUFFERS)
+        active_counts["Corners"] = active_combos["Corners"] * COUNT_CORNERS_ONLY
+        print(f"  Corners Only:          {active_combos['Corners']} combinations = {active_counts['Corners']:,} scrambles")
+    
+    if GENERATE_4BLD_CENTERS_ONLY:
+        active_combos["4Centers"] = len(USE_XCENTER_BUFFERS)
+        active_counts["4Centers"] = active_combos["4Centers"] * COUNT_4BLD_CENTERS_ONLY
+        print(f"  4BLD Centers Only:     {active_combos['4Centers']} combinations = {active_counts['4Centers']:,} scrambles")
+    
+    if GENERATE_4BLD_WINGS_ONLY:
+        active_combos["4Wings"] = len(USE_WING_BUFFERS)
+        active_counts["4Wings"] = active_combos["4Wings"] * COUNT_4BLD_WINGS_ONLY
+        print(f"  4BLD Wings Only:       {active_combos['4Wings']} combinations = {active_counts['4Wings']:,} scrambles")
+    
+    if GENERATE_5BLD_EDGES_CORNERS:
+        active_combos["5EC"] = len(USE_CORNER_BUFFERS) * len(USE_EDGE_BUFFERS)
+        active_counts["5EC"] = active_combos["5EC"] * COUNT_5BLD_EDGES_CORNERS
+        print(f"  5BLD Edges+Corners:    {active_combos['5EC']} combinations = {active_counts['5EC']:,} scrambles")
+    
+    # Calculate total active combinations and scrambles
+    total_active_combos = sum(active_combos.values())
+    total_active_scrambles = sum(active_counts.values())
+    
+    print("\nTOTAL ACTIVE COMBINATIONS: " + str(total_active_combos))
+    print(f"TOTAL SCRAMBLES TO GENERATE: {total_active_scrambles:,}")
+    
+    # Add file size estimate
+    est_size_mb = total_active_scrambles * 8 / 30000  # Based on 30000 solves = 8 MB
+    if est_size_mb < 1:
+        print(f"ESTIMATED FILE SIZE: {est_size_mb*1024:.1f} KB")
+    elif est_size_mb < 1024:
+        print(f"ESTIMATED FILE SIZE: {est_size_mb:.1f} MB")
+    else:
+        print(f"ESTIMATED FILE SIZE: {est_size_mb/1024:.2f} GB")
+    
+    print("="*80)
+    print()
+    
     # Generate all scramble configurations based on enabled settings
     scramble_configs = []
     
