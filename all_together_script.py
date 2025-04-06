@@ -16,7 +16,7 @@ def print_combination_summary():
     print(f"Edge Buffers ({len(edge_buffers)}): {', '.join(edge_buffers)}")
     
     # Corner buffers
-    corner_buffers = ["UFR", "UBL", "UFL", "RDF"]
+    corner_buffers = ["UFR", "UBL", "UFL", "RFD"]
     print(f"Corner Buffers ({len(corner_buffers)}): {', '.join(corner_buffers)}")
     
     # Wing buffers
@@ -65,46 +65,110 @@ def print_combination_summary():
     ec5_combos = len(corner_buffers) * len(edge_buffers)
     print(f"5BLD Edges+Corners:    {ec5_combos} combinations (corners × edges)")
     
-    print("\nSCRAMBLE COUNTS PER TYPE (if all combinations enabled):")
-    
-    # Define default counts
-    counts = {
-        "3BLD": 10000,
-        "4BLD": 100,
-        "5BLD": 50,
-        "Edges Only": 5000,
-        "Corners Only": 5000,
-        "4BLD Centers Only": 300,
-        "4BLD Wings Only": 300,
-        "5BLD Edges+Corners": 100
-    }
-    
-    # Calculate totals
-    print(f"3BLD:                  {counts['3BLD']} × {bld3_combos} = {counts['3BLD']*bld3_combos:,} scrambles")
-    print(f"4BLD:                  {counts['4BLD']} × {bld4_combos} = {counts['4BLD']*bld4_combos:,} scrambles")
-    print(f"5BLD:                  {counts['5BLD']} × {bld5_combos} = {counts['5BLD']*bld5_combos:,} scrambles")
-    print(f"Edges Only:            {counts['Edges Only']} × {edge_combos} = {counts['Edges Only']*edge_combos:,} scrambles")
-    print(f"Corners Only:          {counts['Corners Only']} × {corner_combos} = {counts['Corners Only']*corner_combos:,} scrambles")
-    print(f"4BLD Centers Only:     {counts['4BLD Centers Only']} × {center4_combos} = {counts['4BLD Centers Only']*center4_combos:,} scrambles")
-    print(f"4BLD Wings Only:       {counts['4BLD Wings Only']} × {wings4_combos} = {counts['4BLD Wings Only']*wings4_combos:,} scrambles")
-    print(f"5BLD Edges+Corners:    {counts['5BLD Edges+Corners']} × {ec5_combos} = {counts['5BLD Edges+Corners']*ec5_combos:,} scrambles")
-    
-    grand_total = (
-        counts['3BLD']*bld3_combos +
-        counts['4BLD']*bld4_combos +
-        counts['5BLD']*bld5_combos +
-        counts['Edges Only']*edge_combos +
-        counts['Corners Only']*corner_combos +
-        counts['4BLD Centers Only']*center4_combos +
-        counts['4BLD Wings Only']*wings4_combos +
-        counts['5BLD Edges+Corners']*ec5_combos
-    )
-    
-    print(f"\nMAXIMUM TOTAL (all combinations): {grand_total:,} scrambles")
-    print("="*80)
-    
     # User input to continue
     input("\nPress Enter to continue to configuration...")
+
+def print_enabled_summary(use_edge_buffers, use_corner_buffers, use_wing_buffers, 
+                        use_xcenter_buffers, use_tcenter_buffers,
+                        generate_3bld, generate_4bld, generate_5bld,
+                        generate_edges_only, generate_corners_only,
+                        generate_4bld_centers_only, generate_4bld_wings_only,
+                        generate_5bld_edges_corners,
+                        count_3bld, count_4bld, count_5bld,
+                        count_edges_only, count_corners_only,
+                        count_4bld_centers_only, count_4bld_wings_only,
+                        count_5bld_edges_corners):
+    """Print a summary of only enabled scramble configurations"""
+    print("\n" + "="*80)
+    print("SCRAMBLE COUNTS - ENABLED CONFIGURATIONS ONLY")
+    print("="*80)
+    
+    print("\nENABLED SCRAMBLE COUNTS:")
+    enabled_counts = []
+    total_scrambles = 0
+    total_combinations = 0
+    
+    # Calculate and display counts only for enabled types
+    if generate_3bld:
+        combos = len(use_edge_buffers) * len(use_corner_buffers)
+        count = count_3bld * combos
+        total_scrambles += count
+        total_combinations += combos
+        enabled_counts.append(f"3BLD:                  {count_3bld} × {combos} = {count:,} scrambles")
+    
+    if generate_4bld:
+        combos = len(use_corner_buffers) * len(use_wing_buffers) * len(use_xcenter_buffers)
+        count = count_4bld * combos
+        total_scrambles += count
+        total_combinations += combos
+        enabled_counts.append(f"4BLD:                  {count_4bld} × {combos} = {count:,} scrambles")
+    
+    if generate_5bld:
+        combos = len(use_corner_buffers) * len(use_edge_buffers) * len(use_wing_buffers) * len(use_xcenter_buffers) * len(use_tcenter_buffers)
+        count = count_5bld * combos
+        total_scrambles += count
+        total_combinations += combos
+        enabled_counts.append(f"5BLD:                  {count_5bld} × {combos} = {count:,} scrambles")
+    
+    if generate_edges_only:
+        combos = len(use_edge_buffers)
+        count = count_edges_only * combos
+        total_scrambles += count
+        total_combinations += combos
+        enabled_counts.append(f"Edges Only:            {count_edges_only} × {combos} = {count:,} scrambles")
+    
+    if generate_corners_only:
+        combos = len(use_corner_buffers)
+        count = count_corners_only * combos
+        total_scrambles += count
+        total_combinations += combos
+        enabled_counts.append(f"Corners Only:          {count_corners_only} × {combos} = {count:,} scrambles")
+    
+    if generate_4bld_centers_only:
+        combos = len(use_xcenter_buffers)
+        count = count_4bld_centers_only * combos
+        total_scrambles += count
+        total_combinations += combos
+        enabled_counts.append(f"4BLD Centers Only:     {count_4bld_centers_only} × {combos} = {count:,} scrambles")
+    
+    if generate_4bld_wings_only:
+        combos = len(use_wing_buffers)
+        count = count_4bld_wings_only * combos
+        total_scrambles += count
+        total_combinations += combos
+        enabled_counts.append(f"4BLD Wings Only:       {count_4bld_wings_only} × {combos} = {count:,} scrambles")
+    
+    if generate_5bld_edges_corners:
+        combos = len(use_edge_buffers) * len(use_corner_buffers)
+        count = count_5bld_edges_corners * combos
+        total_scrambles += count
+        total_combinations += combos
+        enabled_counts.append(f"5BLD Edges+Corners:    {count_5bld_edges_corners} × {combos} = {count:,} scrambles")
+    
+    # Print all enabled counts
+    if not enabled_counts:
+        print("  No scramble types enabled!")
+    else:
+        for count_line in enabled_counts:
+            print(count_line)
+    
+    # Print summary
+    print(f"\nTOTAL ENABLED COMBINATIONS: {total_combinations}")
+    print(f"TOTAL ENABLED SCRAMBLES: {total_scrambles:,}")
+    
+    # Calculate file size estimate
+    est_size_mb = total_scrambles * 8 / 30000  # Based on 30000 solves = 8 MB
+    if est_size_mb < 1:
+        print(f"ESTIMATED FILE SIZE: {est_size_mb*1024:.1f} KB")
+    elif est_size_mb < 1024:
+        print(f"ESTIMATED FILE SIZE: {est_size_mb:.1f} MB")
+    else:
+        print(f"ESTIMATED FILE SIZE: {est_size_mb/1024:.2f} GB")
+        
+    print("="*80)
+    
+    # Return values for use in main script
+    return total_combinations, total_scrambles
 
 def progress_bar(process, total_time=None):
     """Display a progress bar while a subprocess is running"""
@@ -160,7 +224,7 @@ def estimate_time(scramble_type, count):
 
 def main():
     # Display summary of all possible combinations
-    print_combination_summary()
+    # print_combination_summary()
     
     # Define buffer options for each piece type
     edge_buffers = {
@@ -219,46 +283,60 @@ def main():
     USE_WING_BUFFERS = [
         "UFr",      # Standard UFr buffer
         "DFr",    # Uncomment to use DFr buffer
-        # "FUr",    # Uncomment to use FUr buffer
+        "FUr",    # Uncomment to use FUr buffer
     ]
     
     USE_XCENTER_BUFFERS = [
         "Ufr",      # Standard Ufr buffer
         "Ubl",    # Uncomment to use Ubl buffer
-        # "Ubr",    # Uncomment to use Ubr buffer
-        # "Ufl",    # Uncomment to use Ufl buffer
+        "Ubr",    # Uncomment to use Ubr buffer
+        "Ufl",    # Uncomment to use Ufl buffer
     ]
     
     USE_TCENTER_BUFFERS = [
         "Uf",       # Standard Uf buffer
         "Ub",     # Uncomment to use Ub buffer
-        # "Ur",     # Uncomment to use Ur buffer
-        # "Ul",     # Uncomment to use Ul buffer
+        "Ur",     # Uncomment to use Ur buffer
+        "Ul",     # Uncomment to use Ul buffer
     ]
     
     # Scramble types to generate - set True/False for each type
     GENERATE_3BLD = True              # Full 3x3 BLD scrambles
-    GENERATE_4BLD = False              # Full 4x4 BLD scrambles
-    GENERATE_5BLD = False             # Full 5x5 BLD scrambles
-    GENERATE_EDGES_ONLY = False       # 3x3 edges-only scrambles
-    GENERATE_CORNERS_ONLY = False     # 3x3 corners-only scrambles
+    GENERATE_4BLD = False             # Full 4x4 BLD scrambles
+    GENERATE_5BLD = True             # Full 5x5 BLD scrambles
+    GENERATE_EDGES_ONLY = True       # 3x3 edges-only scrambles
+    GENERATE_CORNERS_ONLY = True     # 3x3 corners-only scrambles
     GENERATE_4BLD_CENTERS_ONLY = False # 4x4 centers-only scrambles
     GENERATE_4BLD_WINGS_ONLY = False   # 4x4 wings-only scrambles
-    GENERATE_5BLD_EDGES_CORNERS = False # 5x5 edges+corners (5edge) scrambles
+    GENERATE_5BLD_EDGES_CORNERS = True # 5x5 edges+corners (5edge) scrambles
     
     # Scramble counts for each type
-    COUNT_3BLD = 10000                  # Scrambles per 3BLD combo
+    COUNT_3BLD = 100000                  # Scrambles per 3BLD combo
     COUNT_4BLD = 100                  # Scrambles per 4BLD combo
-    COUNT_5BLD = 50                   # Scrambles per 5BLD combo
-    COUNT_EDGES_ONLY = 5000           # Scrambles per edges-only combo
-    COUNT_CORNERS_ONLY = 5000        # Scrambles per corners-only combo
+    COUNT_5BLD = 1000                   # Scrambles per 5BLD combo
+    COUNT_EDGES_ONLY = 100000           # Scrambles per edges-only combo
+    COUNT_CORNERS_ONLY = 100000        # Scrambles per corners-only combo
     COUNT_4BLD_CENTERS_ONLY = 300     # Scrambles per 4BLD centers combo
     COUNT_4BLD_WINGS_ONLY = 300       # Scrambles per 4BLD wings combo
-    COUNT_5BLD_EDGES_CORNERS = 100    # Scrambles per 5BLD edges+corners combo
+    COUNT_5BLD_EDGES_CORNERS = 1000    # Scrambles per 5BLD edges+corners combo
 
     # =====================================================================
     # END OF CONFIGURATION
     # =====================================================================
+    
+    # Display only enabled scramble counts
+    total_active_combos, total_active_scrambles = print_enabled_summary(
+        USE_EDGE_BUFFERS, USE_CORNER_BUFFERS, USE_WING_BUFFERS, 
+        USE_XCENTER_BUFFERS, USE_TCENTER_BUFFERS,
+        GENERATE_3BLD, GENERATE_4BLD, GENERATE_5BLD,
+        GENERATE_EDGES_ONLY, GENERATE_CORNERS_ONLY,
+        GENERATE_4BLD_CENTERS_ONLY, GENERATE_4BLD_WINGS_ONLY,
+        GENERATE_5BLD_EDGES_CORNERS,
+        COUNT_3BLD, COUNT_4BLD, COUNT_5BLD,
+        COUNT_EDGES_ONLY, COUNT_CORNERS_ONLY,
+        COUNT_4BLD_CENTERS_ONLY, COUNT_4BLD_WINGS_ONLY,
+        COUNT_5BLD_EDGES_CORNERS
+    )
     
     # Display active configuration summary
     print("\n" + "="*80)
@@ -356,188 +434,115 @@ def main():
     # Generate all scramble configurations based on enabled settings
     scramble_configs = []
     
-    # 3BLD configurations - cartesian product of selected edge and corner buffers
+    # Add 3BLD configurations if enabled
     if GENERATE_3BLD:
-        count = str(COUNT_3BLD)
-        for edge_pos in USE_EDGE_BUFFERS:
-            for corner_pos in USE_CORNER_BUFFERS:
-                edge_letter = edge_buffers[edge_pos]
-                corner_letter = corner_buffers[corner_pos]
+        for edge_buffer in USE_EDGE_BUFFERS:
+            for corner_buffer in USE_CORNER_BUFFERS:
                 scramble_configs.append({
                     "type": "333ni",
-                    "corner_buffer": corner_letter,
-                    "edge_buffer": edge_letter,
-                    "count": count,
-                    "description": f"3BLD {edge_pos}-{corner_pos}"
+                    "count": str(COUNT_3BLD),
+                    "description": f"3BLD {edge_buffer}-{corner_buffer}",
+                    "edge_buffer": edge_buffer,
+                    "corner_buffer": corner_buffer
                 })
     
-    # 4BLD configurations - cartesian product of selected corner, wing, and xcenter buffers
+    # Add 4BLD configurations if enabled
     if GENERATE_4BLD:
-        count = str(COUNT_4BLD)
-        for corner_pos in USE_CORNER_BUFFERS:
-            for wing_pos in USE_WING_BUFFERS:
-                for xcenter_pos in USE_XCENTER_BUFFERS:
-                    corner_letter = corner_buffers[corner_pos]
-                    wing_letter = wing_buffers[wing_pos]
-                    xcenter_letter = xcenter_buffers[xcenter_pos]
+        for corner_buffer in USE_CORNER_BUFFERS:
+            for wing_buffer in USE_WING_BUFFERS:
+                for xcenter_buffer in USE_XCENTER_BUFFERS:
                     scramble_configs.append({
                         "type": "444bld",
-                        "corner_buffer": corner_letter,
-                        "wing_buffer": wing_letter,
-                        "xcenter_buffer": xcenter_letter,
-                        "count": count,
-                        "description": f"4BLD {corner_pos}-{wing_pos}-{xcenter_pos}"
+                        "count": str(COUNT_4BLD),
+                        "description": f"4BLD {wing_buffer}-{corner_buffer} wings-corners",
+                        "wing_buffer": wing_buffer,
+                        "corner_buffer": corner_buffer,
+                        "xcenter_buffer": xcenter_buffer
                     })
     
-    # 5BLD configurations - cartesian product of all selected buffer types
+    # Add 5BLD configurations if enabled
     if GENERATE_5BLD:
-        count = str(COUNT_5BLD)
-        for corner_pos in USE_CORNER_BUFFERS:
-            for edge_pos in USE_EDGE_BUFFERS:
-                for wing_pos in USE_WING_BUFFERS:
-                    for xcenter_pos in USE_XCENTER_BUFFERS:
-                        for tcenter_pos in USE_TCENTER_BUFFERS:
-                            corner_letter = corner_buffers[corner_pos]
-                            edge_letter = edge_buffers[edge_pos]
-                            wing_letter = wing_buffers[wing_pos]
-                            xcenter_letter = xcenter_buffers[xcenter_pos]
-                            tcenter_letter = tcenter_buffers[tcenter_pos]
+        for edge_buffer in USE_EDGE_BUFFERS:
+            for corner_buffer in USE_CORNER_BUFFERS:
+                for wing_buffer in USE_WING_BUFFERS:
+                    for xcenter_buffer in USE_XCENTER_BUFFERS:
+                        for tcenter_buffer in USE_TCENTER_BUFFERS:
                             scramble_configs.append({
                                 "type": "555bld",
-                                "corner_buffer": corner_letter,
-                                "edge_buffer": edge_letter,
-                                "wing_buffer": wing_letter,
-                                "xcenter_buffer": xcenter_letter,
-                                "tcenter_buffer": tcenter_letter,
-                                "count": count,
-                                "description": f"5BLD {corner_pos}-{edge_pos}-{wing_pos}-{xcenter_pos}-{tcenter_pos}"
+                                "count": str(COUNT_5BLD),
+                                "description": f"5BLD {edge_buffer}-{corner_buffer}",
+                                "edge_buffer": edge_buffer,
+                                "corner_buffer": corner_buffer,
+                                "wing_buffer": wing_buffer,
+                                "xcenter_buffer": xcenter_buffer,
+                                "tcenter_buffer": tcenter_buffer
                             })
     
-    # Edges-only configurations
+    # Add edge-only configurations if enabled
     if GENERATE_EDGES_ONLY:
-        count = str(COUNT_EDGES_ONLY)
-        for edge_pos in USE_EDGE_BUFFERS:
-            edge_letter = edge_buffers[edge_pos]
+        for edge_buffer in USE_EDGE_BUFFERS:
             scramble_configs.append({
                 "type": "edges",
-                "edge_buffer": edge_letter,
-                "count": count,
-                "description": f"Edges Only - {edge_pos}"
+                "count": str(COUNT_EDGES_ONLY),
+                "description": f"3BLD Edges Only {edge_buffer}",
+                "edge_buffer": edge_buffer
             })
     
-    # Corners-only configurations
+    # Add corner-only configurations if enabled
     if GENERATE_CORNERS_ONLY:
-        count = str(COUNT_CORNERS_ONLY)
-        for corner_pos in USE_CORNER_BUFFERS:
-            corner_letter = corner_buffers[corner_pos]
+        for corner_buffer in USE_CORNER_BUFFERS:
             scramble_configs.append({
                 "type": "corners",
-                "corner_buffer": corner_letter,
-                "count": count,
-                "description": f"Corners Only - {corner_pos}"
+                "count": str(COUNT_CORNERS_ONLY),
+                "description": f"3BLD Corners Only {corner_buffer}",
+                "corner_buffer": corner_buffer
             })
     
-    # 4BLD Centers-only configurations
+    # Add 4BLD centers-only configurations if enabled
     if GENERATE_4BLD_CENTERS_ONLY:
-        count = str(COUNT_4BLD_CENTERS_ONLY)
-        for xcenter_pos in USE_XCENTER_BUFFERS:
-            xcenter_letter = xcenter_buffers[xcenter_pos]
+        for xcenter_buffer in USE_XCENTER_BUFFERS:
             scramble_configs.append({
                 "type": "444cto",
-                "xcenter_buffer": xcenter_letter,
-                "count": count,
-                "description": f"4BLD Centers Only - {xcenter_pos}"
+                "count": str(COUNT_4BLD_CENTERS_ONLY),
+                "description": f"4BLD Centers Only {xcenter_buffer}",
+                "xcenter_buffer": xcenter_buffer
             })
     
-    # 4BLD Wings-only configurations
+    # Add 4BLD wings-only configurations if enabled
     if GENERATE_4BLD_WINGS_ONLY:
-        count = str(COUNT_4BLD_WINGS_ONLY)
-        for wing_pos in USE_WING_BUFFERS:
-            wing_letter = wing_buffers[wing_pos]
+        for wing_buffer in USE_WING_BUFFERS:
             scramble_configs.append({
                 "type": "444edo",
-                "wing_buffer": wing_letter,
-                "count": count,
-                "description": f"4BLD Wings Only - {wing_pos}"
+                "count": str(COUNT_4BLD_WINGS_ONLY),
+                "description": f"4BLD Wings Only {wing_buffer}",
+                "wing_buffer": wing_buffer
             })
-            
-    # 5BLD Edges+Corners configurations (5edge)
+    
+    # Add 5BLD edges+corners configurations if enabled
     if GENERATE_5BLD_EDGES_CORNERS:
-        count = str(COUNT_5BLD_EDGES_CORNERS)
-        for corner_pos in USE_CORNER_BUFFERS:
-            for edge_pos in USE_EDGE_BUFFERS:
-                corner_letter = corner_buffers[corner_pos]
-                edge_letter = edge_buffers[edge_pos]
+        for edge_buffer in USE_EDGE_BUFFERS:
+            for corner_buffer in USE_CORNER_BUFFERS:
                 scramble_configs.append({
                     "type": "5edge",
-                    "corner_buffer": corner_letter,
-                    "edge_buffer": edge_letter,
-                    "count": count,
-                    "description": f"5BLD Edges+Corners - {corner_pos}-{edge_pos}"
+                    "count": str(COUNT_5BLD_EDGES_CORNERS),
+                    "description": f"5BLD Edges+Corners {edge_buffer}-{corner_buffer}",
+                    "edge_buffer": edge_buffer,
+                    "corner_buffer": corner_buffer
                 })
-
-    # Print summary of what will be generated
-    if len(scramble_configs) == 0:
-        print("No scramble configurations selected. Please enable at least one scramble type.")
-        return
     
-    # Calculate total scrambles
-    total_scrambles = sum(int(config["count"]) for config in scramble_configs)
+    # List available scheme files
+    print("Available letter schemes:")
+    scheme_files = glob.glob("*.csv")
+    for i, file in enumerate(scheme_files):
+        print(f"{i+1}. {file}")
     
-    print("\n" + "="*60)
-    print(f"=== SCRAMBLE GENERATION PLAN: {total_scrambles} TOTAL SCRAMBLES ===")
-    print("="*60)
-    
-    print(f"\nWill generate {len(scramble_configs)} different scramble sets:")
-    
-    # Group by type for nicer display
-    type_groups = {}
-    for config in scramble_configs:
-        scramble_type = config["type"]
-        if scramble_type not in type_groups:
-            type_groups[scramble_type] = []
-        type_groups[scramble_type].append(config)
-    
-    # Calculate scrambles by type
-    type_totals = {}
-    for scramble_type, configs in type_groups.items():
-        scrambles = sum(int(config["count"]) for config in configs)
-        type_totals[scramble_type] = scrambles
-    
-    for scramble_type, configs in type_groups.items():
-        type_name = {
-            "333ni": "3BLD",
-            "444bld": "4BLD",
-            "555bld": "5BLD",
-            "edges": "Edges Only",
-            "corners": "Corners Only",
-            "444cto": "4BLD Centers Only",
-            "444edo": "4BLD Wings Only",
-            "5edge": "5BLD Edges+Corners"
-        }.get(scramble_type, scramble_type)
-        
-        scrambles = type_totals[scramble_type]
-        
-        print(f"\n{type_name} ({len(configs)} configurations, {scrambles} scrambles):")
-        for i, config in enumerate(configs):
-            print(f"  {i+1}. {config['count']} {config['description']} scrambles")
-    
-    print("\n=== BUFFER USAGE SUMMARY ===")
-    print("Edge buffers:     " + ", ".join(USE_EDGE_BUFFERS))
-    print("Corner buffers:   " + ", ".join(USE_CORNER_BUFFERS))
-    print("Wing buffers:     " + ", ".join(USE_WING_BUFFERS))
-    print("X-center buffers: " + ", ".join(USE_XCENTER_BUFFERS))
-    print("T-center buffers: " + ", ".join(USE_TCENTER_BUFFERS))
-    
-    print("\n" + "="*60)
-    print(f"TOTAL SCRAMBLES TO GENERATE: {total_scrambles}")
-    print("="*60)
-    
-    # Ask user to confirm
-    confirm = input("\nGenerate these scrambles? (y/n): ")
-    if confirm.lower() != 'y':
-        print("Scramble generation cancelled.")
-        return
+    # Clear the 'scrambles' directory first
+    scrambles_dir = "scrambles"
+    if os.path.exists(scrambles_dir):
+        for file in glob.glob(f"{scrambles_dir}/*.txt"):
+            os.remove(file)
+    else:
+        os.makedirs(scrambles_dir)
     
     # Generate all scrambles
     change_base_scheme = "true"
@@ -553,7 +558,7 @@ def main():
         
         # Progress header for this scramble set
         print(f"\n[{i+1}/{len(scramble_configs)}] Generating {count_scramble} {description} scrambles")
-        print(f"Overall progress: {completed_scrambles}/{total_scrambles} scrambles ({completed_scrambles/total_scrambles*100:.1f}%)")
+        print(f"Overall progress: {completed_scrambles}/{total_active_scrambles} scrambles ({completed_scrambles/total_active_scrambles*100:.1f}%)")
         
         # Build command with buffer arguments
         cmd = [
@@ -602,7 +607,7 @@ def main():
         
         # Show completion message and overall progress
         print(f"✓ Completed {description} scrambles")
-        print(f"Overall progress: {completed_scrambles}/{total_scrambles} scrambles ({completed_scrambles/total_scrambles*100:.1f}%)")
+        print(f"Overall progress: {completed_scrambles}/{total_active_scrambles} scrambles ({completed_scrambles/total_active_scrambles*100:.1f}%)")
         print(f"Elapsed time: {int(elapsed//60)}m {int(elapsed%60)}s")
         print("-"*60)
     
@@ -618,7 +623,7 @@ def main():
     elapsed_str += f"{int(seconds)}s"
     
     print("\n" + "="*60)
-    print(f"GENERATION COMPLETE! Generated {total_scrambles} scrambles")
+    print(f"GENERATION COMPLETE! Generated {total_active_scrambles} scrambles")
     print(f"Total time: {elapsed_str}")
     print("="*60)
 

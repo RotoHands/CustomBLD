@@ -3,7 +3,7 @@ export const scrambleTypes = [
 ];
 
 export const edgeBufferOptions = ['UF', 'DF', 'FU', 'UR'];
-export const cornerBufferOptions = ['UFR', 'UBL', 'UFL', 'RDF'];
+export const cornerBufferOptions = ['UFR', 'UBL', 'UFL', 'RFD'];
 export const wingBufferOptions = ['UFr', 'DFr', 'FUr'];
 export const midgesBufferOptions = ['UF', 'DF', 'FU', 'UB'];
 export const xCenterBufferOptions = ['Ufr', 'Ubl', 'Ubr', 'Ufl'];
