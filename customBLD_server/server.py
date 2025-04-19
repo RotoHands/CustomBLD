@@ -1,14 +1,26 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import sqlite3
+import psycopg2
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})  # More specific CORS configuration
 
-def query_db(query, args=(), one=False):
-    con = sqlite3.connect(r'db_solves\all_solves.db')
+# Database connection parameters
+DB_PARAMS = {
+    'dbname': 'all_solves_db',
+    'user': 'postgres',
+    'password': 'postgres',
+    'host': 'localhost',
+    'port': '5432'
+}
+
+def get_db_connection():
+    return psycopg2.connect(**DB_PARAMS)
+
+def query_db(query, one=False):
+    con = get_db_connection()
     cur = con.cursor()
-    cur.execute(query, args)
+    cur.execute(query)
     rv = cur.fetchall()
     con.close()
     return (rv[0] if rv else None) if one else rv
@@ -95,7 +107,8 @@ def map_letters(sequence, piece_type, letter_scheme):
         else:
             # If position not found, keep the original letter
             result.append(letter)
-    
+    print("hwewewew")
+    print(result)
     return ''.join(result)
 
 @app.route('/query-scrambles', methods=['POST'])
@@ -258,8 +271,9 @@ def generate_scrambles():
                     args.append(letter)
 
     # Edge conditions - only add if not 'random'
-    if 'edge_buffer' in data and data['edge_buffer'] != 'random':
+    if 'edge_buffer' in data:
         buffer_pos = data['edge_buffer']
+        # buffer_letter = buffer_pos
         buffer_letter = BUFFER_MAPPINGS['edges'].get(buffer_pos, buffer_pos)
         query_conditions.append("edge_buffer = ?")
         args.append(buffer_letter)
@@ -306,6 +320,7 @@ def generate_scrambles():
     # Corner conditions
     if 'corner_buffer' in data and data['corner_buffer'] != 'random':
         buffer_pos = data['corner_buffer']
+        # buffer_letter = buffer_pos
         buffer_letter = BUFFER_MAPPINGS['corners'].get(buffer_pos, buffer_pos)
         query_conditions.append("corner_buffer = ?")
         args.append(buffer_letter)
@@ -522,7 +537,7 @@ def generate_scrambles():
     print(sql_for_viewer)
     
     # Execute query
-    results = query_db(final_query, args)
+    results = query_db(sql_for_viewer)
     
     # Return results
     scrambles = []

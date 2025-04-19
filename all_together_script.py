@@ -268,16 +268,16 @@ def main():
     # The buffers to use - uncomment the ones you want
     USE_EDGE_BUFFERS = [
         "UF",       # Standard UF buffer
-        "FU",     # Uncomment to use FU buffer
-        "DF",     # Uncomment to use DF buffer
-        "UR",     # Uncomment to use UR buffer
+        # "FU",     # Uncomment to use FU buffer
+        # "DF",     # Uncomment to use DF buffer
+        # "UR",     # Uncomment to use UR buffer
     ]
     
     USE_CORNER_BUFFERS = [
         "UFR",      # Standard UFR buffer
-        "UBL",    # Uncomment to use UBL buffer
-        "UFL",    # Uncomment to use UFL buffer
-        "RDF",    # Uncomment to use RDF buffer
+        # "UBL",    # Uncomment to use UBL buffer
+        # "UFL",    # Uncomment to use UFL buffer
+        # "RDF",    # Uncomment to use RDF buffer
     ]
     
     USE_WING_BUFFERS = [
@@ -303,15 +303,15 @@ def main():
     # Scramble types to generate - set True/False for each type
     GENERATE_3BLD = True              # Full 3x3 BLD scrambles
     GENERATE_4BLD = False             # Full 4x4 BLD scrambles
-    GENERATE_5BLD = True             # Full 5x5 BLD scrambles
-    GENERATE_EDGES_ONLY = True       # 3x3 edges-only scrambles
-    GENERATE_CORNERS_ONLY = True     # 3x3 corners-only scrambles
+    GENERATE_5BLD = False             # Full 5x5 BLD scrambles
+    GENERATE_EDGES_ONLY = False       # 3x3 edges-only scrambles
+    GENERATE_CORNERS_ONLY = False     # 3x3 corners-only scrambles
     GENERATE_4BLD_CENTERS_ONLY = False # 4x4 centers-only scrambles
     GENERATE_4BLD_WINGS_ONLY = False   # 4x4 wings-only scrambles
-    GENERATE_5BLD_EDGES_CORNERS = True # 5x5 edges+corners (5edge) scrambles
+    GENERATE_5BLD_EDGES_CORNERS = False # 5x5 edges+corners (5edge) scrambles
     
     # Scramble counts for each type
-    COUNT_3BLD = 100000                  # Scrambles per 3BLD combo
+    COUNT_3BLD = 10000                  # Scrambles per 3BLD combo
     COUNT_4BLD = 100                  # Scrambles per 4BLD combo
     COUNT_5BLD = 1000                   # Scrambles per 5BLD combo
     COUNT_EDGES_ONLY = 100000           # Scrambles per edges-only combo
@@ -442,8 +442,8 @@ def main():
                     "type": "333ni",
                     "count": str(COUNT_3BLD),
                     "description": f"3BLD {edge_buffer}-{corner_buffer}",
-                    "edge_buffer": edge_buffer,
-                    "corner_buffer": corner_buffer
+                    "edge_buffer": edge_buffers[edge_buffer],
+                    "corner_buffer": corner_buffers[corner_buffer]
                 })
     
     # Add 4BLD configurations if enabled
@@ -455,9 +455,9 @@ def main():
                         "type": "444bld",
                         "count": str(COUNT_4BLD),
                         "description": f"4BLD {wing_buffer}-{corner_buffer} wings-corners",
-                        "wing_buffer": wing_buffer,
-                        "corner_buffer": corner_buffer,
-                        "xcenter_buffer": xcenter_buffer
+                        "wing_buffer": wing_buffers[wing_buffer],
+                        "corner_buffer": corner_buffers[corner_buffer],
+                        "xcenter_buffer": xcenter_buffers[xcenter_buffer]
                     })
     
     # Add 5BLD configurations if enabled
@@ -471,11 +471,11 @@ def main():
                                 "type": "555bld",
                                 "count": str(COUNT_5BLD),
                                 "description": f"5BLD {edge_buffer}-{corner_buffer}",
-                                "edge_buffer": edge_buffer,
-                                "corner_buffer": corner_buffer,
-                                "wing_buffer": wing_buffer,
-                                "xcenter_buffer": xcenter_buffer,
-                                "tcenter_buffer": tcenter_buffer
+                                "edge_buffer": edge_buffers[edge_buffer],
+                                "corner_buffer": corner_buffers[corner_buffer],
+                                "wing_buffer": wing_buffers[wing_buffer],
+                                "xcenter_buffer": xcenter_buffers[xcenter_buffer],
+                                "tcenter_buffer": tcenter_buffers[tcenter_buffer]
                             })
     
     # Add edge-only configurations if enabled
@@ -485,7 +485,7 @@ def main():
                 "type": "edges",
                 "count": str(COUNT_EDGES_ONLY),
                 "description": f"3BLD Edges Only {edge_buffer}",
-                "edge_buffer": edge_buffer
+                "edge_buffer": edge_buffers[edge_buffer]
             })
     
     # Add corner-only configurations if enabled
@@ -495,7 +495,7 @@ def main():
                 "type": "corners",
                 "count": str(COUNT_CORNERS_ONLY),
                 "description": f"3BLD Corners Only {corner_buffer}",
-                "corner_buffer": corner_buffer
+                "corner_buffer": corner_buffers[corner_buffer]
             })
     
     # Add 4BLD centers-only configurations if enabled
@@ -505,7 +505,7 @@ def main():
                 "type": "444cto",
                 "count": str(COUNT_4BLD_CENTERS_ONLY),
                 "description": f"4BLD Centers Only {xcenter_buffer}",
-                "xcenter_buffer": xcenter_buffer
+                "xcenter_buffer": xcenter_buffers[xcenter_buffer]
             })
     
     # Add 4BLD wings-only configurations if enabled
@@ -515,7 +515,7 @@ def main():
                 "type": "444edo",
                 "count": str(COUNT_4BLD_WINGS_ONLY),
                 "description": f"4BLD Wings Only {wing_buffer}",
-                "wing_buffer": wing_buffer
+                "wing_buffer": wing_buffers[wing_buffer]
             })
     
     # Add 5BLD edges+corners configurations if enabled
@@ -526,8 +526,8 @@ def main():
                     "type": "5edge",
                     "count": str(COUNT_5BLD_EDGES_CORNERS),
                     "description": f"5BLD Edges+Corners {edge_buffer}-{corner_buffer}",
-                    "edge_buffer": edge_buffer,
-                    "corner_buffer": corner_buffer
+                    "edge_buffer": edge_buffers[edge_buffer],
+                    "corner_buffer": corner_buffers[corner_buffer]
                 })
     
     # List available scheme files
@@ -568,7 +568,7 @@ def main():
             scramble_type,
             change_base_scheme
         ]
-
+        print (config)
         # Add buffer parameters if they exist in the config
         if "corner_buffer" in config:
             cmd.extend(["--corner_buffer", config["corner_buffer"]])
