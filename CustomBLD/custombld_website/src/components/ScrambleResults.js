@@ -332,7 +332,7 @@ const ScrambleResults = ({ results }) => {
     <div className="mt-4">
       <Card>
         <Card.Header className="d-flex justify-content-between align-items-center">
-          <h3 className="mb-0">Scramble Results ({results.length})</h3>
+          <h3 className="mb-0">Scrambles ({results.length})</h3>
           <div className="d-flex align-items-center">
             <Dropdown className="me-2">
               <Dropdown.Toggle variant="outline-secondary" id="page-size-dropdown">

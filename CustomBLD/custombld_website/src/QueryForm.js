@@ -455,7 +455,7 @@ const QueryForm = ({ onSubmit }) => {
         pauseOnHover
       />
       <Card.Body>
-        <h2 className="text-primary text-center mb-4">BLD Scramble Generator</h2>
+        <h2 className="text-primary text-center mb-4">CustomBLD - Scramble Generator</h2>
         
         <Form onSubmit={async (e) => {
           e.preventDefault(); // Make sure to prevent default form submission

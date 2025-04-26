@@ -36,3 +36,71 @@
     transform: rotate(360deg);
   }
 }
+
+:root {
+  --bs-primary: #007bff;
+  --bs-secondary: #6c757d;
+  --bs-success: #28a745;
+  --bs-danger: #dc3545;
+  --bs-warning: #ffc107;
+  --bs-info: #17a2b8;
+  --bs-light: #f8f9fa;
+  --bs-dark: #343a40;
+  --bs-accordion-header-bg: #f8f9fa;
+  --bs-accordion-header-color: #212529;
+}
+
+/* Custom styles that use the theme variables */
+.btn-primary {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+}
+
+.btn-primary:hover {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+  filter: brightness(90%);
+}
+
+.text-primary {
+  color: var(--bs-primary) !important;
+}
+
+.bg-primary {
+  background-color: var(--bs-primary) !important;
+}
+
+/* Accordion styles */
+.accordion-button {
+  background-color: var(--bs-primary) !important;
+  color: var(--bs-accordion-header-color) !important;
+}
+
+.accordion-button:not(.collapsed) {
+  background-color: var(--bs-primary) !important;
+  color: var(--bs-accordion-header-color) !important;
+}
+
+.accordion-button:focus {
+  box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25) !important;
+}
+
+/* Header styles */
+h1, h2, h3, h4, h5, h6 {
+  transition: color 0.3s ease;
+  margin-bottom: 1rem;
+}
+
+h2 {
+  font-size: 2.5rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  padding: 1rem 0;
+}
+
+/* Theme transition */
+body {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Add more custom styles as needed */

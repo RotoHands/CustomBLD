@@ -36,28 +36,6 @@ const AdditionalSettings = ({ formData, handleChange }) => {
           />
         </Col>
       </Form.Group>
-
-      <Form.Group as={Row} className="mb-3">
-        <Form.Label column sm="3">Generate with Solutions</Form.Label>
-        <Col sm="9">
-          <div className="d-flex gap-3">
-            <Form.Check
-              type="radio"
-              id="solutions-yes"
-              label="yes"
-              checked={formData.generate_solutions === 'yes'}
-              onChange={() => handleSolutionsChange('yes')}
-            />
-            <Form.Check
-              type="radio"
-              id="solutions-no"
-              label="no"
-              checked={formData.generate_solutions === 'no'}
-              onChange={() => handleSolutionsChange('no')}
-            />
-          </div>
-        </Col>
-      </Form.Group>
     </>
   );
 };
