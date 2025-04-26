@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Card, Accordion, Row, Col, InputGroup } from 'react-bootstrap';
-import { toast } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import EdgeSection from './components/EdgeSection';
 import CornerSection from './components/CornerSection';
@@ -443,11 +443,28 @@ const QueryForm = ({ onSubmit }) => {
 
   return (
     <Card className="p-4 my-4 shadow-sm bg-light">
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
       <Card.Body>
         <h2 className="text-primary text-center mb-4">BLD Scramble Generator</h2>
         
         <Form onSubmit={async (e) => {
           e.preventDefault(); // Make sure to prevent default form submission
+          
+          // Check if scramble type is selected and valid
+          if (!formData.scramble_type || !scrambleTypes.includes(formData.scramble_type)) {
+            toast.warning('You forgot to choose a scramble type');
+            return;
+          }
           
           // Construct the payload based on form data
           const payload = {

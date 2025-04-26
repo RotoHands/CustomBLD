@@ -3,7 +3,7 @@ import { Form, Row, Col } from 'react-bootstrap';
 
 const AdditionalSettings = ({ formData, handleChange }) => {
   const handleScrambleCountChange = (value) => {
-    const count = Math.min(100, Math.max(1, parseInt(value) || 1));
+    const count = Math.min(500, Math.max(1, parseInt(value) || 1));
     handleChange({
       target: {
         name: 'scramble_count',
