@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  scramble-generator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/app/scramble_generation
+      - ./db_solves:/app/scramble_generation/db_solves
+      - ./txt_files:/app/scramble_generation/txt_files
+    environment:
+      - PYTHONUNBUFFERED=1
+      - JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+      - DB_NAME=all_solves_db
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=db
+      - DB_PORT=5432
+    depends_on:
+      - db
+    tty: true
+    stdin_open: true
+
+  db:
+    image: postgres:17
+    environment:
+      - POSTGRES_DB=all_solves_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data: 

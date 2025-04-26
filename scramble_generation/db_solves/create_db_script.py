@@ -3,20 +3,54 @@ import csv
 import os
 import glob
 import argparse
+from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
 # Database connection parameters
 DB_PARAMS = {
-    'dbname': 'all_solves_db_test',
+    'dbname': 'postgres',  # Connect to default postgres database first
     'user': 'postgres',
     'password': 'postgres',
     'host': 'localhost',
     'port': '5432'
 }
 
+def create_database_if_not_exists():
+    """Create the database if it doesn't exist"""
+    try:
+        # Connect to default postgres database
+        conn = psycopg2.connect(**DB_PARAMS)
+        conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+        cursor = conn.cursor()
+        
+        # Check if database exists
+        cursor.execute("SELECT 1 FROM pg_database WHERE datname = 'all_solves_db'")
+        exists = cursor.fetchone()
+        
+        if not exists:
+            print("Creating database 'all_solves_db'...")
+            cursor.execute('CREATE DATABASE all_solves_db')
+            print("Database created successfully.")
+        else:
+            print("Database 'all_solves_db' already exists.")
+            
+        cursor.close()
+        conn.close()
+        
+        # Update DB_PARAMS to use the new database
+        DB_PARAMS['dbname'] = 'all_solves_db'
+        
+    except Exception as e:
+        print(f"Error creating database: {e}")
+        raise
+
 def get_db_connection():
     return psycopg2.connect(**DB_PARAMS)
 
 def create_db():
+    # First ensure database exists
+    create_database_if_not_exists()
+    
+    # Then create the table
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("""
@@ -72,7 +106,7 @@ def create_db():
         first_tcenters TEXT
     )
     """)
-    print("Database and table created.")
+    print("Table created successfully.")
     conn.commit()
     conn.close()
 

@@ -199,7 +199,7 @@ def progress_bar(process, total_time=None):
     finally:
         # Clear the line when done
         if is_terminal:
-            sys.stdout.write("\r" + " " * 100 + "\r")
+            sys.stdout.write('\r' + ' ' * 50 + '\r')
             sys.stdout.flush()
 
 # Function to estimate time for a given scramble count based on puzzle type
@@ -542,7 +542,7 @@ def main():
             cmd.extend(["--xcenter_buffer", config["xcenter_buffer"]])
         if "tcenter_buffer" in config:
             cmd.extend(["--tcenter_buffer", config["tcenter_buffer"]])
-
+        print(cmd)
         # Start the process
         process = subprocess.Popen(cmd, 
                                    stdout=subprocess.PIPE, 

@@ -1,0 +1,9 @@
+{
+  "name": "scrambles-generator",
+  "version": "1.0.0",
+  "description": "Cube scramble generator",
+  "main": "scramble_generator.js",
+  "dependencies": {
+    "cstimer_module": "^0.1.4"
+  }
+} 

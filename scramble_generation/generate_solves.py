@@ -81,7 +81,7 @@ def run_subprocess(count, scramble_type, process_id, buffers=None):
     """Run the Node.js subprocess for a specific range of scrambles."""
     print(f"Starting process {process_id} for {count} scrambles of type {scramble_type}...")
     try:
-        cmd = ["node", "scrambles_generator\scramble_generator.js", str(count), scramble_type]
+        cmd = ["node", "scramble_generator.js", str(count), scramble_type]
         
         # Add buffer parameters if they exist
         if buffers:
@@ -154,6 +154,7 @@ def delete_txt_csv_files(is_delete):
                 print(f"Error deleting {file_name}: {e}")
 
 def main():
+    print("here 0")
     parser = argparse.ArgumentParser(description="Generate scrambles and merge results.")
     parser.add_argument("count", type=int, help="The total number of scrambles to generate.")
     parser.add_argument("scramble_type", type=str, help="The type of scrambles to generate.")
@@ -179,7 +180,7 @@ def main():
         "xcenter_buffer": args.xcenter_buffer,
         "tcenter_buffer": args.tcenter_buffer
     }
-
+    print("here 1")
     generate_scrambles(args.count, args.scramble_type, args.threads, buffers)
     merge_files(args.scramble_type)
     print("buffers: ", buffers)
