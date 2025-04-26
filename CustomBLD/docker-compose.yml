@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  website:
+    build:
+      context: ./custombld_website
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - server
+    networks:
+      - custombld-network
+
+  server:
+    build:
+      context: ./custombld_server
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - DB_NAME=all_solves_db
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=db
+      - DB_PORT=5432
+    depends_on:
+      - db
+    networks:
+      - custombld-network
+
+  db:
+    image: postgres:13-alpine
+    environment:
+      - POSTGRES_DB=all_solves_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - custombld-network
+
+networks:
+  custombld-network:
+    driver: bridge
+
+volumes:
+  postgres_data: 
