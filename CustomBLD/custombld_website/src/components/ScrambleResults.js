@@ -384,11 +384,11 @@ const ScrambleResults = ({ results }) => {
           )}
           
           {currentScrambles.map((result, index) => (
-            <div key={result.id || index} className="mb-4">
+            <div key={result.id || index} className="mb-4 scramble-item">
               <div className="d-flex justify-content-between align-items-start">
-                <div>
-                  <h4 className="mb-2" style={{ fontSize: '1.5rem' }}>Scramble {indexOfFirstScramble + index + 1}</h4>
-                  <div className="scramble-text" style={{ fontSize: '1.5rem', fontFamily: 'monospace' }}>
+                <div className="d-flex align-items-center">
+                  <span className="me-3 scramble-number">{indexOfFirstScramble + index + 1})</span>
+                  <div className="scramble-text">
                     {result.scramble}
                   </div>
                 </div>
@@ -440,6 +440,30 @@ const ScrambleResults = ({ results }) => {
         .rotation-info code {
           font-weight: bold;
           font-size: 1.2em;
+        }
+
+        .scramble-text {
+          font-size: 1.4rem;
+          font-family: 'Rubik', monospace;
+          white-space: pre-wrap;
+          word-break: break-all;
+          letter-spacing: 0.5px;
+        }
+
+        .scramble-number {
+          font-size: 1.6rem;
+          font-weight: 600;
+          color: #495057;
+          font-family: 'Rubik', sans-serif;
+        }
+
+        .scramble-item {
+          padding-bottom: 1.2rem;
+          border-bottom: 1px solid #dee2e6;
+        }
+
+        .scramble-item:last-child {
+          border-bottom: none;
         }
       `}</style>
     </div>
