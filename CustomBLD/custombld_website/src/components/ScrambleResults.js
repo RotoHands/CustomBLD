@@ -1,14 +1,20 @@
-import React, { useState } from 'react';
-import { Card, Button, Collapse, Alert, Pagination } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Card, Button, Collapse, Alert, Pagination, Dropdown } from 'react-bootstrap';
 import { CSVLink } from 'react-csv';
 
 const ScrambleResults = ({ results }) => {
   const [showSolutions, setShowSolutions] = useState({});
   const [copySuccess, setCopySuccess] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const scramblesPerPage = 10;
+  const [scramblesPerPage, setScramblesPerPage] = useState(10);
+  
+  // Add debug logging
+  useEffect(() => {
+    console.log('Results received:', results);
+  }, [results]);
   
   if (!results || results.length === 0) {
+    console.log('No results to display');
     return null;
   }
 
@@ -19,6 +25,8 @@ const ScrambleResults = ({ results }) => {
   const indexOfLastScramble = currentPage * scramblesPerPage;
   const indexOfFirstScramble = indexOfLastScramble - scramblesPerPage;
   const currentScrambles = results.slice(indexOfFirstScramble, indexOfLastScramble);
+
+  console.log('Current page items:', currentScrambles);
 
   // Modify the CSV data preparation function
   const prepareCsvData = () => {
@@ -305,58 +313,101 @@ const ScrambleResults = ({ results }) => {
     );
   };
 
+  // Function to expand/collapse all solutions
+  const toggleAllSolutions = (expand) => {
+    const newState = {};
+    currentScrambles.forEach(result => {
+      newState[result.id] = expand;
+    });
+    setShowSolutions(newState);
+  };
+
+  // Function to handle page size change
+  const handlePageSizeChange = (size) => {
+    setScramblesPerPage(size);
+    setCurrentPage(1); // Reset to first page when changing page size
+  };
+
   return (
-    <Card className="my-4 shadow-sm">
-      <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center">
-        <h3 className="mb-0">Generated Scrambles ({results.length})</h3>
-        <div>
-          <Button 
-            variant="light" 
-            className="me-2"
-            onClick={copyScramblesToClipboard}
-          >
-            Copy Scrambles
-          </Button>
-          <CSVLink 
-            data={prepareCsvData()} 
-            filename={"bld-scrambles.csv"}
-            className="btn btn-light"
-          >
-            Download CSV
-          </CSVLink>
-        </div>
-      </Card.Header>
-      <Card.Body>
-        {copySuccess && (
-          <Alert variant="success" className="mb-3">
-            Scrambles copied to clipboard!
-          </Alert>
-        )}
-        
-        {currentScrambles.map((result, index) => (
-          <Card key={result.id || (indexOfFirstScramble + index)} className="mb-3">
-            <Card.Header className="d-flex justify-content-between align-items-center">
-              <span>Scramble #{indexOfFirstScramble + index + 1}</span>
-              <Button 
-                variant="outline-primary" 
-                size="sm" 
-                onClick={() => toggleSolution(result.id)}
-              >
-                {showSolutions[result.id] ? 'Hide Solution' : 'Show Solution'}
-              </Button>
-            </Card.Header>
-            <Card.Body>
-              <div className="mb-3 p-2 bg-light rounded">
-                <code className="scramble-text">{result.scramble}</code>
+    <div className="mt-4">
+      <Card>
+        <Card.Header className="d-flex justify-content-between align-items-center">
+          <h3 className="mb-0">Scramble Results ({results.length})</h3>
+          <div className="d-flex align-items-center">
+            <Dropdown className="me-2">
+              <Dropdown.Toggle variant="outline-secondary" id="page-size-dropdown">
+                {scramblesPerPage === results.length ? 'All' : `${scramblesPerPage} per page`}
+              </Dropdown.Toggle>
+              <Dropdown.Menu>
+                <Dropdown.Item onClick={() => handlePageSizeChange(10)}>10 per page</Dropdown.Item>
+                <Dropdown.Item onClick={() => handlePageSizeChange(20)}>20 per page</Dropdown.Item>
+                <Dropdown.Item onClick={() => handlePageSizeChange(50)}>50 per page</Dropdown.Item>
+                <Dropdown.Item onClick={() => handlePageSizeChange(100)}>100 per page</Dropdown.Item>
+                <Dropdown.Item onClick={() => handlePageSizeChange(results.length)}>Show all</Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+            <Button
+              variant="outline-primary"
+              className="me-2"
+              onClick={() => toggleAllSolutions(true)}
+            >
+              Expand All
+            </Button>
+            <Button
+              variant="outline-primary"
+              className="me-2"
+              onClick={() => toggleAllSolutions(false)}
+            >
+              Collapse All
+            </Button>
+            <Button
+              variant="outline-primary"
+              className="me-2"
+              onClick={copyScramblesToClipboard}
+            >
+              Copy Scrambles
+            </Button>
+            <CSVLink
+              data={prepareCsvData()}
+              filename="scrambles.csv"
+              className="btn btn-outline-success"
+            >
+              Download CSV
+            </CSVLink>
+          </div>
+        </Card.Header>
+        <Card.Body>
+          {copySuccess && (
+            <Alert variant="success" onClose={() => setCopySuccess(false)} dismissible>
+              Scrambles copied to clipboard!
+            </Alert>
+          )}
+          
+          {currentScrambles.map((result, index) => (
+            <div key={result.id || index} className="mb-4">
+              <div className="d-flex justify-content-between align-items-start">
+                <div>
+                  <h4 className="mb-2" style={{ fontSize: '1.5rem' }}>Scramble {indexOfFirstScramble + index + 1}</h4>
+                  <div className="scramble-text" style={{ fontSize: '1.5rem', fontFamily: 'monospace' }}>
+                    {result.scramble}
+                  </div>
+                </div>
+                <Button
+                  variant="outline-secondary"
+                  size="sm"
+                  onClick={() => toggleSolution(result.id || index)}
+                >
+                  {showSolutions[result.id || index] ? 'Hide Solution' : 'Show Solution'}
+                </Button>
               </div>
               
               {renderSolution(result)}
-            </Card.Body>
-          </Card>
-        ))}
-        
-        {totalPages > 1 && renderPagination()}
-      </Card.Body>
+            </div>
+          ))}
+          
+          {totalPages > 1 && renderPagination()}
+        </Card.Body>
+      </Card>
       
       {/* Add some custom styling for the solution section */}
       <style jsx>{`
@@ -391,7 +442,7 @@ const ScrambleResults = ({ results }) => {
           font-size: 1.2em;
         }
       `}</style>
-    </Card>
+    </div>
   );
 };
 

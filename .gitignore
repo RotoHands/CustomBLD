@@ -1,7 +1,8 @@
 *scrambles.txt
 *solves.txt
-*txt
+*_*txt
 *.db
 *.log
 *.csv
 *node_modules*
+misc*

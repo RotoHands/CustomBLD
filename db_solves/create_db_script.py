@@ -6,7 +6,7 @@ import argparse
 
 # Database connection parameters
 DB_PARAMS = {
-    'dbname': 'all_solves_db',
+    'dbname': 'all_solves_db_test',
     'user': 'postgres',
     'password': 'postgres',
     'host': 'localhost',

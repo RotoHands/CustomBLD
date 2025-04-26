@@ -29,7 +29,7 @@ const AdditionalSettings = ({ formData, handleChange }) => {
           <Form.Control
             type="number"
             min="1"
-            max="100"
+            max="500"
             value={formData.scramble_count || 1}
             onChange={(e) => handleScrambleCountChange(e.target.value)}
             style={{ width: '100px' }}

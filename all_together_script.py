@@ -283,21 +283,21 @@ def main():
     USE_WING_BUFFERS = [
         "UFr",      # Standard UFr buffer
         "DFr",    # Uncomment to use DFr buffer
-        "FUr",    # Uncomment to use FUr buffer
+        # "FUr",    # Uncomment to use FUr buffer
     ]
     
     USE_XCENTER_BUFFERS = [
         "Ufr",      # Standard Ufr buffer
-        "Ubl",    # Uncomment to use Ubl buffer
+        # "Ubl",    # Uncomment to use Ubl buffer
         "Ubr",    # Uncomment to use Ubr buffer
-        "Ufl",    # Uncomment to use Ufl buffer
+        # "Ufl",    # Uncomment to use Ufl buffer
     ]
     
     USE_TCENTER_BUFFERS = [
         "Uf",       # Standard Uf buffer
         "Ub",     # Uncomment to use Ub buffer
-        "Ur",     # Uncomment to use Ur buffer
-        "Ul",     # Uncomment to use Ul buffer
+        # "Ur",     # Uncomment to use Ur buffer
+        # "Ul",     # Uncomment to use Ul buffer
     ]
     
     # Scramble types to generate - set True/False for each type
@@ -311,14 +311,14 @@ def main():
     GENERATE_5BLD_EDGES_CORNERS = False # 5x5 edges+corners (5edge) scrambles
     
     # Scramble counts for each type
-    COUNT_3BLD = 10000                  # Scrambles per 3BLD combo
-    COUNT_4BLD = 100                  # Scrambles per 4BLD combo
-    COUNT_5BLD = 1000                   # Scrambles per 5BLD combo
-    COUNT_EDGES_ONLY = 100000           # Scrambles per edges-only combo
-    COUNT_CORNERS_ONLY = 100000        # Scrambles per corners-only combo
-    COUNT_4BLD_CENTERS_ONLY = 300     # Scrambles per 4BLD centers combo
-    COUNT_4BLD_WINGS_ONLY = 300       # Scrambles per 4BLD wings combo
-    COUNT_5BLD_EDGES_CORNERS = 1000    # Scrambles per 5BLD edges+corners combo
+    COUNT_3BLD = 15000                  # Scrambles per 3BLD combo
+    COUNT_4BLD = 10000                  # Scrambles per 4BLD combo
+    COUNT_5BLD = 30000                   # Scrambles per 5BLD combo
+    COUNT_EDGES_ONLY = 350000           # Scrambles per edges-only combo
+    COUNT_CORNERS_ONLY = 350000        # Scrambles per corners-only combo
+    COUNT_4BLD_CENTERS_ONLY = 10000     # Scrambles per 4BLD centers combo
+    COUNT_4BLD_WINGS_ONLY = 10000       # Scrambles per 4BLD wings combo
+    COUNT_5BLD_EDGES_CORNERS = 15000    # Scrambles per 5BLD edges+corners combo
 
     # =====================================================================
     # END OF CONFIGURATION
