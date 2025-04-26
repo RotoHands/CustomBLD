@@ -4,6 +4,7 @@ import time
 import sys
 import os
 import threading
+import yaml
 
 def print_combination_summary():
     """Print a summary of all potential scramble combinations and total counts"""
@@ -223,6 +224,35 @@ def estimate_time(scramble_type, count):
     return base_time + overhead
 
 def main():
+    # Load configuration from YAML file
+    with open('config_scramble_generation.yaml', 'r') as f:
+        config = yaml.safe_load(f)
+    
+    # Extract configuration values
+    USE_EDGE_BUFFERS = config['use_edge_buffers']
+    USE_CORNER_BUFFERS = config['use_corner_buffers']
+    USE_WING_BUFFERS = config['use_wing_buffers']
+    USE_XCENTER_BUFFERS = config['use_xcenter_buffers']
+    USE_TCENTER_BUFFERS = config['use_tcenter_buffers']
+    
+    GENERATE_3BLD = config['generate']['3bld']
+    GENERATE_4BLD = config['generate']['4bld']
+    GENERATE_5BLD = config['generate']['5bld']
+    GENERATE_EDGES_ONLY = config['generate']['edges_only']
+    GENERATE_CORNERS_ONLY = config['generate']['corners_only']
+    GENERATE_4BLD_CENTERS_ONLY = config['generate']['4bld_centers_only']
+    GENERATE_4BLD_WINGS_ONLY = config['generate']['4bld_wings_only']
+    GENERATE_5BLD_EDGES_CORNERS = config['generate']['5bld_edges_corners']
+    
+    COUNT_3BLD = config['counts']['3bld']
+    COUNT_4BLD = config['counts']['4bld']
+    COUNT_5BLD = config['counts']['5bld']
+    COUNT_EDGES_ONLY = config['counts']['edges_only']
+    COUNT_CORNERS_ONLY = config['counts']['corners_only']
+    COUNT_4BLD_CENTERS_ONLY = config['counts']['4bld_centers_only']
+    COUNT_4BLD_WINGS_ONLY = config['counts']['4bld_wings_only']
+    COUNT_5BLD_EDGES_CORNERS = config['counts']['5bld_edges_corners']
+    
     # Display summary of all possible combinations
     # print_combination_summary()
     
@@ -261,68 +291,6 @@ def main():
         "Ul": "D"
     }
 
-    # =====================================================================
-    # CONFIGURATION: Uncomment the buffer combinations you want to generate
-    # =====================================================================
-    
-    # The buffers to use - uncomment the ones you want
-    USE_EDGE_BUFFERS = [
-        "UF",       # Standard UF buffer
-        # "FU",     # Uncomment to use FU buffer
-        # "DF",     # Uncomment to use DF buffer
-        # "UR",     # Uncomment to use UR buffer
-    ]
-    
-    USE_CORNER_BUFFERS = [
-        "UFR",      # Standard UFR buffer
-        # "UBL",    # Uncomment to use UBL buffer
-        # "UFL",    # Uncomment to use UFL buffer
-        # "RDF",    # Uncomment to use RDF buffer
-    ]
-    
-    USE_WING_BUFFERS = [
-        "UFr",      # Standard UFr buffer
-        "DFr",    # Uncomment to use DFr buffer
-        # "FUr",    # Uncomment to use FUr buffer
-    ]
-    
-    USE_XCENTER_BUFFERS = [
-        "Ufr",      # Standard Ufr buffer
-        # "Ubl",    # Uncomment to use Ubl buffer
-        "Ubr",    # Uncomment to use Ubr buffer
-        # "Ufl",    # Uncomment to use Ufl buffer
-    ]
-    
-    USE_TCENTER_BUFFERS = [
-        "Uf",       # Standard Uf buffer
-        "Ub",     # Uncomment to use Ub buffer
-        # "Ur",     # Uncomment to use Ur buffer
-        # "Ul",     # Uncomment to use Ul buffer
-    ]
-    
-    # Scramble types to generate - set True/False for each type
-    GENERATE_3BLD = True              # Full 3x3 BLD scrambles
-    GENERATE_4BLD = False             # Full 4x4 BLD scrambles
-    GENERATE_5BLD = False             # Full 5x5 BLD scrambles
-    GENERATE_EDGES_ONLY = False       # 3x3 edges-only scrambles
-    GENERATE_CORNERS_ONLY = False     # 3x3 corners-only scrambles
-    GENERATE_4BLD_CENTERS_ONLY = False # 4x4 centers-only scrambles
-    GENERATE_4BLD_WINGS_ONLY = False   # 4x4 wings-only scrambles
-    GENERATE_5BLD_EDGES_CORNERS = False # 5x5 edges+corners (5edge) scrambles
-    
-    # Scramble counts for each type
-    COUNT_3BLD = 15000                  # Scrambles per 3BLD combo
-    COUNT_4BLD = 10000                  # Scrambles per 4BLD combo
-    COUNT_5BLD = 30000                   # Scrambles per 5BLD combo
-    COUNT_EDGES_ONLY = 350000           # Scrambles per edges-only combo
-    COUNT_CORNERS_ONLY = 350000        # Scrambles per corners-only combo
-    COUNT_4BLD_CENTERS_ONLY = 10000     # Scrambles per 4BLD centers combo
-    COUNT_4BLD_WINGS_ONLY = 10000       # Scrambles per 4BLD wings combo
-    COUNT_5BLD_EDGES_CORNERS = 15000    # Scrambles per 5BLD edges+corners combo
-
-    # =====================================================================
-    # END OF CONFIGURATION
-    # =====================================================================
     
     # Display only enabled scramble counts
     total_active_combos, total_active_scrambles = print_enabled_summary(

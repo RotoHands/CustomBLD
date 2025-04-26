@@ -1,0 +1,51 @@
+# The buffers to use - uncomment the ones you want
+use_edge_buffers:
+  - UF # Standard UF buffer
+  # - FU  
+  # - DF  
+  # - UR  
+
+use_corner_buffers:
+  - UFR 
+  # - UBL  
+  # - UFL  
+  # - RDF  
+
+use_wing_buffers:
+  - UFr 
+  - DFr 
+  # - FUr  
+
+use_xcenter_buffers:
+  - Ufr  
+  # - Ubl 
+  - Ubr  
+  # - Ufl 
+
+use_tcenter_buffers:
+  - Uf 
+  - Ub 
+  # - Ur  
+  # - Ul  
+
+# Scramble types to generate - set True/False for each type
+generate:
+  3bld: true # Full 3x3 BLD scrambles
+  4bld: false # Full 4x4 BLD scrambles
+  5bld: false # Full 5x5 BLD scrambles
+  edges_only: false # 3x3 edges-only scrambles
+  corners_only: false # 3x3 corners-only scrambles
+  4bld_centers_only: false # 4x4 centers-only scrambles
+  4bld_wings_only: false # 4x4 wings-only scrambles
+  5bld_edges_corners: false # 5x5 edges+corners (5edge) scrambles
+
+# Scramble counts for each type
+counts:
+  3bld: 1500 # Scrambles per 3BLD combo
+  4bld: 10000 # Scrambles per 4BLD combo
+  5bld: 30000 # Scrambles per 5BLD combo
+  edges_only: 350000 # Scrambles per edges-only combo
+  corners_only: 350000 # Scrambles per corners-only combo
+  4bld_centers_only: 10000 # Scrambles per 4BLD centers combo
+  4bld_wings_only: 10000 # Scrambles per 4BLD wings combo
+  5bld_edges_corners: 15000 # Scrambles per 5BLD edges+corners combo
