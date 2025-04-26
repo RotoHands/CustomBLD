@@ -134,6 +134,25 @@ def generate_scrambles(total_count, scramble_type, num_threads, buffers=None):
     except Exception as e:
         print(f"Error during scramble generation: {e}")
 
+def delete_txt_csv_files(is_delete):
+    """Delete all txt files in txt_files folder."""
+    if is_delete:
+        txt_files = glob.glob(os.path.join('txt_files', f'*.txt'))
+        csv_files = glob.glob(os.path.join('txt_files', f'*.csv'))
+        for file_name in txt_files:
+            try:
+                os.remove(file_name)
+                print(f"Deleted: {file_name}")
+            except Exception as e:
+                print(f"Error deleting {file_name}: {e}")
+        
+        for file_name in csv_files:
+            try:
+                os.remove(file_name)
+                print(f"Deleted: {file_name}")
+            except Exception as e:
+                print(f"Error deleting {file_name}: {e}")
+
 def main():
     parser = argparse.ArgumentParser(description="Generate scrambles and merge results.")
     parser.add_argument("count", type=int, help="The total number of scrambles to generate.")
@@ -166,8 +185,8 @@ def main():
     print("buffers: ", buffers)
     analyze_solves(args.scramble_type, args.change_base_scheme, buffers)
     subprocess.run(["python", "db_solves/solves_to_csv.py", args.scramble_type])
-    subprocess.run(["python", "db_solves/create_db_script.py", args.scramble_type])
-
+    subprocess.run(["python", "db_solves/create_db_script.py", args.scramble_type])    
+    delete_txt_csv_files(True)
 
 if __name__ == '__main__':
     main()

@@ -504,13 +504,7 @@ def main():
     for i, file in enumerate(scheme_files):
         print(f"{i+1}. {file}")
     
-    # Clear the 'scrambles' directory first
-    scrambles_dir = "scrambles"
-    if os.path.exists(scrambles_dir):
-        for file in glob.glob(f"{scrambles_dir}/*.txt"):
-            os.remove(file)
-    else:
-        os.makedirs(scrambles_dir)
+    
     
     # Generate all scrambles
     change_base_scheme = "true"
