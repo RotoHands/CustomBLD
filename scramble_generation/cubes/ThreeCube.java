@@ -140,9 +140,9 @@ public class ThreeCube {
                         }
                 }
 
-                // Create txt_files directory if it doesn't exist
-                String folderPath = "txt_files";
+                String folderPath = "txt_files/"; // Changed to forward slash
                 File folder = new File(folderPath);
+
                 if (!folder.exists()) {
                         System.out.println("Creating txt_files directory...");
                         folder.mkdirs();
@@ -174,7 +174,7 @@ public class ThreeCube {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
                 String currentTime = LocalDateTime.now().format(formatter);
 
-                String solveFileName = folderPath + "/" + scramble_type + "_solves_" + currentTime + ".txt";
+                String solveFileName = folderPath + scramble_type + "_solves_" + currentTime + ".txt";
                 System.out.println("Will write solutions to: " + solveFileName);
 
                 ThreeCube c = new ThreeCube();

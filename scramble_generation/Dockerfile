@@ -9,8 +9,6 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     curl \
     gnupg \
-    postgresql-client \
-    pgloader \
     sqlite3 \
     && mkdir -p /etc/apt/keyrings \
     && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
@@ -19,6 +17,38 @@ RUN apt-get update && apt-get install -y \
     && apt-get install -y \
     nodejs \
     && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Install PostgreSQL 17 client tools
+RUN apt-get update && apt-get install -y \
+    curl \
+    gnupg2 \
+    lsb-release \
+    && curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor -o /etc/apt/trusted.gpg.d/postgresql.gpg \
+    && echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | tee /etc/apt/sources.list.d/postgresql.list \
+    && apt-get update \
+    && apt-get install -y postgresql-client-17 \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Install pgloader and its dependencies
+RUN apt-get update && apt-get install -y \
+    sbcl \
+    unzip \
+    libsqlite3-dev \
+    make \
+    curl \
+    wget \
+    git \
+    freetds-dev \
+    libzip-dev \
+    && curl -L https://github.com/dimitri/pgloader/archive/refs/tags/v3.6.7.zip -o pgloader.zip \
+    && unzip pgloader.zip \
+    && cd pgloader-3.6.7 \
+    && make pgloader \
+    && cp ./build/bin/pgloader /usr/local/bin/ \
+    && cd .. \
+    && rm -rf pgloader.zip pgloader-3.6.7 \
     && apt-get clean
 
 # Install Eclipse Temurin JDK 21
@@ -60,24 +90,8 @@ RUN javac -encoding UTF-8 -source 21 -target 21 cubes/*.java
 # Copy the rest of the project
 COPY . .
 
-# Create a script to run the main process and database operations
-RUN echo '#!/bin/bash\n\
-    python all_together_script.py "$@"\n\
-    \n\
-    # Wait for the script to finish\n\
-    sleep 5\n\
-    \n\
-    # Create timestamp for backup files\n\
-    TIMESTAMP=$(date +%Y%m%d_%H%M%S)\n\
-    \n\
-    # Dump PostgreSQL database\n\
-    pg_dump -h db -U postgres -d all_solves_db > db_solves/postgres_backup_${TIMESTAMP}.sql\n\
-    \n\
-    # Create SQLite database using pgloader\n\
-    pgloader "postgresql://postgres:postgres@db/all_solves_db" "sqlite:///db_solves/sqlite_backup_${TIMESTAMP}.db"\n\
-    \n\
-    echo "Database backups completed"\n\
-    ' > /app/scramble_generation/run.sh && chmod +x /app/scramble_generation/run.sh
+# Make run.sh executable
+RUN chmod +x run.sh
 
 # Set the entry point to the run script
 ENTRYPOINT ["/app/scramble_generation/run.sh"] 
