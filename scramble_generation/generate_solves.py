@@ -8,10 +8,10 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 def analyze_solves(scramble_type, change_base_scheme, buffers):
     if scramble_type in ["333ni","corners","edges"]:
         cmd = [
-            "java.exe",
+            "java",
             "-cp",
             ".",
-            "cubes/ThreeCube",
+            "cubes.ThreeCube",
             scramble_type
         ]
         # Add buffer arguments for 3BLD
@@ -23,10 +23,10 @@ def analyze_solves(scramble_type, change_base_scheme, buffers):
             cmd.append(buffers.get("edge_buffer"))
     if scramble_type in ["555bld", "5edge"]:
         cmd = [
-            "java.exe",
+            "java",
             "-cp",
             ".",
-            "cubes/FiveCube",
+            "cubes.FiveCube",
             scramble_type,
             change_base_scheme
         ]
@@ -49,10 +49,10 @@ def analyze_solves(scramble_type, change_base_scheme, buffers):
     
     if scramble_type in ["444bld", "444cto", "444edo"]:
         cmd = [
-            "java.exe",
+            "java",
             "-cp",
             ".",
-            "cubes/FourCube",
+            "cubes.FourCube",
             scramble_type,
             change_base_scheme
         ]
@@ -68,7 +68,7 @@ def analyze_solves(scramble_type, change_base_scheme, buffers):
             cmd.append(buffers.get("xcenter_buffer"))
     
     print("cmd: ", cmd)
-    result = subprocess.run(cmd)
+    result = subprocess.run(cmd, cwd=os.path.dirname(os.path.abspath(__file__)))
 
 
 def delete_csv_files(scramble_type):
@@ -81,7 +81,11 @@ def run_subprocess(count, scramble_type, process_id, buffers=None):
     """Run the Node.js subprocess for a specific range of scrambles."""
     print(f"Starting process {process_id} for {count} scrambles of type {scramble_type}...")
     try:
-        cmd = ["node", "scramble_generator.js", str(count), scramble_type]
+        # Get the absolute path to the script
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        script_path = os.path.join(script_dir, "scrambles_generator", "scramble_generator.js")
+        
+        cmd = ["node", script_path, str(count), scramble_type]
         
         # Add buffer parameters if they exist
         if buffers:
@@ -90,10 +94,18 @@ def run_subprocess(count, scramble_type, process_id, buffers=None):
                     cmd.append(f"--{buffer_type}")
                     cmd.append(buffer_value)
         
-        print(cmd)
-        subprocess.run(cmd, check=True)
+        print("Running command:", cmd)
+        print("Working directory:", os.getcwd())
+        print("Script exists:", os.path.exists(script_path))
+        
+        subprocess.run(cmd, check=True, cwd=script_dir)
     except subprocess.CalledProcessError as e:
         print(f"Subprocess {process_id} failed: {e}")
+    except Exception as e:
+        print(f"Error running subprocess {process_id}: {e}")
+        print(f"Current directory: {os.getcwd()}")
+        print(f"Script path: {script_path}")
+        print(f"Directory contents: {os.listdir(os.path.dirname(script_path))}")
 
 def merge_files(scramble_type):
     """Merge generated scramble files into a single file."""

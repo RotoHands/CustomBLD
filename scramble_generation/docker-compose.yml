@@ -11,14 +11,15 @@ services:
       - ./txt_files:/app/scramble_generation/txt_files
     environment:
       - PYTHONUNBUFFERED=1
-      - JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+      - JAVA_HOME=/usr/lib/jvm/temurin-21-jdk-amd64
       - DB_NAME=all_solves_db
       - DB_USER=postgres
       - DB_PASSWORD=postgres
       - DB_HOST=db
       - DB_PORT=5432
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     tty: true
     stdin_open: true
 
@@ -37,6 +38,20 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+      start_period: 10s
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - db
 
 volumes:
-  postgres_data: 
+  postgres_data:
+  pgadmin_data: 

@@ -10,7 +10,7 @@ DB_PARAMS = {
     'dbname': 'postgres',  # Connect to default postgres database first
     'user': 'postgres',
     'password': 'postgres',
-    'host': 'localhost',
+    'host': 'db',  # Use the Docker service name instead of localhost
     'port': '5432'
 }
 
@@ -18,6 +18,8 @@ def create_database_if_not_exists():
     """Create the database if it doesn't exist"""
     try:
         # Connect to default postgres database
+        print("Attempting to connect to database...")
+        print(f"Connection parameters: {DB_PARAMS}")
         conn = psycopg2.connect(**DB_PARAMS)
         conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         cursor = conn.cursor()
@@ -41,10 +43,16 @@ def create_database_if_not_exists():
         
     except Exception as e:
         print(f"Error creating database: {e}")
+        print("Please ensure the PostgreSQL container is running and accessible.")
         raise
 
 def get_db_connection():
-    return psycopg2.connect(**DB_PARAMS)
+    try:
+        return psycopg2.connect(**DB_PARAMS)
+    except Exception as e:
+        print(f"Error connecting to database: {e}")
+        print(f"Connection parameters: {DB_PARAMS}")
+        raise
 
 def create_db():
     # First ensure database exists
@@ -110,49 +118,89 @@ def create_db():
     conn.commit()
     conn.close()
 
+def find_latest_csv_file(scramble_type_input):
+    """Find the latest CSV file for the given scramble type"""
+    # Get the script's directory
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    # Go up one level to the scramble_generation directory
+    base_dir = os.path.dirname(script_dir)
+    # Look in the txt_files directory
+    txt_files_dir = os.path.join(base_dir, 'txt_files')
+    
+    print(f"Looking for CSV files in: {txt_files_dir}")
+    print(f"Current directory: {os.getcwd()}")
+    
+    pattern = os.path.join(txt_files_dir, f"{scramble_type_input}*_solves_*.csv")
+    print(f"Search pattern: {pattern}")
+    
+    files = glob.glob(pattern)
+    if not files:
+        print(f"No CSV files found matching pattern: {pattern}")
+        print(f"Directory contents: {os.listdir(txt_files_dir)}")
+        return None
+        
+    files.sort(key=os.path.getmtime, reverse=True)
+    print(f"Found {len(files)} files, using: {files[0]}")
+    return files[0]
+
 def insert_333_bld_solves(scramble_type_input):
     conn = get_db_connection()
     cursor = conn.cursor()
-    files = glob.glob(os.path.join('txt_files', "{}*_solves_*.csv".format(scramble_type_input)))
-    if files:
-        files.sort(key=os.path.getmtime, reverse=True)
-        csv_file = files[0]
-   
-    # Open the CSV file and insert data into the database
-    with open(csv_file, "r", encoding="utf-8") as file:
-        csv_reader = csv.DictReader(file)
-        for row in csv_reader:
-            cursor.execute("""
-            INSERT INTO scrambles (
-                 scramble_type, scramble, rotations_to_apply, 
-                 edge_buffer, edges, edge_length, edges_cycle_breaks, edges_flipped, edges_solved, flips, first_edges,
-                 corner_buffer, corners, corner_length, corners_cycle_breaks, twist_clockwise, twist_counterclockwise, corners_twisted, corners_solved, corner_parity, first_corners
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            """, (
-                row["scramble_type"],
-                row["scramble"],
-                row["rotations_to_apply"],
-                row["edge_buffer"],
-                row["edges"],
-                row["edge_length"],
-                row["edges_cycle_breaks"],
-                row["edges_flipped"],
-                row["edges_solved"],
-                row["flips"],
-                row["first_edges"],
-                row["corner_buffer"],
-                row["corners"],
-                row["corner_length"],
-                row["corners_cycle_breaks"],
-                row["twist_clockwise"],
-                row["twist_counterclockwise"],
-                row["corners_twisted"],
-                row["corners_solved"],
-                row["corner_parity"],
-                row["first_corners"]
-            ))
-    conn.commit()
-    conn.close()
+    
+    csv_file = find_latest_csv_file(scramble_type_input)
+    if not csv_file:
+        print("No CSV file found to insert")
+        return
+    
+    print(f"Inserting data from: {csv_file}")
+    try:
+        # Open the CSV file and insert data into the database
+        with open(csv_file, "r", encoding="utf-8") as file:
+            csv_reader = csv.DictReader(file)
+            row_count = 0
+            for row in csv_reader:
+                cursor.execute("""
+                INSERT INTO scrambles (
+                     scramble_type, scramble, rotations_to_apply, 
+                     edge_buffer, edges, edge_length, edges_cycle_breaks, edges_flipped, edges_solved, flips, first_edges,
+                     corner_buffer, corners, corner_length, corners_cycle_breaks, twist_clockwise, twist_counterclockwise, corners_twisted, corners_solved, corner_parity, first_corners
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """, (
+                    row["scramble_type"],
+                    row["scramble"],
+                    row["rotations_to_apply"],
+                    row["edge_buffer"],
+                    row["edges"],
+                    row["edge_length"],
+                    row["edges_cycle_breaks"],
+                    row["edges_flipped"],
+                    row["edges_solved"],
+                    row["flips"],
+                    row["first_edges"],
+                    row["corner_buffer"],
+                    row["corners"],
+                    row["corner_length"],
+                    row["corners_cycle_breaks"],
+                    row["twist_clockwise"],
+                    row["twist_counterclockwise"],
+                    row["corners_twisted"],
+                    row["corners_solved"],
+                    row["corner_parity"],
+                    row["first_corners"]
+                ))
+                row_count += 1
+                if row_count % 1000 == 0:
+                    print(f"Inserted {row_count} rows...")
+                    conn.commit()
+        
+        conn.commit()
+        print(f"Successfully inserted {row_count} rows")
+    except Exception as e:
+        print(f"Error inserting data: {e}")
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
 
 def insert_444_bld_solves(scramble_type_input):
     conn = get_db_connection()

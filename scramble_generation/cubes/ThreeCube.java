@@ -140,23 +140,42 @@ public class ThreeCube {
                         }
                 }
 
-                String folderPath = "txt_files\\";
+                // Create txt_files directory if it doesn't exist
+                String folderPath = "txt_files";
                 File folder = new File(folderPath);
+                if (!folder.exists()) {
+                        System.out.println("Creating txt_files directory...");
+                        folder.mkdirs();
+                }
 
                 File newestFile = null;
-                for (File file : folder.listFiles(
-                                (dir, name) -> name.startsWith(scramble_type) && name.contains("_scrambles"))) {
+                File[] files = folder.listFiles(
+                                (dir, name) -> name.startsWith(scramble_type) && name.contains("_scrambles"));
+
+                if (files == null || files.length == 0) {
+                        System.out.println("No matching files found in " + folderPath);
+                        return;
+                }
+
+                for (File file : files) {
                         if (newestFile == null || file.lastModified() > newestFile.lastModified()) {
                                 newestFile = file;
                         }
                 }
 
+                if (newestFile == null) {
+                        System.out.println("No files found matching pattern: " + scramble_type + "*_scrambles*");
+                        return;
+                }
+
                 String scrambleFileName = newestFile.getAbsolutePath();
+                System.out.println("Using scramble file: " + scrambleFileName);
 
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
                 String currentTime = LocalDateTime.now().format(formatter);
 
-                String solveFileName = folderPath + scramble_type + "_solves_" + currentTime + ".txt";
+                String solveFileName = folderPath + "/" + scramble_type + "_solves_" + currentTime + ".txt";
+                System.out.println("Will write solutions to: " + solveFileName);
 
                 ThreeCube c = new ThreeCube();
 
@@ -174,7 +193,7 @@ public class ThreeCube {
 
                 // Calculate and print the elapsed time in milliseconds
                 long elapsedTime = (endTime - startTime) / 1_000_000; // Convert nanoseconds to milliseconds
-                // System.out.println("Execution time: " + elapsedTime + " ms");
+                System.out.println("Execution time: " + elapsedTime + " ms");
         }
 }
 

@@ -1,12 +1,13 @@
 const { Worker } = require('worker_threads');
 const fs = require('fs');
 const os = require('os');
+const path = require('path');
 
 const workerCount = os.cpus().length; // Use the number of CPU cores
 
 function generateScramblesInWorker(count, type, buffers = {}) {
   return new Promise((resolve, reject) => {
-    const worker = new Worker('scrambles_generator/scramble_worker.js', { 
+    const worker = new Worker('./scrambles_generator/scramble_worker.js', { 
       workerData: { 
         count, 
         type,
@@ -37,8 +38,16 @@ async function generateScrambles(numScrambles, scrambleType, buffers = {}) {
   // Combine results from all workers
   const allScrambles = results.flat();
 
+  // Ensure txt_files directory exists
+  const txtFilesDir = 'txt_files';
+  if (!fs.existsSync(txtFilesDir)) {
+    fs.mkdirSync(txtFilesDir, { recursive: true });
+  }
+
+  // Use forward slashes for cross-platform compatibility
+  const fileName = path.join(txtFilesDir, `${scrambleType}_${generateRandomFileName("txt")}`);
+
   // Write allScrambles to a text file
-  const fileName = `txt_files\\${scrambleType}_${generateRandomFileName("txt")}`;
   fs.writeFile(fileName, allScrambles.join('\n'), (err) => {
     if (err) throw err;
     console.log(`Scrambles have been saved to ${fileName}`);

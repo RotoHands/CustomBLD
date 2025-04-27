@@ -524,7 +524,7 @@ def main():
         
         # Build command with buffer arguments
         cmd = [
-            "python.exe",
+            "python",
             "generate_solves.py",
             count_scramble,
             scramble_type,
@@ -542,13 +542,15 @@ def main():
             cmd.extend(["--xcenter_buffer", config["xcenter_buffer"]])
         if "tcenter_buffer" in config:
             cmd.extend(["--tcenter_buffer", config["tcenter_buffer"]])
+        print("here 2")
         print(cmd)
-        # Start the process
+        # Start the process with the correct working directory
         process = subprocess.Popen(cmd, 
                                    stdout=subprocess.PIPE, 
                                    stderr=subprocess.PIPE,
                                    bufsize=1,
-                                   universal_newlines=True)
+                                   universal_newlines=True,
+                                   cwd=os.path.dirname(os.path.abspath(__file__)))  # Set working directory to script location
         
         # Run the progress bar in a separate thread
         progress_thread = threading.Thread(target=progress_bar, args=(process,))
