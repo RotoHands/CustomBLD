@@ -114,7 +114,6 @@ def create_db():
         first_tcenters TEXT
     )
     """)
-    print("Table created successfully.")
     conn.commit()
     conn.close()
 

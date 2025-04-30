@@ -20,6 +20,9 @@ no corner twists
 TODO
 cha
 corner solved is not in db
+serverside only 1000 solves
+show stats on number of scrambles
+logo
 
 
 how to compile and run the java program

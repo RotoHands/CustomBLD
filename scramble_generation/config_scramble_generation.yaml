@@ -1,32 +1,32 @@
 # The buffers to use - uncomment the ones you want
 use_edge_buffers:
   - UF # Standard UF buffer
-  # - FU  
-  # - DF  
-  # - UR  
+  # - FU
+  # - DF
+  # - UR
 
 use_corner_buffers:
-  - UFR 
-  # - UBL  
-  # - UFL  
-  # - RDF  
+  - UFR
+  # - UBL
+  # - UFL
+  # - RDF
 
 use_wing_buffers:
-  - UFr 
-  - DFr 
-  # - FUr  
+  - UFr
+  - DFr
+  # - FUr
 
 use_xcenter_buffers:
-  - Ufr  
-  # - Ubl 
-  - Ubr  
-  # - Ufl 
+  - Ufr
+  # - Ubl
+  - Ubr
+  # - Ufl
 
 use_tcenter_buffers:
-  - Uf 
-  - Ub 
-  # - Ur  
-  # - Ul  
+  - Uf
+  - Ub
+  # - Ur
+  # - Ul
 
 # Scramble types to generate - set True/False for each type
 generate:
@@ -49,3 +49,8 @@ counts:
   4bld_centers_only: 10000 # Scrambles per 4BLD centers combo
   4bld_wings_only: 10000 # Scrambles per 4BLD wings combo
   5bld_edges_corners: 15000 # Scrambles per 5BLD edges+corners combo
+
+# Backup configuration
+backup:
+  enabled: true # Whether to create backups at all
+  sqlite_backup: false # Whether to create SQLite backup

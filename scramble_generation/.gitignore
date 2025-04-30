@@ -5,4 +5,5 @@
 *.log
 *.csv
 *node_modules*
+*pg_backup
 misc*

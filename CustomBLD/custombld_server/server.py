@@ -14,7 +14,7 @@ CORS(app, resources={r"/*": {"origins": "*"}})  # More specific CORS configurati
 
 # Database connection parameters
 DB_PARAMS = {
-    'dbname': os.getenv('DB_NAME', 'all_solves_db_test'),
+    'dbname': os.getenv('DB_NAME', 'all_solves_db'),
     'user': os.getenv('DB_USER', 'postgres'),
     'password': os.getenv('DB_PASSWORD', 'postgres'),
     'host': os.getenv('DB_HOST', 'db'),

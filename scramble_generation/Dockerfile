@@ -94,4 +94,5 @@ COPY . .
 RUN chmod +x run.sh
 
 # Set the entry point to the run script
-ENTRYPOINT ["/app/scramble_generation/run.sh"] 
+# ENTRYPOINT ["/app/scramble_generation/run.sh"] 
+ENTRYPOINT ["/bin/bash"]
