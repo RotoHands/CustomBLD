@@ -36,10 +36,14 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5434:5432"
     networks:
       - custombld-network
+    command: >
+      postgres -c checkpoint_timeout=10min
+               -c checkpoint_completion_target=0.9
 
+               
 networks:
   custombld-network:
     driver: bridge

@@ -9,13 +9,19 @@ COPY all_solves_db.backup .
 # Create a restore script
 RUN echo '#!/bin/bash' > /docker-entrypoint-initdb.d/restore.sh && \
     echo 'set -e' >> /docker-entrypoint-initdb.d/restore.sh && \
-    echo 'pg_restore -v --clean --no-owner --no-privileges --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" /docker-entrypoint-initdb.d/all_solves_db.backup' >> /docker-entrypoint-initdb.d/restore.sh && \
+    echo 'pg_restore -v --no-owner --no-privileges --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" /docker-entrypoint-initdb.d/all_solves_db.backup' >> /docker-entrypoint-initdb.d/restore.sh && \
     chmod +x /docker-entrypoint-initdb.d/restore.sh
+
+# Create a script to update PostgreSQL configuration for bulk loading
+RUN echo '#!/bin/bash' > /docker-entrypoint-initdb.d/01-configure-postgres.sh && \
+    echo 'set -e' >> /docker-entrypoint-initdb.d/01-configure-postgres.sh && \
+    echo 'cat >> "$PGDATA/postgresql.conf" << EOF' >> /docker-entrypoint-initdb.d/01-configure-postgres.sh && \
+    echo 'EOF' >> /docker-entrypoint-initdb.d/01-configure-postgres.sh && \
+    chmod +x /docker-entrypoint-initdb.d/01-configure-postgres.sh
 
 # Set environment variables
 ENV POSTGRES_DB=all_solves_db
 ENV POSTGRES_USER=postgres
 ENV POSTGRES_PASSWORD=postgres
-
 # The backup file will be automatically executed by PostgreSQL's initialization scripts
-# as it's in the /docker-entrypoint-initdb.d directory 
+# as it's in the /docker-entrypoint-initdb.d directory
