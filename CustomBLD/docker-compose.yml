@@ -42,7 +42,7 @@ services:
     command: >
       postgres -c checkpoint_timeout=10min
                -c checkpoint_completion_target=0.9
-
+               -c max_wal_size=8GB
                
 networks:
   custombld-network:

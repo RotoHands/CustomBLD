@@ -208,6 +208,52 @@ def generate_stats():
         ORDER BY count DESC
         """
         tcenter_buffer_stats = query_db(tcenter_buffer_query)
+
+        # NEW: Stats for 3x3 buffer combinations (edge+corner)
+        # Focus on the specific buffers from config file (UF, UFR)
+        buffer_combo_3x3_query = """
+        SELECT 
+            edge_buffer || '-' || corner_buffer AS buffer_combo,
+            COUNT(*) as count
+        FROM scrambles
+        WHERE scramble_type = '333ni'
+          AND edge_buffer IS NOT NULL
+          AND corner_buffer IS NOT NULL
+        GROUP BY buffer_combo
+        ORDER BY count DESC
+        """
+        buffer_combo_3x3 = query_db(buffer_combo_3x3_query)
+        
+        # NEW: Stats for 4x4 full buffer combinations (corner+wing+xcenter)
+        # Focus on the specific buffers from config file (UFR, UFr/DFr, Ufr/Ubr)
+        buffer_combo_4x4_query = """
+        SELECT 
+            corner_buffer || '-' || wing_buffer || '-' || xcenter_buffer AS buffer_combo,
+            COUNT(*) as count
+        FROM scrambles
+        WHERE scramble_type = '444bld'
+          AND corner_buffer IS NOT NULL
+          AND wing_buffer IS NOT NULL
+          AND xcenter_buffer IS NOT NULL
+        GROUP BY buffer_combo
+        ORDER BY count DESC
+        """
+        buffer_combo_4x4 = query_db(buffer_combo_4x4_query)
+        
+        # NEW: Stats for 5x5 buffer combinations (corner+tcenter)
+        # Focus on the specific buffers from config file (UFR, Uf/Ub)
+        buffer_combo_5x5_query = """
+        SELECT 
+            corner_buffer || '-' || tcenter_buffer AS buffer_combo,
+            COUNT(*) as count
+        FROM scrambles
+        WHERE scramble_type = '555bld'
+          AND corner_buffer IS NOT NULL
+          AND tcenter_buffer IS NOT NULL
+        GROUP BY buffer_combo
+        ORDER BY count DESC
+        """
+        buffer_combo_5x5 = query_db(buffer_combo_5x5_query)
         
         # Format results for frontend
         stats = {
@@ -221,6 +267,11 @@ def generate_stats():
                 'wings': [{'buffer': row[0], 'count': row[1]} for row in wing_buffer_stats],
                 'xcenters': [{'buffer': row[0], 'count': row[1]} for row in xcenter_buffer_stats],
                 'tcenters': [{'buffer': row[0], 'count': row[1]} for row in tcenter_buffer_stats]
+            },
+            'buffer_combinations': {
+                '3x3': [{'combo': row[0], 'count': row[1]} for row in buffer_combo_3x3],
+                '4x4': [{'combo': row[0], 'count': row[1]} for row in buffer_combo_4x4],
+                '5x5': [{'combo': row[0], 'count': row[1]} for row in buffer_combo_5x5]
             }
         }
         
