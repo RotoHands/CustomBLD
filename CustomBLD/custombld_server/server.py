@@ -1,9 +1,12 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 import psycopg2
 import os
 import logging
 import traceback
+import json
+import time
+from pathlib import Path
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -20,6 +23,11 @@ DB_PARAMS = {
     'host': os.getenv('DB_HOST', 'db'),
     'port': os.getenv('DB_PORT', '5432')
 }
+
+# Path for cached stats
+STATS_CACHE_FILE = '/tmp/scramble_stats_cache.json'
+# How long before cache expires (in seconds)
+CACHE_EXPIRY = 3600  # 1 hour
 
 def get_db_connection():
     try:
@@ -57,6 +65,9 @@ SCRAMBLE_TYPE_MAP = {
     '3bld_corners': 'corners',
     '3bld_edges': 'edges'
 }
+
+# Reverse mapping for display
+DB_TO_DISPLAY_MAP = {v: k for k, v in SCRAMBLE_TYPE_MAP.items()}
 
 # Add buffer mappings at the top of the file
 BUFFER_MAPPINGS = {
@@ -101,6 +112,146 @@ BUFFER_MAPPINGS = {
     "Df": "U", "Dr": "V", "Db": "W", "Dl": "X"
   }
 }
+
+def cache_is_valid():
+    """Check if the cache file exists and is still valid (not expired)"""
+    try:
+        cache_path = Path(STATS_CACHE_FILE)
+        if not cache_path.exists():
+            return False
+        
+        # Check if cache has expired
+        cache_age = time.time() - cache_path.stat().st_mtime
+        return cache_age < CACHE_EXPIRY
+    except Exception as e:
+        logger.error(f"Error checking cache validity: {str(e)}")
+        return False
+
+def get_cached_stats():
+    """Get stats from cache if available"""
+    try:
+        with open(STATS_CACHE_FILE, 'r') as f:
+            return json.load(f)
+    except Exception as e:
+        logger.error(f"Error reading cache: {str(e)}")
+        return None
+
+def cache_stats(stats):
+    """Cache stats to a JSON file"""
+    try:
+        with open(STATS_CACHE_FILE, 'w') as f:
+            json.dump(stats, f)
+        logger.info(f"Stats cached to {STATS_CACHE_FILE}")
+    except Exception as e:
+        logger.error(f"Error caching stats: {str(e)}")
+
+def generate_stats():
+    """Generate stats by querying the database"""
+    try:
+        logger.debug("Generating scramble statistics from database")
+        
+        # Count by scramble type
+        scramble_types_query = """
+        SELECT scramble_type, COUNT(*) as count
+        FROM scrambles
+        GROUP BY scramble_type
+        ORDER BY count DESC
+        """
+        scramble_type_stats = query_db(scramble_types_query)
+        
+        # Stats for 3x3 buffers (edges)
+        edge_buffer_query = """
+        SELECT edge_buffer, COUNT(*) as count
+        FROM scrambles
+        WHERE scramble_type IN ('333ni', 'edges')
+        GROUP BY edge_buffer
+        ORDER BY count DESC
+        """
+        edge_buffer_stats = query_db(edge_buffer_query)
+        
+        # Stats for 3x3 buffers (corners)
+        corner_buffer_query = """
+        SELECT corner_buffer, COUNT(*) as count
+        FROM scrambles
+        WHERE scramble_type IN ('333ni', 'corners')
+        GROUP BY corner_buffer
+        ORDER BY count DESC
+        """
+        corner_buffer_stats = query_db(corner_buffer_query)
+        
+        # Stats for 4x4 buffers (wings)
+        wing_buffer_query = """
+        SELECT wing_buffer, COUNT(*) as count
+        FROM scrambles
+        WHERE scramble_type IN ('444bld', '444edo')
+        GROUP BY wing_buffer
+        ORDER BY count DESC
+        """
+        wing_buffer_stats = query_db(wing_buffer_query)
+        
+        # Stats for 4x4 buffers (x-centers)
+        xcenter_buffer_query = """
+        SELECT xcenter_buffer, COUNT(*) as count
+        FROM scrambles
+        WHERE scramble_type IN ('444bld', '444cto')
+        GROUP BY xcenter_buffer
+        ORDER BY count DESC
+        """
+        xcenter_buffer_stats = query_db(xcenter_buffer_query)
+        
+        # Stats for 5x5 buffers (t-centers)
+        tcenter_buffer_query = """
+        SELECT tcenter_buffer, COUNT(*) as count
+        FROM scrambles
+        WHERE scramble_type = '555bld'
+        GROUP BY tcenter_buffer
+        ORDER BY count DESC
+        """
+        tcenter_buffer_stats = query_db(tcenter_buffer_query)
+        
+        # Format results for frontend
+        stats = {
+            'scramble_types': [
+                {'type': DB_TO_DISPLAY_MAP.get(row[0], row[0]), 'db_type': row[0], 'count': row[1]}
+                for row in scramble_type_stats
+            ],
+            'buffer_stats': {
+                'edges': [{'buffer': row[0], 'count': row[1]} for row in edge_buffer_stats],
+                'corners': [{'buffer': row[0], 'count': row[1]} for row in corner_buffer_stats],
+                'wings': [{'buffer': row[0], 'count': row[1]} for row in wing_buffer_stats],
+                'xcenters': [{'buffer': row[0], 'count': row[1]} for row in xcenter_buffer_stats],
+                'tcenters': [{'buffer': row[0], 'count': row[1]} for row in tcenter_buffer_stats]
+            }
+        }
+        
+        # Add total counts
+        total_count_query = "SELECT COUNT(*) FROM scrambles"
+        total_count = query_db(total_count_query, one=True)[0]
+        stats['total_scrambles'] = total_count
+        
+        # Add timestamp
+        stats['timestamp'] = time.time()
+        
+        # Cache the stats
+        cache_stats(stats)
+        
+        return stats
+        
+    except Exception as e:
+        logger.error(f"Error generating stats: {str(e)}")
+        logger.error(traceback.format_exc())
+        raise
+
+def get_stats():
+    """Get stats from cache if valid, otherwise generate new stats"""
+    if cache_is_valid():
+        logger.info("Using cached stats")
+        cached_stats = get_cached_stats()
+        if cached_stats:
+            return cached_stats
+    
+    logger.info("Generating fresh stats")
+    return generate_stats()
 
 # Add a new function to map letters from database to user's letter scheme
 def map_letters(sequence, piece_type, letter_scheme):
@@ -820,6 +971,34 @@ def health_check():
     except Exception as e:
         logger.error(f"Health check failed: {str(e)}")
         return jsonify({'status': 'unhealthy', 'error': str(e)}), 500
+
+@app.route('/scramble-stats', methods=['GET'])
+def get_scramble_stats():
+    try:
+        logger.debug("Retrieving scramble statistics")
+        
+        # Try to get stats from cache or generate new stats
+        stats = get_stats()
+        
+        response = jsonify(stats)
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
+        
+    except Exception as e:
+        logger.error(f"Error retrieving scramble stats: {str(e)}")
+        logger.error(traceback.format_exc())
+        return jsonify({
+            'error': str(e),
+            'traceback': traceback.format_exc()
+        }), 500
+
+@app.route('/scramble-stats', methods=['OPTIONS'])
+def stats_options():
+    response = jsonify({'status': 'success'})
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+    response.headers.add('Access-Control-Allow-Methods', 'GET, OPTIONS')
+    return response
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
