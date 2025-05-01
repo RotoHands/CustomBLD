@@ -104,3 +104,88 @@ body {
 }
 
 /* Add more custom styles as needed */
+
+/* Add styles for number select dropdowns */
+.min-select, .max-select {
+  min-width: 80px;
+  flex: 1;
+  text-align: center;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  background-color: #fff;
+}
+
+/* Make the dropdown text center-aligned */
+.min-select option, .max-select option {
+  text-align: center;
+}
+
+/* Range separator */
+.range-separator {
+  font-weight: 500;
+  color: #6c757d;
+  margin: 0 8px;
+}
+
+/* Table styles for stats */
+.stats-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1rem;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.stats-header {
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 0.75rem;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+/* Mobile helper footer */
+.mobile-helper-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+  .stats-card {
+    padding: 0.75rem;
+  }
+  
+  .table-sm th, .table-sm td {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* Add custom styling for the border of the current tab */
+.nav-tabs .nav-link.active {
+  border-bottom: 2px solid #14539E;
+  font-weight: 500;
+}
+
+/* Form styles */
+form .form-control,
+form .form-select {
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  padding: 0.375rem 0.75rem;
+  background-color: #fff;
+}
+
+/* Ensure all form inputs are styled consistently */
+input[type="number"] {
+  display: none !important; /* Hide number inputs entirely */
+}
+
+/* Force Bootstrap to use select dropdowns */
+.input-group-text {
+  border: 1px solid #ced4da;
+  background-color: #f8f9fa;
+}

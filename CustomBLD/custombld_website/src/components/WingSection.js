@@ -4,7 +4,7 @@ import { wingPositions } from './LetterScheme';
 import { wingBufferOptions } from '../constants/Constants';
 
 
-const WingSection = ({ formData, handleChange, handlePracticeLetterChange }) => {
+const WingSection = ({ formData, handleChange, renderNumberSelect, handlePracticeLetterChange }) => {
   const [lengthType, setLengthType] = useState('random');
   const [cycleBreaksType, setCycleBreaksType] = useState('random');
   const [solvedType, setSolvedType] = useState('random');
@@ -304,71 +304,23 @@ const WingSection = ({ formData, handleChange, handlePracticeLetterChange }) => 
       </Form.Group>
 
       <Form.Group as={Row} className="mb-3">
-        <Form.Label column sm="3">Wing Length</Form.Label>
+        <Form.Label column sm="3">Wings Length</Form.Label>
         <Col sm="9">
-          <div className="d-flex align-items-center gap-3">
-            <Form.Check
-              type="radio"
-              id="wing-length-random"
-              label="random"
-              checked={lengthType === 'random'}
-              onChange={() => handleTypeChange('wings_length', 'random', setLengthType)}
-            />
-            <Form.Check
-              type="radio"
-              id="wing-length-range"
-              label="range"
-              checked={lengthType === 'range'}
-              onChange={() => handleTypeChange('wings_length', 'range', setLengthType)}
-            />
-            {renderRangeControl('wings_length', lengthType, 40)}
-          </div>
+          {renderNumberSelect('wings', 'length', 0, 40, 1)}
         </Col>
       </Form.Group>
 
       <Form.Group as={Row} className="mb-3">
         <Form.Label column sm="3">Cycle Breaks</Form.Label>
         <Col sm="9">
-          <div className="d-flex align-items-center gap-3">
-            <Form.Check
-              type="radio"
-              id="wing-cycle-breaks-random"
-              label="random"
-              checked={cycleBreaksType === 'random'}
-              onChange={() => handleTypeChange('wings_cycle_breaks', 'random', setCycleBreaksType)}
-            />
-            <Form.Check
-              type="radio"
-              id="wing-cycle-breaks-range"
-              label="range"
-              checked={cycleBreaksType === 'range'}
-              onChange={() => handleTypeChange('wings_cycle_breaks', 'range', setCycleBreaksType)}
-            />
-            {renderRangeControl('wings_cycle_breaks', cycleBreaksType, 10)}
-          </div>
+          {renderNumberSelect('wings_cycle', 'breaks', 0, 10, 1)}
         </Col>
       </Form.Group>
 
       <Form.Group as={Row} className="mb-3">
         <Form.Label column sm="3">Solved Wings</Form.Label>
         <Col sm="9">
-          <div className="d-flex align-items-center gap-3">
-            <Form.Check
-              type="radio"
-              id="wing-solved-random"
-              label="random"
-              checked={solvedType === 'random'}
-              onChange={() => handleTypeChange('wings_solved', 'random', setSolvedType)}
-            />
-            <Form.Check
-              type="radio"
-              id="wing-solved-range"
-              label="range"
-              checked={solvedType === 'range'}
-              onChange={() => handleTypeChange('wings_solved', 'range', setSolvedType)}
-            />
-            {renderRangeControl('wings_solved', solvedType, 24)}
-          </div>
+          {renderNumberSelect('wings', 'solved', 0, 24, 1)}
         </Col>
       </Form.Group>
 

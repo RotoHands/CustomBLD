@@ -4,218 +4,13 @@ import { tCenterPositions } from './LetterScheme';
 import { tCenterBufferOptions } from '../constants/Constants';
 
 
-const TCenterSection = ({ formData, handleChange, handlePracticeLetterChange }) => {
+const TCenterSection = ({ formData, handleChange, handlePracticeLetterChange, renderNumberSelect }) => {
   const [lengthType, setLengthType] = useState('random');
   const [cycleBreaksType, setCycleBreaksType] = useState('random');
   const [solvedType, setSolvedType] = useState('random');
   const [showPracticeLetters, setShowPracticeLetters] = useState(false);
   const [selectedLetters, setSelectedLetters] = useState(
     tCenterPositions.reduce((acc, pos) => ({ ...acc, [pos]: true }), {})
-  );
-
-  const renderRangeControl = (fieldName, type, defaultMax) => (
-    <div className="d-flex align-items-center gap-2 ms-3">
-      <Form.Control
-        type="number"
-        min="0"
-        placeholder="0"
-        value={formData[`${fieldName}_min`] === 0 ? "0" : (formData[`${fieldName}_min`] !== undefined ? formData[`${fieldName}_min`] : "0")}
-        onChange={(e) => {
-          // Get the raw value directly from the input
-          const rawValue = e.target.value;
-          
-          // Handle selection and replacement - this is key for replacing 0 with 1
-          if (e.target.selectionStart === e.target.selectionEnd && e.target.selectionStart === 0) {
-            // If cursor is at the beginning and user types, replace the entire value
-            const parsed = parseInt(rawValue, 10);
-            if (!isNaN(parsed)) {
-              const currentMax = formData[`${fieldName}_max`] || defaultMax;
-              
-              // If the new min is greater than current max, update max too
-              if (parsed > currentMax) {
-                // First update min
-                handleChange({
-                  target: {
-                    name: `${fieldName}_min`,
-                    value: parsed,
-                    type: 'number'
-                  }
-                });
-                
-                // Then update max to match the new min
-                handleChange({
-                  target: {
-                    name: `${fieldName}_max`,
-                    value: parsed,
-                    type: 'number'
-                  }
-                });
-              } else {
-                // Otherwise just update min
-                handleChange({
-                  target: {
-                    name: `${fieldName}_min`,
-                    value: parsed,
-                    type: 'number'
-                  }
-                });
-              }
-              return;
-            }
-          }
-          
-          // Normal handling for other cases
-          let processedValue;
-          
-          if (rawValue === '') {
-            processedValue = 0; // Default to 0 when empty
-          } else {
-            // Parse as number, ensuring we handle 0 correctly
-            const parsed = parseInt(rawValue, 10);
-            processedValue = isNaN(parsed) ? 0 : parsed;
-          }
-          
-          // Check if we need to update the max value too
-          const currentMax = formData[`${fieldName}_max`] || defaultMax;
-          if (processedValue > currentMax) {
-            // First update min
-            handleChange({
-              target: {
-                name: `${fieldName}_min`,
-                value: processedValue,
-                type: 'number'
-              }
-            });
-            
-            // Then update max to match the new min
-            handleChange({
-              target: {
-                name: `${fieldName}_max`,
-                value: processedValue,
-                type: 'number'
-              }
-            });
-          } else {
-            // Just update min if no max adjustment needed
-            handleChange({
-              target: {
-                name: `${fieldName}_min`,
-                value: processedValue,
-                type: 'number'
-              }
-            });
-          }
-        }}
-        disabled={type !== 'range'}
-        style={{ width: '70px', opacity: type === 'range' ? 1 : 0.6 }}
-        onFocus={(e) => {
-          // Select all text when the input is focused
-          e.target.select();
-        }}
-      />
-      <span>-</span>
-      <Form.Control
-        type="number"
-        min="0"
-        placeholder={defaultMax.toString()}
-        value={formData[`${fieldName}_max`] === 0 ? "0" : (formData[`${fieldName}_max`] || defaultMax)}
-        onChange={(e) => {
-          // Get the raw value directly from the input
-          const rawValue = e.target.value;
-          
-          // Handle selection and replacement - this is key for replacing 0 with 1
-          if (e.target.selectionStart === e.target.selectionEnd && e.target.selectionStart === 0) {
-            // If cursor is at the beginning and user types, replace the entire value
-            const parsed = parseInt(rawValue, 10);
-            if (!isNaN(parsed)) {
-              const currentMin = formData[`${fieldName}_min`] || 0;
-              
-              // If the new max is less than current min (but not 0), update min too
-              if (parsed !== 0 && parsed < currentMin) {
-                // Update min to match the new max
-                handleChange({
-                  target: {
-                    name: `${fieldName}_min`,
-                    value: parsed,
-                    type: 'number'
-                  }
-                });
-              }
-              
-              // Always update max
-              handleChange({
-                target: {
-                  name: `${fieldName}_max`,
-                  value: parsed,
-                  type: 'number'
-                }
-              });
-              return;
-            }
-          }
-          
-          // Special handling for backspace/delete when the value is "1"
-          if (rawValue === '' && e.nativeEvent.inputType === 'deleteContentBackward') {
-            handleChange({
-              target: {
-                name: `${fieldName}_max`,
-                value: 0,
-                type: 'number'
-              }
-            });
-            return;
-          }
-          
-          // Normal handling for other cases
-          let processedValue;
-          
-          if (rawValue === '') {
-            processedValue = 0; // Default to 0 when empty
-          } else {
-            // Parse as number, ensuring we handle 0 correctly
-            const parsed = parseInt(rawValue, 10);
-            processedValue = isNaN(parsed) ? 0 : parsed;
-          }
-          
-          // Check if the new max is less than min (but not 0)
-          const currentMin = formData[`${fieldName}_min`] || 0;
-          if (processedValue !== 0 && processedValue < currentMin) {
-            // First update max
-            handleChange({
-              target: {
-                name: `${fieldName}_max`,
-                value: processedValue,
-                type: 'number'
-              }
-            });
-            
-            // Then update min to match the new max
-            handleChange({
-              target: {
-                name: `${fieldName}_min`,
-                value: processedValue,
-                type: 'number'
-              }
-            });
-          } else {
-            // Otherwise just update max
-            handleChange({
-              target: {
-                name: `${fieldName}_max`,
-                value: processedValue,
-                type: 'number'
-              }
-            });
-          }
-        }}
-        disabled={type !== 'range'}
-        style={{ width: '70px', opacity: type === 'range' ? 1 : 0.6 }}
-        onFocus={(e) => {
-          // Select all text when the input is focused
-          e.target.select();
-        }}
-      />
-    </div>
   );
 
   const handleBufferChange = (value) => {
@@ -305,69 +100,21 @@ const TCenterSection = ({ formData, handleChange, handlePracticeLetterChange }) 
       <Form.Group as={Row} className="mb-3">
         <Form.Label column sm="3">T-Center Length</Form.Label>
         <Col sm="9">
-          <div className="d-flex align-items-center gap-3">
-            <Form.Check
-              type="radio"
-              id="tcenter-length-random"
-              label="random"
-              checked={lengthType === 'random'}
-              onChange={() => handleTypeChange('t_centers_length', 'random', setLengthType)}
-            />
-            <Form.Check
-              type="radio"
-              id="tcenter-length-range"
-              label="range"
-              checked={lengthType === 'range'}
-              onChange={() => handleTypeChange('t_centers_length', 'range', setLengthType)}
-            />
-            {renderRangeControl('t_centers_length', lengthType, 30)}
-          </div>
+          {renderNumberSelect('t_centers', 'length', 0, 30, 1)}
         </Col>
       </Form.Group>
 
       <Form.Group as={Row} className="mb-3">
         <Form.Label column sm="3">Cycle Breaks</Form.Label>
         <Col sm="9">
-          <div className="d-flex align-items-center gap-3">
-            <Form.Check
-              type="radio"
-              id="tcenter-cycle-breaks-random"
-              label="random"
-              checked={cycleBreaksType === 'random'}
-              onChange={() => handleTypeChange('t_centers_cycle_breaks', 'random', setCycleBreaksType)}
-            />
-            <Form.Check
-              type="radio"
-              id="tcenter-cycle-breaks-range"
-              label="range"
-              checked={cycleBreaksType === 'range'}
-              onChange={() => handleTypeChange('t_centers_cycle_breaks', 'range', setCycleBreaksType)}
-            />
-            {renderRangeControl('t_centers_cycle_breaks', cycleBreaksType, 8)}
-          </div>
+          {renderNumberSelect('t_centers_cycle', 'breaks', 0, 8, 1)}
         </Col>
       </Form.Group>
 
       <Form.Group as={Row} className="mb-3">
         <Form.Label column sm="3">Solved T-Centers</Form.Label>
         <Col sm="9">
-          <div className="d-flex align-items-center gap-3">
-            <Form.Check
-              type="radio"
-              id="tcenter-solved-random"
-              label="random"
-              checked={solvedType === 'random'}
-              onChange={() => handleTypeChange('t_centers_solved', 'random', setSolvedType)}
-            />
-            <Form.Check
-              type="radio"
-              id="tcenter-solved-range"
-              label="range"
-              checked={solvedType === 'range'}
-              onChange={() => handleTypeChange('t_centers_solved', 'range', setSolvedType)}
-            />
-            {renderRangeControl('t_centers_solved', solvedType, 24)}
-          </div>
+          {renderNumberSelect('t_centers', 'solved', 0, 24, 1)}
         </Col>
       </Form.Group>
 

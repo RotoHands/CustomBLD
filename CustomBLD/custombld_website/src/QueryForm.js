@@ -120,15 +120,61 @@ const QueryForm = ({ onSubmit }) => {
   useEffect(() => {
     const savedForm = localStorage.getItem('scrambleForm');
     if (savedForm) {
-      setFormData(JSON.parse(savedForm));
+      try {
+        // Parse and convert min/max values to numbers if needed
+        const parsedForm = JSON.parse(savedForm);
+        
+        // Ensure min/max values are numbers
+        Object.keys(parsedForm).forEach(key => {
+          if (key.endsWith('_min') || key.endsWith('_max')) {
+            if (parsedForm[key] !== undefined && parsedForm[key] !== null) {
+              parsedForm[key] = Number(parsedForm[key]);
+            }
+          }
+        });
+        
+        setFormData(parsedForm);
+      } catch (e) {
+        console.error("Error parsing saved form:", e);
+        setFormData(prevState => prevState);
+      }
     }
   }, []);
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
     
-    // Special handling for number inputs
-      // Check if the value is empty (allow deletion)
+    // Handle dropdown selects for min/max values
+    if (name.endsWith('_min') || name.endsWith('_max')) {
+      // Convert to number for min/max fields
+      const numberValue = parseInt(value, 10);
+      
+      setFormData(prev => {
+        const newData = { ...prev, [name]: numberValue };
+        
+        // Ensure min <= max relationship
+        if (name.endsWith('_min')) {
+          const maxField = name.replace('_min', '_max');
+          const maxValue = prev[maxField];
+          
+          if (maxValue !== undefined && numberValue > maxValue) {
+            newData[maxField] = numberValue;
+          }
+        } else if (name.endsWith('_max')) {
+          const minField = name.replace('_max', '_min');
+          const minValue = prev[minField];
+          
+          if (minValue !== undefined && numberValue < minValue) {
+            newData[minField] = numberValue;
+          }
+        }
+        
+        return newData;
+      });
+      return;
+    }
+    
+    // Special handling for number inputs (kept for other number inputs)
     if (type === 'number') {
       if (value === '') {
         setFormData(prev => ({ ...prev, [name]: '' }));
@@ -397,6 +443,17 @@ const QueryForm = ({ onSubmit }) => {
     const minFieldName = `${baseFieldName}_min`;
     const maxFieldName = `${baseFieldName}_max`;
     const typeFieldName = `${baseFieldName}_type`;
+    
+    // Generate options for the dropdowns
+    const generateOptions = (start, end, step) => {
+      const options = [];
+      for (let i = start; i <= end; i += step) {
+        options.push(
+          <option key={i} value={i}>{i}</option>
+        );
+      }
+      return options;
+    };
   
     return (
       <Row className="mb-3">
@@ -412,29 +469,27 @@ const QueryForm = ({ onSubmit }) => {
         </Col>
         <Col md={8}>
           <InputGroup>
-            <Form.Control
-              type="number"
+            <Form.Select
               name={minFieldName}
-              placeholder="Min"
-              value={formData[minFieldName] === 0 ? "0" : (formData[minFieldName] || '')}
+              value={formData[minFieldName] || 0}
               onChange={handleChange}
-              min={0}
-              max={max}
-              step={step}
               disabled={formData[typeFieldName] !== 'range'}
-            />
-            <InputGroup.Text>to</InputGroup.Text>
-            <Form.Control
-              type="number"
+              className="min-select"
+            >
+              {generateOptions(min, max, step)}
+            </Form.Select>
+            
+            <InputGroup.Text className="range-separator">to</InputGroup.Text>
+            
+            <Form.Select
               name={maxFieldName}
-              placeholder="Max"
-              value={formData[maxFieldName] === 0 ? "0" : (formData[maxFieldName] || '')}
+              value={formData[maxFieldName] || max}
               onChange={handleChange}
-              min={0}
-              max={max}
-              step={step}
               disabled={formData[typeFieldName] !== 'range'}
-            />
+              className="max-select"
+            >
+              {generateOptions(min, max, step)}
+            </Form.Select>
           </InputGroup>
         </Col>
       </Row>

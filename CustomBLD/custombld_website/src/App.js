@@ -5,6 +5,50 @@ import ScrambleResults from './components/ScrambleResults';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
+// Buffer mapping for converting letter notation to piece positions
+const reverseBufferMap = {
+  edges: {
+    "A": "UB", "B": "UR", "C": "UF", "D": "UL",
+    "E": "LU", "F": "LF", "G": "LD", "H": "LB",
+    "I": "FU", "J": "FR", "K": "FD", "L": "FL",
+    "M": "RU", "N": "RB", "O": "RD", "P": "RF",
+    "Q": "BU", "R": "BL", "S": "BD", "T": "BR",
+    "U": "DF", "V": "DR", "W": "DB", "X": "DL"
+  },
+  corners: {
+    "A": "UBL", "B": "UBR", "C": "UFR", "D": "UFL",
+    "E": "LUB", "F": "LFU", "G": "LDF", "H": "LBD",
+    "I": "FUL", "J": "FRU", "K": "FDR", "L": "FLD",
+    "M": "RUF", "N": "RBU", "O": "RDB", "P": "RFD",
+    "Q": "BUR", "R": "BLU", "S": "BDL", "T": "BRD",
+    "U": "DFL", "V": "DRF", "W": "DBR", "X": "DLB"
+  },
+  wings: {
+    "A": "UBl", "B": "URb", "C": "UFr", "D": "ULf",
+    "E": "LUf", "F": "LFd", "G": "LDb", "H": "LBu",
+    "I": "FUr", "J": "FRd", "K": "FDl", "L": "FLu",
+    "M": "RUb", "N": "RBd", "O": "RDf", "P": "RFu",
+    "Q": "BUl", "R": "BLd", "S": "BDr", "T": "BRu",
+    "U": "DFr", "V": "DRb", "W": "DBl", "X": "DLf"
+  },
+  xcenters: {
+    "A": "Ubl", "B": "Urb", "C": "Ufr", "D": "Ulf",
+    "E": "Lub", "F": "Lfu", "G": "Ldf", "H": "Lbd",
+    "I": "Ful", "J": "Fru", "K": "Fdr", "L": "Fld",
+    "M": "Ruf", "N": "Rbu", "O": "Rdb", "P": "Rfd",
+    "Q": "Bur", "R": "Blu", "S": "Bdl", "T": "Brd",
+    "U": "Dfl", "V": "Drf", "W": "Dbr", "X": "Dlb"
+  },
+  tcenters: {
+    "A": "Ub", "B": "Ur", "C": "Uf", "D": "Ul",
+    "E": "Lu", "F": "Lf", "G": "Ld", "H": "Lb",
+    "I": "Fu", "J": "Fr", "K": "Fd", "L": "Fl",
+    "M": "Ru", "N": "Rb", "O": "Rd", "P": "Rf",
+    "Q": "Bu", "R": "Bl", "S": "Bd", "T": "Br",
+    "U": "Df", "V": "Dr", "W": "Db", "X": "Dl"
+  }
+};
+
 function App() {
   const [results, setResults] = useState([]);
   const [error, setError] = useState(null);
@@ -13,6 +57,20 @@ function App() {
   const [statsError, setStatsError] = useState(null);
   const [activeTab, setActiveTab] = useState('search');
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  // Helper function to convert letter buffer to position
+  const letterToPosition = (letter, pieceType) => {
+    // Check if it's already a position name (e.g., "UF" instead of "C")
+    if (letter.length > 1 && !letter.match(/^[A-X]$/i)) {
+      return letter;
+    }
+    
+    // Get the correct mapping for the piece type
+    const mapping = reverseBufferMap[pieceType];
+    if (!mapping) return letter;
+    
+    return mapping[letter] || letter;
+  };
 
   useEffect(() => {
     // Check for mobile screen size
@@ -234,7 +292,7 @@ function App() {
                     <tbody>
                       {stats.buffer_stats.edges.slice(0, isMobile ? 5 : undefined).map((item) => (
                         <tr key={`edge-${item.buffer}`}>
-                          <td>{item.buffer}</td>
+                          <td>{letterToPosition(item.buffer, 'edges')}</td>
                           <td className="text-end">{item.count.toLocaleString()}</td>
                         </tr>
                       ))}
@@ -267,7 +325,7 @@ function App() {
                     <tbody>
                       {stats.buffer_stats.corners.slice(0, isMobile ? 5 : undefined).map((item) => (
                         <tr key={`corner-${item.buffer}`}>
-                          <td>{item.buffer}</td>
+                          <td>{letterToPosition(item.buffer, 'corners')}</td>
                           <td className="text-end">{item.count.toLocaleString()}</td>
                         </tr>
                       ))}
@@ -310,7 +368,7 @@ function App() {
                     <tbody>
                       {stats.buffer_stats.wings.slice(0, isMobile ? 5 : undefined).map((item) => (
                         <tr key={`wing-${item.buffer}`}>
-                          <td>{item.buffer}</td>
+                          <td>{letterToPosition(item.buffer, 'wings')}</td>
                           <td className="text-end">{item.count.toLocaleString()}</td>
                         </tr>
                       ))}
@@ -343,7 +401,7 @@ function App() {
                     <tbody>
                       {stats.buffer_stats.xcenters.slice(0, isMobile ? 5 : undefined).map((item) => (
                         <tr key={`xcenter-${item.buffer}`}>
-                          <td>{item.buffer}</td>
+                          <td>{letterToPosition(item.buffer, 'xcenters')}</td>
                           <td className="text-end">{item.count.toLocaleString()}</td>
                         </tr>
                       ))}
@@ -387,7 +445,7 @@ function App() {
                   <tbody>
                     {stats.buffer_stats.tcenters.slice(0, isMobile ? 5 : undefined).map((item) => (
                       <tr key={`tcenter-${item.buffer}`}>
-                        <td>{item.buffer}</td>
+                        <td>{letterToPosition(item.buffer, 'tcenters')}</td>
                         <td className="text-end">{item.count.toLocaleString()}</td>
                       </tr>
                     ))}
