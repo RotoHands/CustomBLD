@@ -72,67 +72,65 @@ function App() {
     }
   };
 
-  const fetchStats = async () => {
+  const fetchStats = async (refresh = false) => {
     try {
       setStatsLoading(true);
       setStatsError(null);
       
-      // Try with proxy first (defined in package.json)
-      try {
-        const response = await fetch('/scramble-stats', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setStats(data);
-          setStatsLoading(false);
-          return;
+      // Add refresh parameter to URL if needed
+      const refreshParam = refresh ? '?refresh=true' : '';
+      
+      // URLs to try in order
+      const urls = [
+        `/scramble-stats${refreshParam}`,
+        `http://server:5000/scramble-stats${refreshParam}`,
+        `http://localhost:5000/scramble-stats${refreshParam}`
+      ];
+      
+      let succeeded = false;
+      let lastError = null;
+      
+      // Try each URL in sequence
+      for (const url of urls) {
+        try {
+          console.log(`Attempting to fetch stats from: ${url}`);
+          const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            setStats(data);
+            setStatsLoading(false);
+            succeeded = true;
+            console.log(`Successfully fetched stats from: ${url}`);
+            
+            // If this was a refresh, show a message
+            if (refresh) {
+              // If we have a notification system, we could use it here
+              console.log('Statistics refreshed successfully');
+            }
+            
+            break; // Exit the loop on success
+          } else {
+            const errorText = await response.text();
+            throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
+          }
+        } catch (error) {
+          console.warn(`Failed to fetch from ${url}:`, error);
+          lastError = error;
         }
-      } catch (proxyError) {
-        console.warn('Proxy request failed, trying direct URL', proxyError);
       }
       
-      // Try with Docker service name
-      try {
-        const serviceResponse = await fetch('http://server:5000/scramble-stats', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (serviceResponse.ok) {
-          const data = await serviceResponse.json();
-          setStats(data);
-          setStatsLoading(false);
-          return;
-        }
-      } catch (serviceError) {
-        console.warn('Service name request failed, trying localhost', serviceError);
+      if (!succeeded) {
+        throw lastError || new Error('Failed to fetch statistics from all available endpoints');
       }
-      
-      // Final fallback to localhost
-      const localhostResponse = await fetch('http://localhost:5000/scramble-stats', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!localhostResponse.ok) {
-        throw new Error(`HTTP error! Status: ${localhostResponse.status}`);
-      }
-
-      const data = await localhostResponse.json();
-      setStats(data);
     } catch (err) {
       console.error('Error fetching stats:', err);
       setStatsError(`Failed to load statistics: ${err.message}`);
-    } finally {
       setStatsLoading(false);
     }
   };

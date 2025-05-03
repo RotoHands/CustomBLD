@@ -26,6 +26,8 @@ services:
       - DB_PORT=5432
     depends_on:
       - db
+    volumes:
+      - ./custombld_db/stats_cache.json:/app/db_stats_cache.json
     networks:
       - custombld-network
 

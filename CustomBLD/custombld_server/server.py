@@ -25,9 +25,9 @@ DB_PARAMS = {
 }
 
 # Path for cached stats
-STATS_CACHE_FILE = '/tmp/scramble_stats_cache.json'
+STATS_CACHE_FILE = '/app/db_stats_cache.json'
 # How long before cache expires (in seconds)
-CACHE_EXPIRY = 3600  # 1 hour
+CACHE_EXPIRY = 86400  # 24 hours
 
 def get_db_connection():
     try:
@@ -117,12 +117,24 @@ def cache_is_valid():
     """Check if the cache file exists and is still valid (not expired)"""
     try:
         cache_path = Path(STATS_CACHE_FILE)
+        
         if not cache_path.exists():
+            logger.info(f"Cache file doesn't exist at {STATS_CACHE_FILE}")
             return False
         
+        # Check if file is empty
+        if cache_path.stat().st_size == 0:
+            logger.info(f"Cache file exists but is empty")
+            return False
+            
         # Check if cache has expired
         cache_age = time.time() - cache_path.stat().st_mtime
-        return cache_age < CACHE_EXPIRY
+        if cache_age >= CACHE_EXPIRY:
+            logger.info(f"Cache expired (age: {cache_age:.2f}s, expiry: {CACHE_EXPIRY}s)")
+            return False
+            
+        logger.info(f"Valid cache found (age: {cache_age:.2f}s)")
+        return True
     except Exception as e:
         logger.error(f"Error checking cache validity: {str(e)}")
         return False
@@ -130,8 +142,25 @@ def cache_is_valid():
 def get_cached_stats():
     """Get stats from cache if available"""
     try:
+        cache_path = Path(STATS_CACHE_FILE)
+        if not cache_path.exists() or cache_path.stat().st_size == 0:
+            return None
+            
         with open(STATS_CACHE_FILE, 'r') as f:
-            return json.load(f)
+            stats = json.load(f)
+            logger.info(f"Retrieved stats from cache file: {STATS_CACHE_FILE}")
+            
+            # Add cache info for debugging
+            current_time = time.time()
+            file_mtime = cache_path.stat().st_mtime
+            stats['cache_age'] = current_time - file_mtime
+            stats['cache_expires_in'] = CACHE_EXPIRY - (current_time - file_mtime)
+            stats['cache_timestamp'] = current_time
+            
+            return stats
+    except json.JSONDecodeError as e:
+        logger.error(f"Error parsing JSON from cache file: {str(e)}")
+        return None
     except Exception as e:
         logger.error(f"Error reading cache: {str(e)}")
         return None
@@ -144,10 +173,13 @@ def cache_stats(stats):
         logger.info(f"Stats cached to {STATS_CACHE_FILE}")
     except Exception as e:
         logger.error(f"Error caching stats: {str(e)}")
+        logger.error(traceback.format_exc())
 
 def generate_stats():
     """Generate stats by querying the database"""
     try:
+        logger.info("Beginning database query for statistics generation")
+        start_time = time.time()
         logger.debug("Generating scramble statistics from database")
         
         # Count by scramble type
@@ -209,9 +241,11 @@ def generate_stats():
         """
         tcenter_buffer_stats = query_db(tcenter_buffer_query)
 
-        # NEW: Stats for 3x3 buffer combinations (edge+corner)
-        # Focus on the specific buffers from config file (UF, UFR)
-        buffer_combo_3x3_query = """
+        # Buffer combination objects
+        buffer_combinations = {}
+
+        # 3x3 BLD (edges+corners)
+        buffer_combo_3bld_query = """
         SELECT 
             edge_buffer || '-' || corner_buffer AS buffer_combo,
             COUNT(*) as count
@@ -222,11 +256,36 @@ def generate_stats():
         GROUP BY buffer_combo
         ORDER BY count DESC
         """
-        buffer_combo_3x3 = query_db(buffer_combo_3x3_query)
+        buffer_combinations['3bld'] = [{'combo': row[0], 'count': row[1]} for row in query_db(buffer_combo_3bld_query)]
         
-        # NEW: Stats for 4x4 full buffer combinations (corner+wing+xcenter)
-        # Focus on the specific buffers from config file (UFR, UFr/DFr, Ufr/Ubr)
-        buffer_combo_4x4_query = """
+        # 3x3 Edges Only
+        buffer_combo_3bld_edges_query = """
+        SELECT 
+            edge_buffer AS buffer_combo,
+            COUNT(*) as count
+        FROM scrambles
+        WHERE scramble_type = 'edges'
+          AND edge_buffer IS NOT NULL
+        GROUP BY buffer_combo
+        ORDER BY count DESC
+        """
+        buffer_combinations['3bld_edges'] = [{'combo': row[0], 'count': row[1]} for row in query_db(buffer_combo_3bld_edges_query)]
+        
+        # 3x3 Corners Only
+        buffer_combo_3bld_corners_query = """
+        SELECT 
+            corner_buffer AS buffer_combo,
+            COUNT(*) as count
+        FROM scrambles
+        WHERE scramble_type = 'corners'
+          AND corner_buffer IS NOT NULL
+        GROUP BY buffer_combo
+        ORDER BY count DESC
+        """
+        buffer_combinations['3bld_corners'] = [{'combo': row[0], 'count': row[1]} for row in query_db(buffer_combo_3bld_corners_query)]
+        
+        # 4x4 BLD (corner+wing+xcenter)
+        buffer_combo_4bld_query = """
         SELECT 
             corner_buffer || '-' || wing_buffer || '-' || xcenter_buffer AS buffer_combo,
             COUNT(*) as count
@@ -238,22 +297,64 @@ def generate_stats():
         GROUP BY buffer_combo
         ORDER BY count DESC
         """
-        buffer_combo_4x4 = query_db(buffer_combo_4x4_query)
+        buffer_combinations['4bld'] = [{'combo': row[0], 'count': row[1]} for row in query_db(buffer_combo_4bld_query)]
         
-        # NEW: Stats for 5x5 buffer combinations (corner+tcenter)
-        # Focus on the specific buffers from config file (UFR, Uf/Ub)
-        buffer_combo_5x5_query = """
+        # 4x4 Wings Only
+        buffer_combo_4bld_wings_query = """
         SELECT 
-            corner_buffer || '-' || tcenter_buffer AS buffer_combo,
+            wing_buffer AS buffer_combo,
+            COUNT(*) as count
+        FROM scrambles
+        WHERE scramble_type = '444edo'
+          AND wing_buffer IS NOT NULL
+        GROUP BY buffer_combo
+        ORDER BY count DESC
+        """
+        buffer_combinations['4bld_wings'] = [{'combo': row[0], 'count': row[1]} for row in query_db(buffer_combo_4bld_wings_query)]
+        
+        # 4x4 Centers Only
+        buffer_combo_4bld_centers_query = """
+        SELECT 
+            xcenter_buffer AS buffer_combo,
+            COUNT(*) as count
+        FROM scrambles
+        WHERE scramble_type = '444cto'
+          AND xcenter_buffer IS NOT NULL
+        GROUP BY buffer_combo
+        ORDER BY count DESC
+        """
+        buffer_combinations['4bld_centers'] = [{'combo': row[0], 'count': row[1]} for row in query_db(buffer_combo_4bld_centers_query)]
+        
+        # 5x5 BLD (all piece types)
+        buffer_combo_5bld_query = """
+        SELECT 
+            corner_buffer || '-' || edge_buffer || '-' || wing_buffer || '-' || tcenter_buffer || '-' || xcenter_buffer AS buffer_combo,
             COUNT(*) as count
         FROM scrambles
         WHERE scramble_type = '555bld'
           AND corner_buffer IS NOT NULL
+          AND edge_buffer IS NOT NULL
+          AND wing_buffer IS NOT NULL
           AND tcenter_buffer IS NOT NULL
+          AND xcenter_buffer IS NOT NULL
         GROUP BY buffer_combo
         ORDER BY count DESC
         """
-        buffer_combo_5x5 = query_db(buffer_combo_5x5_query)
+        buffer_combinations['5bld'] = [{'combo': row[0], 'count': row[1]} for row in query_db(buffer_combo_5bld_query)]
+        
+        # 5x5 Edges/Corners Only
+        buffer_combo_5bld_edges_corners_query = """
+        SELECT 
+            corner_buffer || '-' || edge_buffer AS buffer_combo,
+            COUNT(*) as count
+        FROM scrambles
+        WHERE scramble_type = '5edge'
+          AND corner_buffer IS NOT NULL
+          AND edge_buffer IS NOT NULL
+        GROUP BY buffer_combo
+        ORDER BY count DESC
+        """
+        buffer_combinations['5bld_edges_corners'] = [{'combo': row[0], 'count': row[1]} for row in query_db(buffer_combo_5bld_edges_corners_query)]
         
         # Format results for frontend
         stats = {
@@ -268,11 +369,7 @@ def generate_stats():
                 'xcenters': [{'buffer': row[0], 'count': row[1]} for row in xcenter_buffer_stats],
                 'tcenters': [{'buffer': row[0], 'count': row[1]} for row in tcenter_buffer_stats]
             },
-            'buffer_combinations': {
-                '3x3': [{'combo': row[0], 'count': row[1]} for row in buffer_combo_3x3],
-                '4x4': [{'combo': row[0], 'count': row[1]} for row in buffer_combo_4x4],
-                '5x5': [{'combo': row[0], 'count': row[1]} for row in buffer_combo_5x5]
-            }
+            'buffer_combinations': buffer_combinations
         }
         
         # Add total counts
@@ -280,12 +377,14 @@ def generate_stats():
         total_count = query_db(total_count_query, one=True)[0]
         stats['total_scrambles'] = total_count
         
-        # Add timestamp
+        # Add timestamp and query time
         stats['timestamp'] = time.time()
+        stats['query_time'] = time.time() - start_time
         
         # Cache the stats
         cache_stats(stats)
         
+        logger.info(f"Statistics generation complete in {stats['query_time']:.2f} seconds")
         return stats
         
     except Exception as e:
@@ -296,12 +395,12 @@ def generate_stats():
 def get_stats():
     """Get stats from cache if valid, otherwise generate new stats"""
     if cache_is_valid():
-        logger.info("Using cached stats")
+        logger.info("Cache is valid and not expired, using cached stats")
         cached_stats = get_cached_stats()
         if cached_stats:
             return cached_stats
     
-    logger.info("Generating fresh stats")
+    logger.info("Cache is invalid or expired (> 24 hours old), generating fresh stats")
     return generate_stats()
 
 # Add a new function to map letters from database to user's letter scheme
@@ -739,8 +838,8 @@ def generate_scrambles():
         
         # Order by RANDOM() and limit results
         scramble_count = data.get('scramble_count', 1)
-        # final_query += f" Order by RANDOM() LIMIT {scramble_count}"
-        final_query += f" LIMIT {scramble_count}"
+        final_query += f" Order by RANDOM() LIMIT {scramble_count}"
+        # final_query += f" LIMIT {scramble_count}"
         
         # Print query for debugging
         # print("Executing query:")
@@ -1028,8 +1127,32 @@ def get_scramble_stats():
     try:
         logger.debug("Retrieving scramble statistics")
         
-        # Try to get stats from cache or generate new stats
-        stats = get_stats()
+        # Check if force refresh is requested
+        force_refresh = request.args.get('refresh', 'false').lower() == 'true'
+        
+        if force_refresh:
+            logger.info("Force refresh requested, generating new stats")
+            stats = generate_stats()
+        else:
+            # Try to get stats from cache or generate new stats if cache is invalid
+            if cache_is_valid():
+                stats = get_cached_stats()
+                if not stats:
+                    logger.warning("Cache file exists but couldn't be read, generating new stats")
+                    stats = generate_stats()
+            else:
+                logger.info("Cache is invalid or expired, generating fresh stats")
+                stats = generate_stats()
+        
+        # Add cache status to response
+        if 'cache_age' not in stats:
+            cache_path = Path(STATS_CACHE_FILE)
+            if cache_path.exists():
+                stats['cache_age'] = time.time() - cache_path.stat().st_mtime
+                stats['cache_expires_in'] = CACHE_EXPIRY - stats['cache_age']
+        
+        # Include file path for debugging but make it relative
+        stats['cache_file'] = os.path.basename(STATS_CACHE_FILE)
         
         response = jsonify(stats)
         response.headers.add('Access-Control-Allow-Origin', '*')

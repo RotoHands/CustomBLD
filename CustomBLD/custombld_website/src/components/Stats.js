@@ -1,7 +1,28 @@
-import React from 'react';
-import { Badge, Spinner, Alert } from 'react-bootstrap';
+import React, { useState } from 'react';
+import { Badge, Spinner, Alert, Button } from 'react-bootstrap';
 
 const Stats = ({ stats, statsLoading, statsError, fetchStats, isMobile }) => {
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Function to handle manual refresh
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      // Call the fetchStats function with refresh=true
+      await fetchStats(true);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  // Function to format relative time
+  const formatRelativeTime = (seconds) => {
+    if (seconds < 60) return `${Math.round(seconds)} seconds ago`;
+    if (seconds < 3600) return `${Math.round(seconds / 60)} minutes ago`;
+    if (seconds < 86400) return `${Math.round(seconds / 3600)} hours ago`;
+    return `${Math.round(seconds / 86400)} days ago`;
+  };
+
   // Function to convert letter buffer to position
   const letterToPosition = (letter, pieceType) => {
     // Buffer mapping for converting letter notation to piece positions
@@ -107,13 +128,60 @@ const Stats = ({ stats, statsLoading, statsError, fetchStats, isMobile }) => {
     return <p>No statistics available.</p>;
   }
 
+  // Log available buffer combinations keys for debugging
+  if (stats.buffer_combinations) {
+    console.log("Available buffer combination keys:", Object.keys(stats.buffer_combinations));
+  }
+
   return (
     <div>
       <div className="mb-4">
-        <h5>
-          <i className="fas fa-database me-2"></i>
-          Total Scrambles: <Badge bg="primary">{stats.total_scrambles.toLocaleString()}</Badge>
-        </h5>
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <h5>
+            <i className="fas fa-database me-2"></i>
+            Total Scrambles: <Badge bg="primary">{stats.total_scrambles.toLocaleString()}</Badge>
+          </h5>
+          <Button 
+            variant="outline-primary" 
+            size="sm"
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+          >
+            {isRefreshing ? (
+              <>
+                <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+                <span className="ms-1">Refreshing...</span>
+              </>
+            ) : (
+              <>
+                <i className="fas fa-sync-alt me-1"></i> Refresh Stats
+              </>
+            )}
+          </Button>
+        </div>
+        
+        {/* Cache info */}
+        {stats.timestamp && (
+          <div className="text-muted small mb-3">
+            <div className="d-flex justify-content-between">
+              <span>
+                Last updated: {new Date(stats.timestamp * 1000).toLocaleString()}
+                {stats.query_time && ` (Query time: ${stats.query_time.toFixed(2)}s)`}
+              </span>
+              {stats.cache_age && (
+                <span className="ms-2">
+                  <Badge bg="info">{formatRelativeTime(stats.cache_age)}</Badge>
+                  {stats.cache_expires_in > 0 && (
+                    <Badge bg="secondary" className="ms-1">
+                      Refreshes in {formatRelativeTime(stats.cache_expires_in)}
+                    </Badge>
+                  )}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+        
         <div className="table-responsive">
           <table className="table table-striped table-bordered table-sm">
             <thead>
@@ -158,7 +226,7 @@ const Stats = ({ stats, statsLoading, statsError, fetchStats, isMobile }) => {
                   <tbody>
                     {stats.buffer_stats.edges.slice(0, isMobile ? 5 : undefined).map((item) => (
                       <tr key={`edge-${item.buffer}`}>
-                        <td>{letterToPosition(item.buffer, 'edges')}</td>
+                        <td>{item.buffer}</td>
                         <td className="text-end">{item.count.toLocaleString()}</td>
                       </tr>
                     ))}
@@ -191,7 +259,7 @@ const Stats = ({ stats, statsLoading, statsError, fetchStats, isMobile }) => {
                   <tbody>
                     {stats.buffer_stats.corners.slice(0, isMobile ? 5 : undefined).map((item) => (
                       <tr key={`corner-${item.buffer}`}>
-                        <td>{letterToPosition(item.buffer, 'corners')}</td>
+                        <td>{item.buffer}</td>
                         <td className="text-end">{item.count.toLocaleString()}</td>
                       </tr>
                     ))}
@@ -234,7 +302,7 @@ const Stats = ({ stats, statsLoading, statsError, fetchStats, isMobile }) => {
                   <tbody>
                     {stats.buffer_stats.wings.slice(0, isMobile ? 5 : undefined).map((item) => (
                       <tr key={`wing-${item.buffer}`}>
-                        <td>{letterToPosition(item.buffer, 'wings')}</td>
+                        <td>{item.buffer}</td>
                         <td className="text-end">{item.count.toLocaleString()}</td>
                       </tr>
                     ))}
@@ -267,7 +335,7 @@ const Stats = ({ stats, statsLoading, statsError, fetchStats, isMobile }) => {
                   <tbody>
                     {stats.buffer_stats.xcenters.slice(0, isMobile ? 5 : undefined).map((item) => (
                       <tr key={`xcenter-${item.buffer}`}>
-                        <td>{letterToPosition(item.buffer, 'xcenters')}</td>
+                        <td>{item.buffer}</td>
                         <td className="text-end">{item.count.toLocaleString()}</td>
                       </tr>
                     ))}
@@ -311,7 +379,7 @@ const Stats = ({ stats, statsLoading, statsError, fetchStats, isMobile }) => {
                 <tbody>
                   {stats.buffer_stats.tcenters.slice(0, isMobile ? 5 : undefined).map((item) => (
                     <tr key={`tcenter-${item.buffer}`}>
-                      <td>{letterToPosition(item.buffer, 'tcenters')}</td>
+                      <td>{item.buffer}</td>
                       <td className="text-end">{item.count.toLocaleString()}</td>
                     </tr>
                   ))}
@@ -343,130 +411,142 @@ const Stats = ({ stats, statsLoading, statsError, fetchStats, isMobile }) => {
           </h5>
           
           {/* 3x3 Edge-Corner Combinations */}
-          <div className="mb-4">
-            <h6 className="mt-3">3x3 Edge-Corner Combinations</h6>
-            <div className="table-responsive">
-              <table className="table table-sm table-striped table-bordered">
-                <thead>
-                  <tr>
-                    <th>Combination</th>
-                    <th className="text-end">Count</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {stats.buffer_combinations['3x3'].slice(0, isMobile ? 5 : 15).map((item, index) => {
-                    const [edgeBuffer, cornerBuffer] = item.combo.split('-');
-                    return (
-                      <tr key={`3x3-combo-${index}`}>
-                        <td>
-                          <span className="badge bg-light text-dark me-1">E: {letterToPosition(edgeBuffer, 'edges')}</span>
-                          <span className="badge bg-info text-dark">C: {letterToPosition(cornerBuffer, 'corners')}</span>
-                        </td>
-                        <td className="text-end">{item.count.toLocaleString()}</td>
-                      </tr>
-                    );
-                  })}
-                  {isMobile && stats.buffer_combinations['3x3'].length > 5 && (
+          {stats.buffer_combinations['3bld'] && (
+            <div className="mb-4">
+              <h6 className="mt-3">3x3 Edge-Corner Combinations</h6>
+              <div className="table-responsive">
+                <table className="table table-sm table-striped table-bordered">
+                  <thead>
                     <tr>
-                      <td colSpan="2" className="text-center">
-                        <button 
-                          className="btn btn-sm btn-outline-primary"
-                          onClick={() => alert("Switch to landscape view to see more combinations")}
-                        >
-                          See more...
-                        </button>
-                      </td>
+                      <th>Combination</th>
+                      <th className="text-end">Count</th>
                     </tr>
-                  )}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {stats.buffer_combinations['3bld'].slice(0, isMobile ? 5 : 15).map((item, index) => {
+                      const [edgeBuffer, cornerBuffer] = item.combo.split('-');
+                      return (
+                        <tr key={`3bld-combo-${index}`}>
+                          <td>
+                            <span className="badge bg-light text-dark me-1">E: {edgeBuffer}</span>
+                            <span className="badge bg-info text-dark">C: {cornerBuffer}</span>
+                          </td>
+                          <td className="text-end">{item.count.toLocaleString()}</td>
+                        </tr>
+                      );
+                    })}
+                    {isMobile && stats.buffer_combinations['3bld'] && stats.buffer_combinations['3bld'].length > 5 && (
+                      <tr>
+                        <td colSpan="2" className="text-center">
+                          <button 
+                            className="btn btn-sm btn-outline-primary"
+                            onClick={() => alert("Switch to landscape view to see more combinations")}
+                          >
+                            See more...
+                          </button>
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
+          )}
           
           {/* 4x4 Complete Buffer Combinations */}
-          <div className="mb-4">
-            <h6 className="mt-3">4x4 Buffer Combinations</h6>
-            <div className="table-responsive">
-              <table className="table table-sm table-striped table-bordered">
-                <thead>
-                  <tr>
-                    <th>Combination</th>
-                    <th className="text-end">Count</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {stats.buffer_combinations['4x4'].slice(0, isMobile ? 5 : 15).map((item, index) => {
-                    const [cornerBuffer, wingBuffer, xcenterBuffer] = item.combo.split('-');
-                    return (
-                      <tr key={`4x4-combo-${index}`}>
-                        <td>
-                          <div className="d-flex flex-wrap gap-1">
-                            <span className="badge bg-info text-dark">C: {letterToPosition(cornerBuffer, 'corners')}</span>
-                            <span className="badge bg-light text-dark">W: {letterToPosition(wingBuffer, 'wings')}</span>
-                            <span className="badge bg-warning text-dark">X: {letterToPosition(xcenterBuffer, 'xcenters')}</span>
-                          </div>
-                        </td>
-                        <td className="text-end">{item.count.toLocaleString()}</td>
-                      </tr>
-                    );
-                  })}
-                  {isMobile && stats.buffer_combinations['4x4'].length > 5 && (
+          {stats.buffer_combinations['4bld'] && (
+            <div className="mb-4">
+              <h6 className="mt-3">4x4 Buffer Combinations</h6>
+              <div className="table-responsive">
+                <table className="table table-sm table-striped table-bordered">
+                  <thead>
                     <tr>
-                      <td colSpan="2" className="text-center">
-                        <button 
-                          className="btn btn-sm btn-outline-primary"
-                          onClick={() => alert("Switch to landscape view to see more combinations")}
-                        >
-                          See more...
-                        </button>
-                      </td>
+                      <th>Combination</th>
+                      <th className="text-end">Count</th>
                     </tr>
-                  )}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {stats.buffer_combinations['4bld'].slice(0, isMobile ? 5 : 15).map((item, index) => {
+                      const [cornerBuffer, wingBuffer, xcenterBuffer] = item.combo.split('-');
+                      return (
+                        <tr key={`4bld-combo-${index}`}>
+                          <td>
+                            <div className="d-flex flex-wrap gap-1">
+                              <span className="badge bg-info text-dark">C: {cornerBuffer}</span>
+                              <span className="badge bg-light text-dark">W: {wingBuffer}</span>
+                              <span className="badge bg-warning text-dark">X: {xcenterBuffer}</span>
+                            </div>
+                          </td>
+                          <td className="text-end">{item.count.toLocaleString()}</td>
+                        </tr>
+                      );
+                    })}
+                    {isMobile && stats.buffer_combinations['4bld'] && stats.buffer_combinations['4bld'].length > 5 && (
+                      <tr>
+                        <td colSpan="2" className="text-center">
+                          <button 
+                            className="btn btn-sm btn-outline-primary"
+                            onClick={() => alert("Switch to landscape view to see more combinations")}
+                          >
+                            See more...
+                          </button>
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
+          )}
           
           {/* 5x5 Buffer Combinations */}
-          <div>
-            <h6 className="mt-3">5x5 Buffer Combinations</h6>
-            <div className="table-responsive">
-              <table className="table table-sm table-striped table-bordered">
-                <thead>
-                  <tr>
-                    <th>Combination</th>
-                    <th className="text-end">Count</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {stats.buffer_combinations['5x5'].slice(0, isMobile ? 5 : 15).map((item, index) => {
-                    const [cornerBuffer, tcenterBuffer] = item.combo.split('-');
-                    return (
-                      <tr key={`5x5-combo-${index}`}>
-                        <td>
-                          <span className="badge bg-info text-dark me-1">C: {letterToPosition(cornerBuffer, 'corners')}</span>
-                          <span className="badge bg-success text-dark">T: {letterToPosition(tcenterBuffer, 'tcenters')}</span>
-                        </td>
-                        <td className="text-end">{item.count.toLocaleString()}</td>
-                      </tr>
-                    );
-                  })}
-                  {isMobile && stats.buffer_combinations['5x5'].length > 5 && (
+          {stats.buffer_combinations['5bld'] && (
+            <div>
+              <h6 className="mt-3">5x5 Buffer Combinations</h6>
+              <div className="table-responsive">
+                <table className="table table-sm table-striped table-bordered">
+                  <thead>
                     <tr>
-                      <td colSpan="2" className="text-center">
-                        <button 
-                          className="btn btn-sm btn-outline-primary"
-                          onClick={() => alert("Switch to landscape view to see more combinations")}
-                        >
-                          See more...
-                        </button>
-                      </td>
+                      <th>Combination</th>
+                      <th className="text-end">Count</th>
                     </tr>
-                  )}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {stats.buffer_combinations['5bld'].slice(0, isMobile ? 5 : 15).map((item, index) => {
+                      // Since 5bld has more pieces (corner-edge-wing-tcenter-xcenter), adjust the display
+                      const buffers = item.combo.split('-');
+                      return (
+                        <tr key={`5bld-combo-${index}`}>
+                          <td>
+                            <div className="d-flex flex-wrap gap-1">
+                              <span className="badge bg-info text-dark">C: {buffers[0]}</span>
+                              <span className="badge bg-light text-dark">E: {buffers[1]}</span>
+                              <span className="badge bg-light text-dark">W: {buffers[2]}</span>
+                              <span className="badge bg-success text-dark">T: {buffers[3]}</span>
+                              <span className="badge bg-warning text-dark">X: {buffers[4]}</span>
+                            </div>
+                          </td>
+                          <td className="text-end">{item.count.toLocaleString()}</td>
+                        </tr>
+                      );
+                    })}
+                    {isMobile && stats.buffer_combinations['5bld'] && stats.buffer_combinations['5bld'].length > 5 && (
+                      <tr>
+                        <td colSpan="2" className="text-center">
+                          <button 
+                            className="btn btn-sm btn-outline-primary"
+                            onClick={() => alert("Switch to landscape view to see more combinations")}
+                          >
+                            See more...
+                          </button>
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       )}
     </div>
