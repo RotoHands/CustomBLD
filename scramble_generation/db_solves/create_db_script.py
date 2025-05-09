@@ -3,6 +3,7 @@ import csv
 import os
 import glob
 import argparse
+import random
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
 # Database connection parameters
@@ -67,6 +68,7 @@ def create_db():
         scramble_type TEXT,
         scramble TEXT NOT NULL,
         rotations_to_apply TEXT,
+        random_key DOUBLE PRECISION,
         
         edge_buffer TEXT,
         edges TEXT,
@@ -114,6 +116,39 @@ def create_db():
         first_tcenters TEXT
     )
     """)
+
+    # Create indexes
+    cursor.execute("""
+    CREATE INDEX IF NOT EXISTS idx_scramble_corners_random
+    ON scrambles (scramble_type, corner_buffer, random_key);
+
+    CREATE INDEX IF NOT EXISTS idx_scramble_edges_random
+    ON scrambles (scramble_type, edge_buffer, random_key);
+
+    CREATE INDEX IF NOT EXISTS idx_scramble_corners_edges_random
+    ON scrambles (scramble_type, corner_buffer, edge_buffer, random_key);
+
+    CREATE INDEX IF NOT EXISTS idx_scramble_corners_wings_xcenters_random
+    ON scrambles (scramble_type, corner_buffer, wing_buffer, xcenter_buffer, random_key);
+
+    CREATE INDEX IF NOT EXISTS idx_scramble_xcenters_random
+    ON scrambles (scramble_type, xcenter_buffer, random_key);
+
+    CREATE INDEX IF NOT EXISTS idx_scramble_all_buffers_random
+    ON scrambles (
+        scramble_type,
+        corner_buffer,
+        edge_buffer,
+        wing_buffer,
+        xcenter_buffer,
+        tcenter_buffer,
+        random_key
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_scramble_edges_wings_corners_random
+    ON scrambles (scramble_type, edge_buffer, wing_buffer, corner_buffer, random_key);
+    """)
+
     conn.commit()
     conn.close()
 
@@ -160,14 +195,15 @@ def insert_333_bld_solves(scramble_type_input):
             for row in csv_reader:
                 cursor.execute("""
                 INSERT INTO scrambles (
-                     scramble_type, scramble, rotations_to_apply, 
+                     scramble_type, scramble, rotations_to_apply, random_key,
                      edge_buffer, edges, edge_length, edges_cycle_breaks, edges_flipped, edges_solved, flips, first_edges,
                      corner_buffer, corners, corner_length, corners_cycle_breaks, twist_clockwise, twist_counterclockwise, corners_twisted, corners_solved, corner_parity, first_corners
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """, (
                     row["scramble_type"],
                     row["scramble"],
                     row["rotations_to_apply"],
+                    random.random(),
                     row["edge_buffer"],
                     row["edges"],
                     row["edge_length"],
@@ -214,15 +250,16 @@ def insert_444_bld_solves(scramble_type_input):
         for row in csv_reader:
             cursor.execute("""
             INSERT INTO scrambles (
-                 scramble_type, scramble, rotations_to_apply, 
+                 scramble_type, scramble, rotations_to_apply, random_key,
                  corner_buffer, corners, corner_length, corners_cycle_breaks, twist_clockwise, twist_counterclockwise, corners_twisted, corners_solved, corner_parity, first_corners,
                  wing_buffer, wings, wings_length, wings_cycle_breaks, wings_solved, wing_parity, first_wings,
                  xcenter_buffer, xcenters, xcenter_length, xcenters_cycle_breaks, xcenters_solved, xcenter_parity, first_xcenters 
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """, (
                 row["scramble_type"],
                 row["scramble"],
                 row["rotations_to_apply"],
+                random.random(),
                 row["corner_buffer"],
                 row["corners"],
                 row["corner_length"],
@@ -264,17 +301,18 @@ def insert_555_bld_solves(scramble_type_input):
         for row in csv_reader:
             cursor.execute("""
             INSERT INTO scrambles (
-                 scramble_type, scramble, rotations_to_apply, 
+                 scramble_type, scramble, rotations_to_apply, random_key,
                  edge_buffer, edges, edge_length, edges_cycle_breaks, edges_flipped, edges_solved, flips, first_edges,
                  corner_buffer, corners, corner_length, corners_cycle_breaks, twist_clockwise, twist_counterclockwise, corners_twisted, corners_solved, corner_parity, first_corners,
                  wing_buffer, wings, wings_length, wings_cycle_breaks, wings_solved, wing_parity, first_wings,
                  xcenter_buffer, xcenters, xcenter_length, xcenters_cycle_breaks, xcenters_solved, xcenter_parity, first_xcenters, 
                  tcenter_buffer, tcenters, tcenter_length, tcenters_cycle_breaks, tcenters_solved, tcenter_parity, first_tcenters
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """, (
                 row["scramble_type"],
                 row["scramble"],
                 row["rotations_to_apply"],
+                random.random(),
                 row["edge_buffer"],
                 row["edges"],
                 row["edge_length"],
