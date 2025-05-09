@@ -19,13 +19,27 @@ if [ "$1" = "--clean" ]; then
     echo "Database tables cleaned"
     shift
 fi
-# Wait for database to be ready
+
+# Wait for database to be ready with a timeout
 echo "Waiting for database to be ready..."
-until pg_isready -h db -U postgres; do
-    echo "Database is unavailable - sleeping"
-    sleep 1
+MAX_RETRIES=30
+RETRY_COUNT=0
+until pg_isready -h db -U postgres -t 5 || [ $RETRY_COUNT -ge $MAX_RETRIES ]; do
+    echo "Database is unavailable - sleeping (attempt $((RETRY_COUNT+1))/$MAX_RETRIES)"
+    RETRY_COUNT=$((RETRY_COUNT+1))
+    sleep 2
 done
+
+if [ $RETRY_COUNT -ge $MAX_RETRIES ]; then
+    echo "ERROR: Database connection timed out after $MAX_RETRIES attempts. Exiting."
+    exit 1
+fi
+
 echo "Database is ready!"
+
+# Initialize the database to ensure correct collation
+psql -h db -U postgres -c "SELECT pg_reload_conf();"
+psql -h db -U postgres -c "CREATE DATABASE IF NOT EXISTS all_solves_db WITH TEMPLATE=template0 ENCODING='UTF8' LC_COLLATE='en_US.utf8' LC_CTYPE='en_US.utf8';" || true
 
 # Check for existing backup and restore if found
 LATEST_BACKUP=$(ls -t db_solves/custombld_pg_*.pg_backup 2>/dev/null | head -n1)
@@ -33,29 +47,46 @@ RESTORE_SUCCESS=false
 
 if [ ! -z "$LATEST_BACKUP" ]; then
     echo "Found existing backup: $LATEST_BACKUP"
-    echo "Restoring database from backup..."
+    echo "Restoring database from backup in phases..."
     
-    # Attempt to restore database
-    pg_restore -h db -U postgres -d all_solves_db -v --clean "$LATEST_BACKUP"
+    # Drop existing database if it exists
+    psql -h db -U postgres -c "DROP DATABASE IF EXISTS all_solves_db;"
     
-    # Check if restore was successful
-    if [ $? -eq 0 ]; then
-        echo "Database restored successfully"
+    # Create fresh database with explicit collation settings
+    psql -h db -U postgres -c "CREATE DATABASE all_solves_db WITH TEMPLATE=template0 ENCODING='UTF8' LC_COLLATE='en_US.utf8' LC_CTYPE='en_US.utf8';"
+    
+    # Phase 1: Restore schema only (without data and indexes)
+    echo "Phase 1: Restoring schema only..."
+    pg_restore -h db -U postgres -d all_solves_db -v --no-owner --no-acl --section=pre-data "$LATEST_BACKUP" || true
+    
+    # Phase 2: Restore data only (fast, without index maintenance)
+    echo "Phase 2: Restoring data only (without indexes)..."
+    pg_restore -h db -U postgres -d all_solves_db -v --no-owner --no-acl --section=data --jobs=4 "$LATEST_BACKUP" || true
+    
+    # Phase 3: Create indexes after data is loaded
+    echo "Phase 3: Creating indexes after data is loaded..."
+    pg_restore -h db -U postgres -d all_solves_db -v --no-owner --no-acl --section=post-data "$LATEST_BACKUP" || true
+    
+    # Check if restore has data
+    ROWS=$(psql -h db -U postgres -d all_solves_db -t -c "SELECT COUNT(*) FROM scrambles;" 2>/dev/null || echo "0")
+    if [[ "$ROWS" =~ ^[0-9]+$ ]] && [ "$ROWS" -gt 0 ]; then
+        echo "Database restored successfully with $ROWS rows"
         RESTORE_SUCCESS=true
         
-        # Check row count in the scrambles table
-        echo "Checking row count in scrambles table..."
-        ROWS=$(psql -h db -U postgres -d all_solves_db -t -c "SELECT COUNT(*) FROM scrambles;")
-        echo "Current number of scrambles in database: $ROWS"
+        # Analyze tables to update statistics for query optimizer
+        echo "Analyzing database tables for optimized index usage..."
+        psql -h db -U postgres -d all_solves_db -c "ANALYZE scrambles;"
+        echo "Database analysis completed"
     else
-        echo "Database restore failed. Will proceed with empty database."
+        echo "Database restore did not result in a valid table or data. Creating fresh database..."
+        psql -h db -U postgres -c "DROP DATABASE IF EXISTS all_solves_db;"
+        psql -h db -U postgres -c "CREATE DATABASE all_solves_db WITH TEMPLATE=template0 ENCODING='UTF8' LC_COLLATE='en_US.utf8' LC_CTYPE='en_US.utf8';"
     fi
 else
     echo "No backup files found. Will proceed with empty database."
 fi
 
 # Run the main script with all arguments
-
 echo "Starting Python script to generate new scrambles..."
 python all_together_script.py "$@"
 
@@ -74,44 +105,46 @@ if [ "$BACKUP_ENABLED" = "True" ]; then
     echo "Removing previous backup files..."
     rm -f db_solves/custombld_pg_*.pg_backup
     
-    # Create a new backup
-    echo "Creating new PostgreSQL database backup..."
-    pg_dump -h db -U postgres -d all_solves_db -F c -Z 9 -v -f db_solves/custombld_pg_${TIMESTAMP}.pg_backup
+    # Analyze tables before backup to ensure statistics are up-to-date
+    echo "Analyzing database tables for optimized backup..."
+    psql -h db -U postgres -d all_solves_db -c "ANALYZE scrambles;"
+    
+    # Create a new backup with optimized settings
+    echo "Creating new PostgreSQL database backup with indexes..."
+    pg_dump -h db -U postgres -d all_solves_db -F c -Z 9 -v --no-owner --no-acl --create --clean \
+      -f db_solves/custombld_pg_${TIMESTAMP}.pg_backup
 
     # Verify that the new backup was created
     if [ -f "db_solves/custombld_pg_${TIMESTAMP}.pg_backup" ]; then
         echo "Backup file created successfully: db_solves/custombld_pg_${TIMESTAMP}.pg_backup"
         
         # Check final row count
-        FINAL_ROWS=$(psql -h db -U postgres -d all_solves_db -t -c "SELECT COUNT(*) FROM scrambles;")
+        FINAL_ROWS=$(psql -h db -U postgres -d all_solves_db -t -c "SELECT COUNT(*) FROM scrambles;" || echo "unknown")
         echo "Final number of scrambles in database: $FINAL_ROWS"
         
-        if [ "$RESTORE_SUCCESS" = true ] && [ ! -z "$ROWS" ]; then
+        if [ "$RESTORE_SUCCESS" = true ] && [[ "$ROWS" =~ ^[0-9]+$ ]] && [[ "$FINAL_ROWS" =~ ^[0-9]+$ ]]; then
             NEW_ROWS=$((FINAL_ROWS - ROWS))
             echo "Added $NEW_ROWS new scrambles to the database"
         fi
     else
         echo "Error: PostgreSQL backup file creation failed!"
-    
-    else
-        echo "PostgreSQL backup disabled in configuration"
-    fi
-
-    if [ "$SQLITE_BACKUP" = "True" ]; then
-        rm -f db_solves/custombld_sqlite_*.db
-        
-        # Create SQLite version
-        echo "Creating SQLite backup..."
-        pg_dump -h db -U postgres -d all_solves_db -v -f db_solves/custombld_pg_for_sqlite_${TIMESTAMP}.db
-        sed 's/public\.//' -i db_solves/custombld_pg_for_sqlite_${TIMESTAMP}.db
-        java -jar db_solves/pg2sqlite-1.1.1.jar -f true -d db_solves/custombld_pg_for_sqlite_${TIMESTAMP}.db -o db_solves/custombld_sqlite_${TIMESTAMP}.db -t text
-        rm db_solves/custombld_pg_for_sqlite_${TIMESTAMP}.db
-        echo "SQLite backup completed"
-    else
-        echo "SQLite backup disabled in configuration"
     fi
 else
-    echo "Backup creation disabled in configuration"
+    echo "PostgreSQL backup disabled in configuration"
+fi
+
+if [ "$SQLITE_BACKUP" = "True" ]; then
+    rm -f db_solves/custombld_sqlite_*.db
+    
+    # Create SQLite version
+    echo "Creating SQLite backup..."
+    pg_dump -h db -U postgres -d all_solves_db -v --no-owner --no-acl -f db_solves/custombld_pg_for_sqlite_${TIMESTAMP}.db
+    sed 's/public\.//' -i db_solves/custombld_pg_for_sqlite_${TIMESTAMP}.db
+    java -jar db_solves/pg2sqlite-1.1.1.jar -f true -d db_solves/custombld_pg_for_sqlite_${TIMESTAMP}.db -o db_solves/custombld_sqlite_${TIMESTAMP}.db -t text
+    rm db_solves/custombld_pg_for_sqlite_${TIMESTAMP}.db
+    echo "SQLite backup completed"
+else
+    echo "SQLite backup disabled in configuration"
 fi
 
 unset PGPASSWORD
