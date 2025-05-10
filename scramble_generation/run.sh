@@ -45,15 +45,7 @@ LATEST_BACKUP=$(ls -t db_solves/custombld_pg_*.pg_backup 2>/dev/null | head -n1)
 RESTORE_SUCCESS=false
 
 if [ ! -z "$LATEST_BACKUP" ]; then
-    echo "Found existing backup: $LATEST_BACKUP"
-    echo "Restoring database from backup in phases..."
-    
-    # Drop existing database if it exists
-    psql -h db -U postgres -c "DROP DATABASE IF EXISTS all_solves_db;"
-    
-    # Create fresh database with basic C locale for maximum compatibility
-    psql -h db -U postgres -c "CREATE DATABASE all_solves_db;"
-    
+   
     # Phase 1: Restore schema only (without data and indexes)
     echo "Phase 1: Restoring schema only..."
     pg_restore -h db -U postgres -d all_solves_db -v --no-owner --no-acl --section=pre-data "$LATEST_BACKUP" || true
@@ -66,10 +58,12 @@ if [ ! -z "$LATEST_BACKUP" ]; then
     echo "Phase 3: Creating indexes after data is loaded..."
     pg_restore -h db -U postgres -d all_solves_db -v --no-owner --no-acl --section=post-data "$LATEST_BACKUP" || true
     
-  
+    # Refresh collation version
+   
     # Check if restore has data
     ROWS=$(psql -h db -U postgres -d all_solves_db -t -c "SELECT COUNT(*) FROM scrambles;" 2>/dev/null || echo "0")
-    if [[ "$ROWS" =~ ^[0-9]+$ ]] && [ "$ROWS" -gt 0 ]; then
+    echo "Rows: $ROWS"
+    if  [ "$ROWS" -gt 0 ]; then
         echo "Database restored successfully with $ROWS rows"
         RESTORE_SUCCESS=true
         
@@ -78,9 +72,7 @@ if [ ! -z "$LATEST_BACKUP" ]; then
         psql -h db -U postgres -d all_solves_db -c "ANALYZE scrambles;"
         echo "Database analysis completed"
     else
-        echo "Database restore did not result in a valid table or data. Creating fresh database..."
-        psql -h db -U postgres -c "DROP DATABASE IF EXISTS all_solves_db;"
-        psql -h db -U postgres -c "CREATE DATABASE all_solves_db WITH TEMPLATE=template0 ENCODING='UTF8' LC_COLLATE='C' LC_CTYPE='C';"
+        echo "Database restore did not result in a valid table or data"        
     fi
 else
     echo "No backup files found. Will proceed with empty database."
@@ -105,6 +97,8 @@ if [ "$BACKUP_ENABLED" = "True" ]; then
     echo "Removing previous backup files..."
     rm -f db_solves/custombld_pg_*.pg_backup
     
+    # Refresh collation version before backup
+    # psql -h db -U postgres -d all_solves_db -c "ALTER DATABASE all_solves_db REFRESH COLLATION VERSION;" || true
     
     # Analyze tables before backup to ensure statistics are up-to-date
     echo "Analyzing database tables for optimized backup..."
@@ -115,6 +109,8 @@ if [ "$BACKUP_ENABLED" = "True" ]; then
     pg_dump -h db -U postgres -d all_solves_db -F c -Z 9 -v --no-owner --no-acl --create --clean \
       -f db_solves/custombld_pg_${TIMESTAMP}.pg_backup
 
+    sleep 5
+    
     # Verify that the new backup was created
     if [ -f "db_solves/custombld_pg_${TIMESTAMP}.pg_backup" ]; then
         echo "Backup file created successfully: db_solves/custombld_pg_${TIMESTAMP}.pg_backup"
@@ -123,7 +119,7 @@ if [ "$BACKUP_ENABLED" = "True" ]; then
         FINAL_ROWS=$(psql -h db -U postgres -d all_solves_db -t -c "SELECT COUNT(*) FROM scrambles;" || echo "unknown")
         echo "Final number of scrambles in database: $FINAL_ROWS"
         
-        if [ "$RESTORE_SUCCESS" = true ] && [[ "$ROWS" =~ ^[0-9]+$ ]] && [[ "$FINAL_ROWS" =~ ^[0-9]+$ ]]; then
+        if [ "$RESTORE_SUCCESS" = true ] && [[ "$ROWS" -gt 0 ]] && [[ "$FINAL_ROWS"  -gt 0  ]]; then
             NEW_ROWS=$((FINAL_ROWS - ROWS))
             echo "Added $NEW_ROWS new scrambles to the database"
         fi

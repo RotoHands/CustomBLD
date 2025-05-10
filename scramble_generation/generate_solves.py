@@ -199,7 +199,7 @@ def main():
     analyze_solves(args.scramble_type, args.change_base_scheme, buffers)
     subprocess.run(["python", "db_solves/solves_to_csv.py", args.scramble_type], stderr=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
     subprocess.run(["python", "db_solves/create_db_script.py", args.scramble_type], stderr=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
-    # delete_txt_csv_files(True)
+    delete_txt_csv_files(True)
 
 if __name__ == '__main__':
     main()
