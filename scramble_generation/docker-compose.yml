@@ -24,9 +24,12 @@ services:
     stdin_open: true
 
   db:
-    build:
-      context: ../CustomBLD/custombld_db
-      dockerfile: Dockerfile
+    image: postgres:17
+    environment:
+      - POSTGRES_DB=all_solves_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:

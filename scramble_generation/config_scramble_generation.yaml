@@ -41,7 +41,7 @@ generate:
 
 # Scramble counts for each type
 counts:
-  3bld: 1500 # Scrambles per 3BLD combo
+  3bld: 3000 # Scrambles per 3BLD combo
   4bld: 10000 # Scrambles per 4BLD combo
   5bld: 30000 # Scrambles per 5BLD combo
   edges_only: 350000 # Scrambles per edges-only combo
@@ -53,4 +53,4 @@ counts:
 # Backup configuration
 backup:
   enabled: true # Whether to create backups at all
-  sqlite_backup: false # Whether to create SQLite backup
+  sqlite_backup: true # Whether to create SQLite backup

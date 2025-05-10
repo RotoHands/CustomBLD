@@ -4,6 +4,7 @@ import argparse
 import glob
 import os
 from datetime import datetime
+import time
 # Input and output file paths
 
 def convert_333_solves_to_csv(scramble_type_input):
@@ -13,11 +14,15 @@ def convert_333_solves_to_csv(scramble_type_input):
     if files:
         files.sort(key=os.path.getmtime, reverse=True)
         input_file = files[0]
+        print(f"Reading from file: {input_file}")
    
 
     current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
     output_file = os.path.join('txt_files', "{}_solves_{}.csv".format(scramble_type_input, current_time)) 
+    print(f"Writing to file: {output_file}")
+    time.sleep(3)
     columns = ["scramble_type", "scramble","rotations_to_apply","edge_buffer","edges","edge_length","edges_cycle_breaks","edges_flipped","edges_solved","flips","first_edges","corner_buffer","corners","corner_length","corners_cycle_breaks","twist_clockwise","twist_counterclockwise","corners_twisted","corners_solved","corner_parity","first_corners"]
+    print(f"CSV columns: {columns}")
     data = []
 
     # Read and parse the input file
@@ -58,6 +63,8 @@ def convert_333_solves_to_csv(scramble_type_input):
            
             all_data = [scramble_type , scramble ,  rotations_to_apply , edge_buffer , edges , edge_length , edges_cycle_breaks , edges_flipped , edges_solved , flip , first_edges , corner_buffer , corners , corner_length , corners_cycle_breaks , twist_clockwise , twist_counterclockwise , corners_twisted , corners_solved , corner_parity , first_corners]
             data.append(all_data)
+            if len(data) <= 2:  # Print first two rows for debugging
+                print(f"Sample row data: {all_data}")
 
     # Write the parsed data to a CSV file
     with open(output_file, "w", newline="", encoding="utf-8") as csv_file:
@@ -68,6 +75,8 @@ def convert_333_solves_to_csv(scramble_type_input):
 
         # Write the data rows
         writer.writerows(data)
+    
+    print(f"Successfully wrote {len(data)} rows to CSV file")
 
 
 
@@ -177,6 +186,7 @@ def convert_555_solves_to_csv(scramble_type_input):
 
     current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
     output_file = os.path.join('txt_files', "{}_solves_{}.csv".format(scramble_type_input, current_time)) 
+    
     columns = ["scramble_type", "scramble","rotations_to_apply","edge_buffer","edges","edge_length","edges_cycle_breaks","edges_flipped","edges_solved","flips","first_edges","corner_buffer","corners","corner_length","corners_cycle_breaks","twist_clockwise","twist_counterclockwise","corners_twisted","corners_solved","corner_parity","first_corners","wing_buffer","wings","wings_length","wings_cycle_breaks","wings_solved","wing_parity","first_wings","xcenter_buffer","xcenters","xcenter_length","xcenters_cycle_breaks","xcenters_solved","xcenter_parity","first_xcenters","tcenter_buffer","tcenters","tcenter_length","tcenters_cycle_breaks","tcenters_solved","tcenter_parity","first_tcenters"]
     data = []
 

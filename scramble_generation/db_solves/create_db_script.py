@@ -56,101 +56,118 @@ def get_db_connection():
         raise
 
 def create_db():
-    # First ensure database exists
-    create_database_if_not_exists()
-    
-    # Then create the table
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS scrambles (
-        id SERIAL PRIMARY KEY,
-        scramble_type TEXT,
-        scramble TEXT NOT NULL,
-        rotations_to_apply TEXT,
-        random_key DOUBLE PRECISION,
+    """Create database and tables"""
+    try:
+        # First ensure database exists
+        create_database_if_not_exists()
         
-        edge_buffer TEXT,
-        edges TEXT,
-        edge_length INTEGER,
-        edges_cycle_breaks INTEGER,
-        edges_flipped INTEGER,
-        edges_solved INTEGER,
-        flips TEXT,
-        first_edges TEXT,
-                
-        corner_buffer TEXT,
-        corners TEXT,
-        corner_length INTEGER,
-        corners_cycle_breaks INTEGER,
-        twist_clockwise TEXT,
-        twist_counterclockwise TEXT,
-        corners_twisted INTEGER,
-        corners_solved INTEGER,
-        corner_parity BOOLEAN,
-        first_corners TEXT,
-                   
-    
-        wing_buffer TEXT,
-        wings TEXT,
-        wings_length INTEGER,
-        wings_cycle_breaks INTEGER,
-        wings_solved INTEGER,
-        wing_parity BOOLEAN,
-        first_wings TEXT,
-                   
-        xcenter_buffer TEXT,
-        xcenters TEXT,
-        xcenter_length INTEGER,
-        xcenters_cycle_breaks INTEGER,
-        xcenters_solved INTEGER,
-        xcenter_parity BOOLEAN,
-        first_xcenters TEXT,
+        # Then create the table
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Drop existing table if it exists
+        cursor.execute("DROP TABLE IF EXISTS scrambles CASCADE")
+        
+        # Create the table
+        cursor.execute("""
+        CREATE TABLE scrambles (
+            id SERIAL PRIMARY KEY,
+            scramble_type TEXT,
+            scramble TEXT NOT NULL,
+            rotations_to_apply TEXT,
+            random_key DOUBLE PRECISION,
+            
+            edge_buffer TEXT,
+            edges TEXT,
+            edge_length INTEGER,
+            edges_cycle_breaks INTEGER,
+            edges_flipped INTEGER,
+            edges_solved INTEGER,
+            flips TEXT,
+            first_edges TEXT,
+                    
+            corner_buffer TEXT,
+            corners TEXT,
+            corner_length INTEGER,
+            corners_cycle_breaks INTEGER,
+            twist_clockwise TEXT,
+            twist_counterclockwise TEXT,
+            corners_twisted INTEGER,
+            corners_solved INTEGER,
+            corner_parity BOOLEAN,
+            first_corners TEXT,
+                       
+        
+            wing_buffer TEXT,
+            wings TEXT,
+            wings_length INTEGER,
+            wings_cycle_breaks INTEGER,
+            wings_solved INTEGER,
+            wing_parity BOOLEAN,
+            first_wings TEXT,
+                       
+            xcenter_buffer TEXT,
+            xcenters TEXT,
+            xcenter_length INTEGER,
+            xcenters_cycle_breaks INTEGER,
+            xcenters_solved INTEGER,
+            xcenter_parity BOOLEAN,
+            first_xcenters TEXT,
 
-        tcenter_buffer TEXT,
-        tcenters TEXT,
-        tcenter_length INTEGER,
-        tcenters_cycle_breaks INTEGER,
-        tcenters_solved INTEGER,
-        tcenter_parity BOOLEAN,
-        first_tcenters TEXT
-    )
-    """)
+            tcenter_buffer TEXT,
+            tcenters TEXT,
+            tcenter_length INTEGER,
+            tcenters_cycle_breaks INTEGER,
+            tcenters_solved INTEGER,
+            tcenter_parity BOOLEAN,
+            first_tcenters TEXT
+        )
+        """)
 
-    # Create indexes
-    cursor.execute("""
-    CREATE INDEX IF NOT EXISTS idx_scramble_corners_random
-    ON scrambles (scramble_type, corner_buffer, random_key);
+        # Create indexes
+        cursor.execute("""
+        CREATE INDEX idx_scramble_corners_random
+        ON scrambles (scramble_type, corner_buffer, random_key);
 
-    CREATE INDEX IF NOT EXISTS idx_scramble_edges_random
-    ON scrambles (scramble_type, edge_buffer, random_key);
+        CREATE INDEX idx_scramble_edges_random
+        ON scrambles (scramble_type, edge_buffer, random_key);
 
-    CREATE INDEX IF NOT EXISTS idx_scramble_corners_edges_random
-    ON scrambles (scramble_type, corner_buffer, edge_buffer, random_key);
+        CREATE INDEX idx_scramble_corners_edges_random
+        ON scrambles (scramble_type, corner_buffer, edge_buffer, random_key);
 
-    CREATE INDEX IF NOT EXISTS idx_scramble_corners_wings_xcenters_random
-    ON scrambles (scramble_type, corner_buffer, wing_buffer, xcenter_buffer, random_key);
+        CREATE INDEX idx_scramble_corners_wings_xcenters_random
+        ON scrambles (scramble_type, corner_buffer, wing_buffer, xcenter_buffer, random_key);
 
-    CREATE INDEX IF NOT EXISTS idx_scramble_xcenters_random
-    ON scrambles (scramble_type, xcenter_buffer, random_key);
+        CREATE INDEX idx_scramble_xcenters_random
+        ON scrambles (scramble_type, xcenter_buffer, random_key);
 
-    CREATE INDEX IF NOT EXISTS idx_scramble_all_buffers_random
-    ON scrambles (
-        scramble_type,
-        corner_buffer,
-        edge_buffer,
-        wing_buffer,
-        xcenter_buffer,
-        tcenter_buffer,
-        random_key
-    );
+        CREATE INDEX idx_scramble_all_buffers_random
+        ON scrambles (
+            scramble_type,
+            corner_buffer,
+            edge_buffer,
+            wing_buffer,
+            xcenter_buffer,
+            tcenter_buffer,
+            random_key
+        );
 
-    CREATE INDEX IF NOT EXISTS idx_scramble_edges_wings_corners_random
-    ON scrambles (scramble_type, edge_buffer, wing_buffer, corner_buffer, random_key);
-    """)
+        CREATE INDEX idx_scramble_edges_wings_corners_random
+        ON scrambles (scramble_type, edge_buffer, wing_buffer, corner_buffer, random_key);
+        """)
 
-    conn.commit()
-    conn.close()
+        conn.commit()
+        print("Database and tables created successfully")
+    except Exception as e:
+        print(f"Error creating database and tables: {e}")
+        if conn:
+            conn.rollback()
+        raise
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
 
 def find_latest_csv_file(scramble_type_input):
     """Find the latest CSV file for the given scramble type"""
@@ -198,7 +215,7 @@ def insert_333_bld_solves(scramble_type_input):
                      scramble_type, scramble, rotations_to_apply, random_key,
                      edge_buffer, edges, edge_length, edges_cycle_breaks, edges_flipped, edges_solved, flips, first_edges,
                      corner_buffer, corners, corner_length, corners_cycle_breaks, twist_clockwise, twist_counterclockwise, corners_twisted, corners_solved, corner_parity, first_corners
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """, (
                     row["scramble_type"],
                     row["scramble"],
@@ -232,6 +249,7 @@ def insert_333_bld_solves(scramble_type_input):
         print(f"Successfully inserted {row_count} rows")
     except Exception as e:
         print(f"Error inserting data: {e}")
+        print("Row data:", row)  # Print the problematic row
         conn.rollback()
         raise
     finally:

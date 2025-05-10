@@ -36,10 +36,9 @@ if [ $RETRY_COUNT -ge $MAX_RETRIES ]; then
 fi
 
 echo "Database is ready!"
-
-# Initialize the database to ensure correct collation
-psql -h db -U postgres -c "SELECT pg_reload_conf();"
-psql -h db -U postgres -c "CREATE DATABASE IF NOT EXISTS all_solves_db WITH TEMPLATE=template0 ENCODING='UTF8' LC_COLLATE='en_US.utf8' LC_CTYPE='en_US.utf8';" || true
+# Using C locale (basic ASCII) which is most compatible across systems
+psql -h db -U postgres -c "DROP DATABASE IF EXISTS all_solves_db;" || true
+psql -h db -U postgres -c "CREATE DATABASE all_solves_db;"
 
 # Check for existing backup and restore if found
 LATEST_BACKUP=$(ls -t db_solves/custombld_pg_*.pg_backup 2>/dev/null | head -n1)
@@ -52,8 +51,8 @@ if [ ! -z "$LATEST_BACKUP" ]; then
     # Drop existing database if it exists
     psql -h db -U postgres -c "DROP DATABASE IF EXISTS all_solves_db;"
     
-    # Create fresh database with explicit collation settings
-    psql -h db -U postgres -c "CREATE DATABASE all_solves_db WITH TEMPLATE=template0 ENCODING='UTF8' LC_COLLATE='en_US.utf8' LC_CTYPE='en_US.utf8';"
+    # Create fresh database with basic C locale for maximum compatibility
+    psql -h db -U postgres -c "CREATE DATABASE all_solves_db;"
     
     # Phase 1: Restore schema only (without data and indexes)
     echo "Phase 1: Restoring schema only..."
@@ -67,6 +66,7 @@ if [ ! -z "$LATEST_BACKUP" ]; then
     echo "Phase 3: Creating indexes after data is loaded..."
     pg_restore -h db -U postgres -d all_solves_db -v --no-owner --no-acl --section=post-data "$LATEST_BACKUP" || true
     
+  
     # Check if restore has data
     ROWS=$(psql -h db -U postgres -d all_solves_db -t -c "SELECT COUNT(*) FROM scrambles;" 2>/dev/null || echo "0")
     if [[ "$ROWS" =~ ^[0-9]+$ ]] && [ "$ROWS" -gt 0 ]; then
@@ -80,7 +80,7 @@ if [ ! -z "$LATEST_BACKUP" ]; then
     else
         echo "Database restore did not result in a valid table or data. Creating fresh database..."
         psql -h db -U postgres -c "DROP DATABASE IF EXISTS all_solves_db;"
-        psql -h db -U postgres -c "CREATE DATABASE all_solves_db WITH TEMPLATE=template0 ENCODING='UTF8' LC_COLLATE='en_US.utf8' LC_CTYPE='en_US.utf8';"
+        psql -h db -U postgres -c "CREATE DATABASE all_solves_db WITH TEMPLATE=template0 ENCODING='UTF8' LC_COLLATE='C' LC_CTYPE='C';"
     fi
 else
     echo "No backup files found. Will proceed with empty database."
@@ -104,6 +104,7 @@ if [ "$BACKUP_ENABLED" = "True" ]; then
     # Delete previous backup files if they exist
     echo "Removing previous backup files..."
     rm -f db_solves/custombld_pg_*.pg_backup
+    
     
     # Analyze tables before backup to ensure statistics are up-to-date
     echo "Analyzing database tables for optimized backup..."
