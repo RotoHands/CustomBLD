@@ -7,6 +7,7 @@ import traceback
 import json
 import time
 from pathlib import Path
+import random
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -836,15 +837,16 @@ def generate_scrambles():
         if query_conditions:
             final_query += " AND " + " AND ".join(query_conditions)
         
-        # Order by RANDOM() and limit results
+        # Order by random_key instead of using RANDOM() function
         scramble_count = data.get('scramble_count', 1)
-        final_query += f" Order by RANDOM() LIMIT {scramble_count}"
-        # final_query += f" LIMIT {scramble_count}"
         
-        # Print query for debugging
-        # print("Executing query:")
-        # print(final_query)
-        # print("With parameters:", args)
+        # Generate a random value between 0 and 1
+        random_value = random.random()
+        
+        # Use the random_key column with the appropriate index
+        # This is much more efficient than ORDER BY RANDOM()
+        final_query += f" AND random_key >= {random_value} ORDER BY random_key LIMIT {scramble_count}"
+        
         
         # Create a SQL statement with parameters already substituted for SQL viewer
         sql_for_viewer = final_query

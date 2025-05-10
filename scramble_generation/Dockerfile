@@ -97,3 +97,4 @@ RUN chmod +x run.sh
 ENTRYPOINT ["/app/scramble_generation/run.sh"] 
 # ENTRYPOINT ["/bin/bash"]
 #docker exec -it scramble_generation-scramble-generator-1 bash
+#EXPLAIN SELECT * FROM scrambles WHERE scramble_type='333ni' and corner_buffer='C' and edge_buffer='C' and random_key >=0.8 LIMIT 10;
