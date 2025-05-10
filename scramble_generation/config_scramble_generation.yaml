@@ -19,7 +19,7 @@ use_wing_buffers:
 use_xcenter_buffers:
   - Ufr
   # - Ubl
-  - Ubr
+  # - Ubr
   # - Ufl
 
 use_tcenter_buffers:
@@ -42,13 +42,13 @@ generate:
 # Scramble counts for each type
 counts:
   3bld: 10000 # Scrambles per 3BLD combo
-  4bld: 100 # Scrambles per 4BLD combo
+  4bld: 50 # Scrambles per 4BLD combo
   5bld: 3000 # Scrambles per 5BLD combo
   edges_only: 3500 # Scrambles per edges-only combo
   corners_only: 3500 # Scrambles per corners-only combo
   4bld_centers_only: 100 # Scrambles per 4BLD centers combo
-  4bld_wings_only: 10000 # Scrambles per 4BLD wings combo
-  5bld_edges_corners: 15000 # Scrambles per 5BLD edges+corners combo
+  4bld_wings_only: 100 # Scrambles per 4BLD wings combo
+  5bld_edges_corners: 1500 # Scrambles per 5BLD edges+corners combo
 
 # Backup configuration
 backup:

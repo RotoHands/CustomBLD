@@ -84,19 +84,11 @@ def convert_333_solves_to_csv(scramble_type_input):
 
 def convert_444_solves_to_csv(scramble_type_input):
     
-    # Get all matching files
     files = glob.glob(os.path.join('txt_files', "{}*_solves_*.txt".format(scramble_type_input)))
-
     if files:
-        # Sort files by last modified time in descending order
         files.sort(key=os.path.getmtime, reverse=True)
-
-        # Get the newest file
         input_file = files[0]
-        print(f"Newest file: {input_file}")
-    else:
-        print("No matching files found.")
-        return
+        print(f"Reading from file: {input_file}")
 
     current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
     output_file = os.path.join('txt_files', "{}_solves_{}.csv".format(scramble_type_input, current_time)) 
@@ -172,17 +164,10 @@ def convert_555_solves_to_csv(scramble_type_input):
     
     # Get all matching files
     files = glob.glob(os.path.join('txt_files', "{}*_solves_*.txt".format(scramble_type_input)))
-
     if files:
-        # Sort files by last modified time in descending order
         files.sort(key=os.path.getmtime, reverse=True)
-
-        # Get the newest file
         input_file = files[0]
-        print(f"Newest file: {input_file}")
-    else:
-        print("No matching files found.")
-        return
+        print(f"Reading from file: {input_file}")
 
     current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
     output_file = os.path.join('txt_files', "{}_solves_{}.csv".format(scramble_type_input, current_time)) 

@@ -843,10 +843,53 @@ def generate_scrambles():
         # Generate a random value between 0 and 1
         random_value = random.random()
         
-        # Use the random_key column with the appropriate index
-        # This is much more efficient than ORDER BY RANDOM()
-        final_query += f" AND random_key >= {random_value} ORDER BY random_key LIMIT {scramble_count}"
+        # Extract the filters being used
+        has_scramble_type = 'scramble_type' in data
+        has_corner_buffer = bool(data.get('corner_buffer') and data.get('corner_buffer') != 'random')
+        has_edge_buffer = bool(data.get('edge_buffer') and data.get('edge_buffer') != 'random')
+        has_wing_buffer = bool(data.get('wing_buffer') and data.get('wing_buffer') != 'random')
+        has_xcenter_buffer = bool(data.get('xcenter_buffer') and data.get('xcenter_buffer') != 'random')
+        has_tcenter_buffer = bool(data.get('tcenter_buffer') and data.get('tcenter_buffer') != 'random')
         
+        # Log which columns are filtered
+        logger.debug(f"Query filters - scramble_type: {has_scramble_type}, corner: {has_corner_buffer}, " +
+                    f"edge: {has_edge_buffer}, wing: {has_wing_buffer}, xcenter: {has_xcenter_buffer}, " + 
+                    f"tcenter: {has_tcenter_buffer}")
+        
+        # Identify which index to use based on column order in indexes
+        # This ensures we respect the index column order
+        index_used = None
+        
+        # Check for matches with indexes in order of specificity
+        if has_scramble_type and has_corner_buffer and has_edge_buffer and has_wing_buffer and has_xcenter_buffer and has_tcenter_buffer:
+            index_used = "idx_scramble_all_buffers_random"
+        elif has_scramble_type and has_corner_buffer and has_wing_buffer and has_xcenter_buffer:
+            index_used = "idx_scramble_corners_wings_xcenters_random"
+        elif has_scramble_type and has_edge_buffer and has_wing_buffer and has_corner_buffer:
+            index_used = "idx_scramble_edges_wings_corners_random"
+        elif has_scramble_type and has_corner_buffer and has_edge_buffer:
+            index_used = "idx_scramble_corners_edges_random"
+        elif has_scramble_type and has_corner_buffer:
+            index_used = "idx_scramble_corners_random"
+        elif has_scramble_type and has_edge_buffer:
+            index_used = "idx_scramble_edges_random"
+        elif has_scramble_type and has_xcenter_buffer:
+            index_used = "idx_scramble_xcenters_random"
+        else:
+            index_used = "generic_random_key"
+            
+        # Only log the index that would likely be used (but don't add hints to the query)
+        logger.info(f"Query pattern matches index: {index_used}")
+        
+        # Simple approach: just use random_key for efficient random selection
+        # Let PostgreSQL's query planner choose the appropriate index
+        final_query = "SELECT * FROM scrambles WHERE 1=1"
+        
+        if query_conditions:
+            final_query += " AND " + " AND ".join(query_conditions)
+            
+        # Add the random filtering and limit
+        final_query += f" AND random_key >= {random_value} ORDER BY random_key ASC LIMIT {scramble_count}"
         
         # Create a SQL statement with parameters already substituted for SQL viewer
         sql_for_viewer = final_query
@@ -885,45 +928,46 @@ def generate_scrambles():
                     "scramble_type": result[1] if len(result) > 1 else None,
                     "scramble": result[2] if len(result) > 2 else None,
                     "rotations_to_apply": result[3] if len(result) > 3 else None,
-                    "edge_buffer": result[4] if len(result) > 4 else None,
-                    "edges": result[5] if len(result) > 5 else None,
-                    "edge_length": result[6] if len(result) > 6 else None,
-                    "edges_cycle_breaks": result[7] if len(result) > 7 else None,
-                    "edges_flipped": result[8] if len(result) > 8 else None,
-                    "edges_solved": result[9] if len(result) > 9 else None,
-                    "flips": result[10] if len(result) > 10 else None,
-                    "first_edges": result[11] if len(result) > 11 else None,
-                    "corner_buffer": result[12] if len(result) > 12 else None,
-                    "corners": result[13] if len(result) > 13 else None,
-                    "corner_length": result[14] if len(result) > 14 else None,
-                    "corners_cycle_breaks": result[15] if len(result) > 15 else None,
-                    "twist_clockwise": result[16] if len(result) > 16 else None,
-                    "twist_counterclockwise": result[17] if len(result) > 17 else None,
-                    "corners_twisted": result[18] if len(result) > 18 else None,
-                    "corners_solved": result[19] if len(result) > 19 else None,
-                    "corner_parity": result[20] if len(result) > 20 else None,
-                    "first_corners": result[21] if len(result) > 21 else None,
-                    "wing_buffer": result[22] if len(result) > 22 else None,
-                    "wings": result[23] if len(result) > 23 else None,
-                    "wings_length": result[24] if len(result) > 24 else None,
-                    "wings_cycle_breaks": result[25] if len(result) > 25 else None,
-                    "wings_solved": result[26] if len(result) > 26 else None,
-                    "wing_parity": result[27] if len(result) > 27 else None,
-                    "first_wings": result[28] if len(result) > 28 else None,
-                    "xcenter_buffer": result[29] if len(result) > 29 else None,
-                    "xcenters": result[30] if len(result) > 30 else None,
-                    "xcenter_length": result[31] if len(result) > 31 else None,
-                    "xcenters_cycle_breaks": result[32] if len(result) > 32 else None,
-                    "xcenters_solved": result[33] if len(result) > 33 else None,
-                    "xcenter_parity": result[34] if len(result) > 34 else None,
-                    "first_xcenters": result[35] if len(result) > 35 else None,
-                    "tcenter_buffer": result[36] if len(result) > 36 else None,
-                    "tcenters": result[37] if len(result) > 37 else None,
-                    "tcenter_length": result[38] if len(result) > 38 else None,
-                    "tcenters_cycle_breaks": result[39] if len(result) > 39 else None,
-                    "tcenters_solved": result[40] if len(result) > 40 else None,
-                    "tcenter_parity": result[41] if len(result) > 41 else None,
-                    "first_tcenters": result[42] if len(result) > 42 else None
+                    "random_key": result[4] if len(result) > 4 else None,
+                    "edge_buffer": result[5] if len(result) > 5 else None,
+                    "edges": result[6] if len(result) > 6 else None,
+                    "edge_length": result[7] if len(result) > 7 else None,
+                    "edges_cycle_breaks": result[8] if len(result) > 8 else None,
+                    "edges_flipped": result[9] if len(result) > 9 else None,
+                    "edges_solved": result[10] if len(result) > 10 else None,
+                    "flips": result[11] if len(result) > 11 else None,
+                    "first_edges": result[12] if len(result) > 12 else None,
+                    "corner_buffer": result[13] if len(result) > 13 else None,
+                    "corners": result[14] if len(result) > 14 else None,
+                    "corner_length": result[15] if len(result) > 15 else None,
+                    "corners_cycle_breaks": result[16] if len(result) > 16 else None,
+                    "twist_clockwise": result[17] if len(result) > 17 else None,
+                    "twist_counterclockwise": result[18] if len(result) > 18 else None,
+                    "corners_twisted": result[19] if len(result) > 19 else None,
+                    "corners_solved": result[20] if len(result) > 20 else None,
+                    "corner_parity": result[21] if len(result) > 21 else None,
+                    "first_corners": result[22] if len(result) > 22 else None,
+                    "wing_buffer": result[23] if len(result) > 23 else None,
+                    "wings": result[24] if len(result) > 24 else None,
+                    "wings_length": result[25] if len(result) > 25 else None,
+                    "wings_cycle_breaks": result[26] if len(result) > 26 else None,
+                    "wings_solved": result[27] if len(result) > 27 else None,
+                    "wing_parity": result[28] if len(result) > 28 else None,
+                    "first_wings": result[29] if len(result) > 29 else None,
+                    "xcenter_buffer": result[30] if len(result) > 30 else None,
+                    "xcenters": result[31] if len(result) > 31 else None,
+                    "xcenter_length": result[32] if len(result) > 32 else None,
+                    "xcenters_cycle_breaks": result[33] if len(result) > 33 else None,
+                    "xcenters_solved": result[34] if len(result) > 34 else None,
+                    "xcenter_parity": result[35] if len(result) > 35 else None,
+                    "first_xcenters": result[36] if len(result) > 36 else None,
+                    "tcenter_buffer": result[37] if len(result) > 37 else None,
+                    "tcenters": result[38] if len(result) > 38 else None,
+                    "tcenter_length": result[39] if len(result) > 39 else None,
+                    "tcenters_cycle_breaks": result[40] if len(result) > 40 else None,
+                    "tcenters_solved": result[41] if len(result) > 41 else None,
+                    "tcenter_parity": result[42] if len(result) > 42 else None,
+                    "first_tcenters": result[43] if len(result) > 43 else None
                 }
                 metadata.append(scramble_metadata)
         
@@ -946,46 +990,48 @@ def generate_scrambles():
                     "scramble_type": result[1],
                     "scramble": result[2],
                     "solution": result[3],
-                    "edge_buffer": result[4],
-                    "edges": result[5],
-                    "edge_length": result[6],
-                    "edges_cycle_breaks": result[7],
-                    "edges_flipped": result[8],
-                    "edges_solved": result[9],
-                    "flips": result[10],
-                    "first_edges": result[11],
-                    "corner_buffer": result[12],
-                    "corners": result[13],
-                    "corner_length": result[14],
-                    "corners_cycle_breaks": result[15],
-                    "twist_clockwise": result[16],
-                    "twist_counterclockwise": result[17],
-                    "corners_twisted": result[18],
-                    "corners_solved": result[19],
-                    "corner_parity": result[20],
-                    "first_corners": result[21],
-                    "wing_buffer": result[22],
-                    "wings": result[23],
-                    "wings_length": result[24],
-                    "wings_cycle_breaks": result[25],
-                    "wings_solved": result[26],
-                    "wing_parity": result[27],
-                    "first_wings": result[28],
-                    "xcenter_buffer": result[29],
-                    "xcenters": result[30],
-                    "xcenter_length": result[31],
-                    "xcenters_cycle_breaks": result[32],
-                    "xcenters_solved": result[33],
-                    "xcenter_parity": result[34],
-                    "first_xcenters": result[35],
-                    "tcenter_buffer": result[36],
-                    "tcenters": result[37],
-                    "tcenter_length": result[38],
-                    "tcenters_cycle_breaks": result[39],
-                    "tcenters_solved": result[40],
-                    "tcenter_parity": result[41],
-                    "first_tcenters": result[42] if len(result) > 42 else None
+                    "random_key": result[4],
+                    "edge_buffer": result[5],
+                    "edges": result[6],
+                    "edge_length": result[7],
+                    "edges_cycle_breaks": result[8],
+                    "edges_flipped": result[9],
+                    "edges_solved": result[10],
+                    "flips": result[11],
+                    "first_edges": result[12],
+                    "corner_buffer": result[13],
+                    "corners": result[14],
+                    "corner_length": result[15],
+                    "corners_cycle_breaks": result[16],
+                    "twist_clockwise": result[17],
+                    "twist_counterclockwise": result[18],
+                    "corners_twisted": result[19],
+                    "corners_solved": result[20],
+                    "corner_parity": result[21],
+                    "first_corners": result[22],
+                    "wing_buffer": result[23],
+                    "wings": result[24],
+                    "wings_length": result[25],
+                    "wings_cycle_breaks": result[26],
+                    "wings_solved": result[27],
+                    "wing_parity": result[28],
+                    "first_wings": result[29],
+                    "xcenter_buffer": result[30],
+                    "xcenters": result[31],
+                    "xcenter_length": result[32],
+                    "xcenters_cycle_breaks": result[33],
+                    "xcenters_solved": result[34],
+                    "xcenter_parity": result[35],
+                    "first_xcenters": result[36],
+                    "tcenter_buffer": result[37],
+                    "tcenters": result[38],
+                    "tcenter_length": result[39],
+                    "tcenters_cycle_breaks": result[40],
+                    "tcenters_solved": result[41],
+                    "tcenter_parity": result[42],
+                    "first_tcenters": result[43] if len(result) > 43 else None
                 }
+                print(row)
                 
                 # Map letter sequences to the user's letter scheme
                 if row.get('edges'):

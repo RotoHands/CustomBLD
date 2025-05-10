@@ -180,22 +180,74 @@ public class FiveCube {
             }
         }
 
-        String folderPath = "txt_files\\";
+        System.out.println("Args: " + Arrays.toString(args));
+        System.out.println("Buffers - Corner: " + cornerBuffer + ", Edge: " + edgeBuffer +
+                ", Wing: " + wingBuffer + ", XCenter: " + xcenterBuffer +
+                ", TCenter: " + tcenterBuffer);
+
+        String folderPath = "txt_files" + File.separator;
         File folder = new File(folderPath);
+        System.out.println("Looking for files in: " + folder.getAbsolutePath());
+
+        if (!folder.exists()) {
+            System.out.println("Creating txt_files directory...");
+            folder.mkdirs();
+        }
+
+        // Check if the directory exists now
+        if (!folder.exists()) {
+            System.out.println("ERROR: Failed to create directory: " + folder.getAbsolutePath());
+            return;
+        }
+
+        System.out.println("Directory exists: " + folder.exists() + ", isDirectory: " + folder.isDirectory());
+
+        // Get all files in the directory and print them for debugging
+        File[] allFiles = folder.listFiles();
+        if (allFiles != null) {
+            System.out.println("All files in directory (" + allFiles.length + "):");
+            for (File f : allFiles) {
+                System.out.println(
+                        "  - " + f.getName() + " (last modified: " + new java.util.Date(f.lastModified()) + ")");
+            }
+        } else {
+            System.out.println("WARNING: folder.listFiles() returned null");
+        }
+
+        File[] files = folder.listFiles(
+                (dir, name) -> name.startsWith(scramble_type) && name.contains("_scrambles"));
+
+        if (files == null || files.length == 0) {
+            System.out.println("No matching files found in " + folderPath);
+            System.out.println("Looking for pattern: " + scramble_type + "*_scrambles*");
+            return;
+        }
+
+        System.out.println("Found " + files.length + " matching files:");
+        for (File f : files) {
+            System.out.println("  - " + f.getName() + " (last modified: " + new java.util.Date(f.lastModified()) + ")");
+        }
+
         File newestFile = null;
-        for (File file : folder.listFiles(
-                (dir, name) -> name.startsWith(scramble_type) && name.contains("_scrambles"))) {
+        for (File file : files) {
             if (newestFile == null || file.lastModified() > newestFile.lastModified()) {
                 newestFile = file;
             }
         }
 
+        if (newestFile == null) {
+            System.out.println("No files found matching pattern: " + scramble_type + "*_scrambles*");
+            return;
+        }
+
         String scrambleFileName = newestFile.getAbsolutePath();
+        System.out.println("Using scramble file: " + scrambleFileName);
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
         String currentTime = LocalDateTime.now().format(formatter);
 
         String solveFileName = folderPath + scramble_type + "_solves_" + currentTime + ".txt";
+        System.out.println("Will write solutions to: " + solveFileName);
 
         FiveCube c = new FiveCube();
 
@@ -210,8 +262,14 @@ public class FiveCube {
         g.five.setTCenterBuffer(tcenterBuffer);
 
         // Call the method
-        c.setUpCube5x5(scrambleFileName, scramble_type,
-                solveFileName, changeSchemeBase, cornerBuffer, edgeBuffer, wingBuffer, xcenterBuffer, tcenterBuffer);
+        try {
+            c.setUpCube5x5(scrambleFileName, scramble_type,
+                    solveFileName, changeSchemeBase, cornerBuffer, edgeBuffer, wingBuffer, xcenterBuffer,
+                    tcenterBuffer);
+        } catch (Exception e) {
+            System.out.println("ERROR during setUpCube5x5: " + e.getMessage());
+            e.printStackTrace();
+        }
 
         // Measure the end time
         long endTime = System.nanoTime();
@@ -219,6 +277,5 @@ public class FiveCube {
         // Calculate and print the elapsed time in milliseconds
         long elapsedTime = (endTime - startTime) / 1_000_000; // Convert nanoseconds to milliseconds
         System.out.println("Execution time: " + elapsedTime + " ms");
-
     }
 }
