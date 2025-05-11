@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Badge, Spinner, Alert, Button, Form } from 'react-bootstrap';
 
 const Stats = ({ stats, statsLoading, statsError, fetchStats, isMobile }) => {
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedBuffers, setSelectedBuffers] = useState({});
   const colors = {
     corners: '#B5EAD7',
@@ -15,17 +14,6 @@ const Stats = ({ stats, statsLoading, statsError, fetchStats, isMobile }) => {
   // Function to handle color changes
   const handleColorChange = (pieceType, color) => {
     colors[pieceType] = color;
-  };
-
-  // Function to handle manual refresh
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
-    try {
-      // Call the fetchStats function with refresh=true
-      await fetchStats(true);
-    } finally {
-      setIsRefreshing(false);
-    }
   };
 
   // Function to format relative time
@@ -261,44 +249,11 @@ const Stats = ({ stats, statsLoading, statsError, fetchStats, isMobile }) => {
             <i className="fas fa-database me-2"></i>
             Total Scrambles: <Badge bg="primary">{stats.total_scrambles.toLocaleString()}</Badge>
           </h5>
-          <Button 
-            variant="outline-primary" 
-            size="sm"
-            onClick={handleRefresh}
-            disabled={isRefreshing}
-          >
-            {isRefreshing ? (
-              <>
-                <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
-                <span className="ms-1">Refreshing...</span>
-              </>
-            ) : (
-              <>
-                <i className="fas fa-sync-alt me-1"></i> Refresh Stats
-              </>
-            )}
-          </Button>
         </div>
         
-        {/* Cache info */}
         {stats.timestamp && (
           <div className="text-muted small mb-3">
-            <div className="d-flex justify-content-between">
-              <span>
-                Last updated: {new Date(stats.timestamp * 1000).toLocaleString()}
-                {stats.query_time && ` (Query time: ${stats.query_time.toFixed(2)}s)`}
-              </span>
-              {stats.cache_age && (
-                <span className="ms-2">
-                  <Badge bg="info">{formatRelativeTime(stats.cache_age)}</Badge>
-                  {stats.cache_expires_in > 0 && (
-                    <Badge bg="secondary" className="ms-1">
-                      Refreshes in {formatRelativeTime(stats.cache_expires_in)}
-                    </Badge>
-                  )}
-                </span>
-              )}
-            </div>
+            Last updated: {new Date(stats.timestamp * 1000).toLocaleString()}
           </div>
         )}
         
@@ -341,6 +296,9 @@ const Stats = ({ stats, statsLoading, statsError, fetchStats, isMobile }) => {
           }}>
             <i className="fas fa-layer-group me-2"></i>
             Buffers Combinations
+            <small className="text-muted ms-2" style={{ fontSize: '0.9rem', fontWeight: 'normal' }}>
+              (Press the buffers to apply filters)
+            </small>
           </h5>
           
           {/* 3x3 Complete */}
