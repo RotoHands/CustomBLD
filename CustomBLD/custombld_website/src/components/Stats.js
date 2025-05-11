@@ -3,6 +3,7 @@ import { Badge, Spinner, Alert, Button, Form } from 'react-bootstrap';
 
 const Stats = ({ stats, statsLoading, statsError, fetchStats, isMobile }) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [selectedBuffers, setSelectedBuffers] = useState({});
   const colors = {
     corners: '#B5EAD7',
     edges: '#FF9AA2',
@@ -118,6 +119,109 @@ const Stats = ({ stats, statsLoading, statsError, fetchStats, isMobile }) => {
       ? `${((count / total) * 100).toFixed(1)}%`
       : `${((count / total) * 100).toFixed(2)}%`;
   };
+
+  // Function to handle buffer click
+  const handleBufferClick = (pieceType, buffer) => {
+    setSelectedBuffers(prev => {
+      const newState = { ...prev };
+      if (newState[pieceType] === buffer) {
+        delete newState[pieceType];
+      } else {
+        newState[pieceType] = buffer;
+      }
+      return newState;
+    });
+  };
+
+  // Function to check if a combination matches selected buffers
+  const matchesSelectedBuffers = (buffers, pieceTypes) => {
+    // Only check filters that are relevant to this scramble type
+    return Object.entries(selectedBuffers).every(([type, buffer]) => {
+      // Skip filters for piece types that don't exist in this scramble type
+      if (!pieceTypes.includes(type)) return true;
+      
+      const index = pieceTypes.indexOf(type);
+      return index !== -1 && buffers[index] === buffer;
+    });
+  };
+
+  // Function to get piece types for a scramble type
+  const getPieceTypesForScrambleType = (type) => {
+    switch (type) {
+      case '3bld':
+        return ['corners', 'edges'];
+      case '3bld_corners':
+        return ['corners'];
+      case '3bld_edges':
+        return ['edges'];
+      case '4bld':
+        return ['corners', 'wings', 'xcenters'];
+      case '4bld_wings':
+        return ['wings'];
+      case '4bld_centers':
+        return ['xcenters'];
+      case '5bld':
+        return ['corners', 'edges', 'wings', 'xcenters', 'tcenters'];
+      case '5bld_edges_corners':
+        return ['corners', 'edges'];
+      default:
+        return [];
+    }
+  };
+
+  // Function to render active filters for a specific scramble type
+  const renderActiveFilters = (scrambleType) => {
+    const pieceTypes = getPieceTypesForScrambleType(scrambleType);
+    const relevantFilters = Object.entries(selectedBuffers)
+      .filter(([type]) => pieceTypes.includes(type));
+
+    if (relevantFilters.length === 0) return null;
+
+    const activeFilters = relevantFilters.map(([type, buffer]) => (
+      <span 
+        key={type} 
+        className="badge me-2" 
+        style={{ 
+          fontSize: '0.9rem', 
+          fontWeight: 'normal', 
+          backgroundColor: colors[type], 
+          color: '#333',
+          cursor: 'pointer'
+        }}
+        onClick={() => handleBufferClick(type, buffer)}
+        title="Click to remove filter"
+      >
+        <strong>{type.charAt(0).toUpperCase() + type.slice(1)}:</strong> {letterToPosition(buffer, type)}
+      </span>
+    ));
+
+    return (
+      <div className="d-inline-block ms-2">
+        <small className="text-muted me-2">Active filters:</small>
+        {activeFilters}
+      </div>
+    );
+  };
+
+  // Function to render a clickable buffer badge
+  const renderBufferBadge = (pieceType, buffer, isSelected) => (
+    <span 
+      className="badge me-2" 
+      style={{ 
+        fontSize: '1rem', 
+        fontWeight: 'normal', 
+        backgroundColor: colors[pieceType], 
+        color: '#333',
+        cursor: 'pointer',
+        opacity: 1,
+        transition: 'opacity 0.2s'
+      }}
+      onClick={() => handleBufferClick(pieceType, buffer)}
+      title="Click to filter"
+    >
+      <strong>{pieceType.charAt(0).toUpperCase() + pieceType.slice(1)}:</strong> {letterToPosition(buffer, pieceType)}
+    </span>
+  );
 
   if (statsLoading) {
     return (
@@ -247,22 +351,33 @@ const Stats = ({ stats, statsLoading, statsError, fetchStats, isMobile }) => {
                 <table className="table table-sm table-striped table-bordered">
                   <thead>
                     <tr>
-                      <th style={{ fontWeight: 'normal' }}>Buffers</th>
+                      <th style={{ fontWeight: 'normal' }}>
+                        <div className="d-flex align-items-center">
+                          <span>Buffers</span>
+                          {renderActiveFilters('3bld')}
+                        </div>
+                      </th>
                       <th className="text-end">Count</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {stats.buffer_combinations['3bld'].slice(0, isMobile ? 5 : 15).map((item, index) => {
-                      const [edgeBuffer, cornerBuffer] = item.combo.split('-');
-                      return (
-                        <tr key={`3bld-combo-${index}`}>
-                          <td>
-                            <span className="badge me-2" style={{ fontSize: '1rem', fontWeight: 'normal', backgroundColor: colors.corners, color: '#333' }}><strong>Corners:</strong> {letterToPosition(cornerBuffer, 'corners')}</span>
-                            <span className="badge " style={{ fontSize: '1rem', fontWeight: 'normal', backgroundColor: colors.edges, color: '#333' }}><strong>Edges:</strong> {letterToPosition(edgeBuffer, 'edges')}</span>
-                          </td>
-                          <td className="text-end">{item.count.toLocaleString()}</td>
-                        </tr>
-                      );
+                    {stats.buffer_combinations['3bld']
+                      .filter(item => {
+                        const [edgeBuffer, cornerBuffer] = item.combo.split('-');
+                        return matchesSelectedBuffers([cornerBuffer, edgeBuffer], ['corners', 'edges']);
+                      })
+                      .slice(0, isMobile ? 5 : 15)
+                      .map((item, index) => {
+                        const [edgeBuffer, cornerBuffer] = item.combo.split('-');
+                        return (
+                          <tr key={`3bld-combo-${index}`}>
+                            <td>
+                              {renderBufferBadge('corners', cornerBuffer, selectedBuffers.corners === cornerBuffer)}
+                              {renderBufferBadge('edges', edgeBuffer, selectedBuffers.edges === edgeBuffer)}
+                            </td>
+                            <td className="text-end">{item.count.toLocaleString()}</td>
+                          </tr>
+                        );
                     })}
                   </tbody>
                 </table>
@@ -278,18 +393,26 @@ const Stats = ({ stats, statsLoading, statsError, fetchStats, isMobile }) => {
                 <table className="table table-sm table-striped table-bordered">
                   <thead>
                     <tr>
-                      <th style={{ fontWeight: 'normal' }}>Buffers</th>
+                      <th style={{ fontWeight: 'normal' }}>
+                        <div className="d-flex align-items-center">
+                          <span>Buffers</span>
+                          {renderActiveFilters('3bld_corners')}
+                        </div>
+                      </th>
                       <th className="text-end">Count</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {stats.buffer_combinations['3bld_corners'].slice(0, isMobile ? 5 : 15).map((item, index) => (
-                      <tr key={`3bld-corners-${index}`}>
-                        <td>
-                          <span className="badge" style={{ fontSize: '1rem', fontWeight: 'normal', backgroundColor: colors.corners, color: '#333' }}><strong>Corners:</strong> {letterToPosition(item.combo, 'corners')}</span>
-                        </td>
-                        <td className="text-end">{item.count.toLocaleString()}</td>
-                      </tr>
+                    {stats.buffer_combinations['3bld_corners']
+                      .filter(item => !selectedBuffers.corners || item.combo === selectedBuffers.corners)
+                      .slice(0, isMobile ? 5 : 15)
+                      .map((item, index) => (
+                        <tr key={`3bld-corners-${index}`}>
+                          <td>
+                            {renderBufferBadge('corners', item.combo, selectedBuffers.corners === item.combo)}
+                          </td>
+                          <td className="text-end">{item.count.toLocaleString()}</td>
+                        </tr>
                     ))}
                   </tbody>
                 </table>
@@ -305,18 +428,26 @@ const Stats = ({ stats, statsLoading, statsError, fetchStats, isMobile }) => {
                 <table className="table table-sm table-striped table-bordered">
                   <thead>
                     <tr>
-                      <th style={{ fontWeight: 'normal' }}>Buffers</th>
+                      <th style={{ fontWeight: 'normal' }}>
+                        <div className="d-flex align-items-center">
+                          <span>Buffers</span>
+                          {renderActiveFilters('3bld_edges')}
+                        </div>
+                      </th>
                       <th className="text-end">Count</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {stats.buffer_combinations['3bld_edges'].slice(0, isMobile ? 5 : 15).map((item, index) => (
-                      <tr key={`3bld-edges-${index}`}>
-                        <td>
-                          <span className="badge" style={{ fontSize: '1rem', fontWeight: 'normal', backgroundColor: colors.edges, color: '#333' }}><strong>Edges:</strong> {letterToPosition(item.combo, 'edges')}</span>
-                        </td>
-                        <td className="text-end">{item.count.toLocaleString()}</td>
-                      </tr>
+                    {stats.buffer_combinations['3bld_edges']
+                      .filter(item => !selectedBuffers.edges || item.combo === selectedBuffers.edges)
+                      .slice(0, isMobile ? 5 : 15)
+                      .map((item, index) => (
+                        <tr key={`3bld-edges-${index}`}>
+                          <td>
+                            {renderBufferBadge('edges', item.combo, selectedBuffers.edges === item.combo)}
+                          </td>
+                          <td className="text-end">{item.count.toLocaleString()}</td>
+                        </tr>
                     ))}
                   </tbody>
                 </table>
@@ -332,25 +463,36 @@ const Stats = ({ stats, statsLoading, statsError, fetchStats, isMobile }) => {
                 <table className="table table-sm table-striped table-bordered">
                   <thead>
                     <tr>
-                      <th style={{ fontWeight: 'normal' }}>Buffers</th>
+                      <th style={{ fontWeight: 'normal' }}>
+                        <div className="d-flex align-items-center">
+                          <span>Buffers</span>
+                          {renderActiveFilters('4bld')}
+                        </div>
+                      </th>
                       <th className="text-end">Count</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {stats.buffer_combinations['4bld'].slice(0, isMobile ? 5 : 15).map((item, index) => {
-                      const [cornerBuffer, wingBuffer, xcenterBuffer] = item.combo.split('-');
-                      return (
-                        <tr key={`4bld-combo-${index}`}>
-                          <td>
-                            <div className="d-flex flex-wrap gap-2">
-                              <span className="badge" style={{ fontSize: '1rem', fontWeight: 'normal', backgroundColor: colors.corners, color: '#333' }}><strong>Corners:</strong> {letterToPosition(cornerBuffer, 'corners')}</span>
-                              <span className="badge" style={{ fontSize: '1rem', fontWeight: 'normal', backgroundColor: colors.wings, color: '#333' }}><strong>Wings:</strong> {letterToPosition(wingBuffer, 'wings')}</span>
-                              <span className="badge" style={{ fontSize: '1rem', fontWeight: 'normal', backgroundColor: colors.xcenters, color: '#333' }}><strong>X-Centers:</strong> {letterToPosition(xcenterBuffer, 'xcenters')}</span>
-                            </div>
-                          </td>
-                          <td className="text-end">{item.count.toLocaleString()}</td>
-                        </tr>
-                      );
+                    {stats.buffer_combinations['4bld']
+                      .filter(item => {
+                        const [cornerBuffer, wingBuffer, xcenterBuffer] = item.combo.split('-');
+                        return matchesSelectedBuffers([cornerBuffer, wingBuffer, xcenterBuffer], ['corners', 'wings', 'xcenters']);
+                      })
+                      .slice(0, isMobile ? 5 : 15)
+                      .map((item, index) => {
+                        const [cornerBuffer, wingBuffer, xcenterBuffer] = item.combo.split('-');
+                        return (
+                          <tr key={`4bld-combo-${index}`}>
+                            <td>
+                              <div className="d-flex flex-wrap gap-2">
+                                {renderBufferBadge('corners', cornerBuffer, selectedBuffers.corners === cornerBuffer)}
+                                {renderBufferBadge('wings', wingBuffer, selectedBuffers.wings === wingBuffer)}
+                                {renderBufferBadge('xcenters', xcenterBuffer, selectedBuffers.xcenters === xcenterBuffer)}
+                              </div>
+                            </td>
+                            <td className="text-end">{item.count.toLocaleString()}</td>
+                          </tr>
+                        );
                     })}
                   </tbody>
                 </table>
@@ -366,18 +508,26 @@ const Stats = ({ stats, statsLoading, statsError, fetchStats, isMobile }) => {
                 <table className="table table-sm table-striped table-bordered">
                   <thead>
                     <tr>
-                      <th style={{ fontWeight: 'normal' }}>Buffers</th>
+                      <th style={{ fontWeight: 'normal' }}>
+                        <div className="d-flex align-items-center">
+                          <span>Buffers</span>
+                          {renderActiveFilters('4bld_wings')}
+                        </div>
+                      </th>
                       <th className="text-end">Count</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {stats.buffer_combinations['4bld_wings'].slice(0, isMobile ? 5 : 15).map((item, index) => (
-                      <tr key={`4bld-wings-${index}`}>
-                        <td>
-                          <span className="badge" style={{ fontSize: '1rem', fontWeight: 'normal', backgroundColor: colors.wings, color: '#333' }}><strong>Wings:</strong> {letterToPosition(item.combo, 'wings')}</span>
-                        </td>
-                        <td className="text-end">{item.count.toLocaleString()}</td>
-                      </tr>
+                    {stats.buffer_combinations['4bld_wings']
+                      .filter(item => !selectedBuffers.wings || item.combo === selectedBuffers.wings)
+                      .slice(0, isMobile ? 5 : 15)
+                      .map((item, index) => (
+                        <tr key={`4bld-wings-${index}`}>
+                          <td>
+                            {renderBufferBadge('wings', item.combo, selectedBuffers.wings === item.combo)}
+                          </td>
+                          <td className="text-end">{item.count.toLocaleString()}</td>
+                        </tr>
                     ))}
                   </tbody>
                 </table>
@@ -393,18 +543,26 @@ const Stats = ({ stats, statsLoading, statsError, fetchStats, isMobile }) => {
                 <table className="table table-sm table-striped table-bordered">
                   <thead>
                     <tr>
-                      <th style={{ fontWeight: 'normal' }}>Buffers</th>
+                      <th style={{ fontWeight: 'normal' }}>
+                        <div className="d-flex align-items-center">
+                          <span>Buffers</span>
+                          {renderActiveFilters('4bld_centers')}
+                        </div>
+                      </th>
                       <th className="text-end">Count</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {stats.buffer_combinations['4bld_centers'].slice(0, isMobile ? 5 : 15).map((item, index) => (
-                      <tr key={`4bld-centers-${index}`}>
-                        <td>
-                          <span className="badge" style={{ fontSize: '1rem', fontWeight: 'normal', backgroundColor: colors.xcenters, color: '#333' }}><strong>X-Centers:</strong> {letterToPosition(item.combo, 'xcenters')}</span>
-                        </td>
-                        <td className="text-end">{item.count.toLocaleString()}</td>
-                      </tr>
+                    {stats.buffer_combinations['4bld_centers']
+                      .filter(item => !selectedBuffers.xcenters || item.combo === selectedBuffers.xcenters)
+                      .slice(0, isMobile ? 5 : 15)
+                      .map((item, index) => (
+                        <tr key={`4bld-centers-${index}`}>
+                          <td>
+                            {renderBufferBadge('xcenters', item.combo, selectedBuffers.xcenters === item.combo)}
+                          </td>
+                          <td className="text-end">{item.count.toLocaleString()}</td>
+                        </tr>
                     ))}
                   </tbody>
                 </table>
@@ -420,27 +578,38 @@ const Stats = ({ stats, statsLoading, statsError, fetchStats, isMobile }) => {
                 <table className="table table-sm table-striped table-bordered">
                   <thead>
                     <tr>
-                      <th style={{ fontWeight: 'normal' }}>Buffers</th>
+                      <th style={{ fontWeight: 'normal' }}>
+                        <div className="d-flex align-items-center">
+                          <span>Buffers</span>
+                          {renderActiveFilters('5bld')}
+                        </div>
+                      </th>
                       <th className="text-end">Count</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {stats.buffer_combinations['5bld'].slice(0, isMobile ? 5 : 15).map((item, index) => {
-                      const buffers = item.combo.split('-');
-                      return (
-                        <tr key={`5bld-combo-${index}`}>
-                          <td>
-                            <div className="d-flex flex-wrap gap-2">
-                              <span className="badge" style={{ fontSize: '1rem', fontWeight: 'normal', backgroundColor: colors.corners, color: '#333' }}><strong>Corners:</strong> {letterToPosition(buffers[0], 'corners')}</span>
-                              <span className="badge" style={{ fontSize: '1rem', fontWeight: 'normal', backgroundColor: colors.edges, color: '#333' }}><strong>Edges:</strong> {letterToPosition(buffers[1], 'edges')}</span>
-                              <span className="badge" style={{ fontSize: '1rem', fontWeight: 'normal', backgroundColor: colors.wings, color: '#333' }}><strong>Wings:</strong> {letterToPosition(buffers[2], 'wings')}</span>
-                              <span className="badge" style={{ fontSize: '1rem', fontWeight: 'normal', backgroundColor: colors.xcenters, color: '#333' }}><strong>X-Centers:</strong> {letterToPosition(buffers[3], 'xcenters')}</span>
-                              <span className="badge" style={{ fontSize: '1rem', fontWeight: 'normal', backgroundColor: colors.tcenters, color: '#333' }}><strong>T-Centers:</strong> {letterToPosition(buffers[4], 'tcenters')}</span>
-                            </div>
-                          </td>
-                          <td className="text-end">{item.count.toLocaleString()}</td>
-                        </tr>
-                      );
+                    {stats.buffer_combinations['5bld']
+                      .filter(item => {
+                        const buffers = item.combo.split('-');
+                        return matchesSelectedBuffers(buffers, ['corners', 'edges', 'wings', 'xcenters', 'tcenters']);
+                      })
+                      .slice(0, isMobile ? 5 : 15)
+                      .map((item, index) => {
+                        const buffers = item.combo.split('-');
+                        return (
+                          <tr key={`5bld-combo-${index}`}>
+                            <td>
+                              <div className="d-flex flex-wrap gap-2">
+                                {renderBufferBadge('corners', buffers[0], selectedBuffers.corners === buffers[0])}
+                                {renderBufferBadge('edges', buffers[1], selectedBuffers.edges === buffers[1])}
+                                {renderBufferBadge('wings', buffers[2], selectedBuffers.wings === buffers[2])}
+                                {renderBufferBadge('xcenters', buffers[3], selectedBuffers.xcenters === buffers[3])}
+                                {renderBufferBadge('tcenters', buffers[4], selectedBuffers.tcenters === buffers[4])}
+                              </div>
+                            </td>
+                            <td className="text-end">{item.count.toLocaleString()}</td>
+                          </tr>
+                        );
                     })}
                   </tbody>
                 </table>
@@ -456,24 +625,35 @@ const Stats = ({ stats, statsLoading, statsError, fetchStats, isMobile }) => {
                 <table className="table table-sm table-striped table-bordered">
                   <thead>
                     <tr>
-                      <th style={{ fontWeight: 'normal' }}>Buffers</th>
+                      <th style={{ fontWeight: 'normal' }}>
+                        <div className="d-flex align-items-center">
+                          <span>Buffers</span>
+                          {renderActiveFilters('5bld_edges_corners')}
+                        </div>
+                      </th>
                       <th className="text-end">Count</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {stats.buffer_combinations['5bld_edges_corners'].slice(0, isMobile ? 5 : 15).map((item, index) => {
-                      const [cornerBuffer, edgeBuffer] = item.combo.split('-');
-                      return (
-                        <tr key={`5bld-edges-corners-${index}`}>
-                          <td>
-                            <div className="d-flex flex-wrap gap-2">
-                              <span className="badge" style={{ fontSize: '1rem', fontWeight: 'normal', backgroundColor: colors.corners, color: '#333' }}><strong>Corners:</strong> {letterToPosition(cornerBuffer, 'corners')}</span>
-                              <span className="badge" style={{ fontSize: '1rem', fontWeight: 'normal', backgroundColor: colors.edges, color: '#333' }}><strong>Edges:</strong> {letterToPosition(edgeBuffer, 'edges')}</span>
-                            </div>
-                          </td>
-                          <td className="text-end">{item.count.toLocaleString()}</td>
-                        </tr>
-                      );
+                    {stats.buffer_combinations['5bld_edges_corners']
+                      .filter(item => {
+                        const [cornerBuffer, edgeBuffer] = item.combo.split('-');
+                        return matchesSelectedBuffers([cornerBuffer, edgeBuffer], ['corners', 'edges']);
+                      })
+                      .slice(0, isMobile ? 5 : 15)
+                      .map((item, index) => {
+                        const [cornerBuffer, edgeBuffer] = item.combo.split('-');
+                        return (
+                          <tr key={`5bld-edges-corners-${index}`}>
+                            <td>
+                              <div className="d-flex flex-wrap gap-2">
+                                {renderBufferBadge('corners', cornerBuffer, selectedBuffers.corners === cornerBuffer)}
+                                {renderBufferBadge('edges', edgeBuffer, selectedBuffers.edges === edgeBuffer)}
+                              </div>
+                            </td>
+                            <td className="text-end">{item.count.toLocaleString()}</td>
+                          </tr>
+                        );
                     })}
                   </tbody>
                 </table>
