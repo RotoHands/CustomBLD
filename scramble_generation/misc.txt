@@ -21,6 +21,9 @@ TODO
 serverside only 1000 solves
 show stats on number of scrambles
 logo
+footer
+generate scramble
+logs
 
 
 how to compile and run the java program
@@ -31,4 +34,4 @@ how to compile and run the java program
 
 #how to dump database
 # "C:\Program Files\PostgreSQL\17\bin\pg_dump.exe" -U postgres -d all_solves_db -F c -Z 9 -v -f "C:\wca\all_solves_db.backup"
-
+#need to delete docker volume data in website so it restores the db properly

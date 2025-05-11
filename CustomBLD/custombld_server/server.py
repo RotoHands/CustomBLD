@@ -436,8 +436,9 @@ def map_letters(sequence, piece_type, letter_scheme):
 @app.route('/query-scrambles', methods=['POST'])
 def generate_scrambles():
     try:
+        start_time = time.time()
         data = request.json
-        logger.debug(f"Received request data: {data}")
+        # logger.debug(f"Received request data: {data}")
         query_conditions = []
         args = []
         
@@ -838,7 +839,10 @@ def generate_scrambles():
             final_query += " AND " + " AND ".join(query_conditions)
         
         # Order by random_key instead of using RANDOM() function
-        scramble_count = data.get('scramble_count', 1)
+        try:
+            scramble_count = min(int(data.get('scramble_count', 1)), 1000)  # Convert to int and limit to 1000 scrambles
+        except (ValueError, TypeError):
+            scramble_count = 1  # Default to 1 if conversion fails
         
         # Generate a random value between 0 and 1
         random_value = random.random()
@@ -1031,7 +1035,7 @@ def generate_scrambles():
                     "tcenter_parity": result[42],
                     "first_tcenters": result[43] if len(result) > 43 else None
                 }
-                print(row)
+                # print(row)
                 
                 # Map letter sequences to the user's letter scheme
                 if row.get('edges'):
