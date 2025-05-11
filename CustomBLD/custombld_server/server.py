@@ -29,7 +29,7 @@ DB_PARAMS = {
 STATS_CACHE_FILE = '/app/db_stats_cache.json'
 # How long before cache expires (in seconds)
 CACHE_EXPIRY = 86400  # 24 hours
-
+#
 def get_db_connection():
     try:
         logger.debug(f"Attempting to connect to database with params: {DB_PARAMS}")
