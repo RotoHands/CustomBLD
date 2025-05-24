@@ -252,9 +252,9 @@ def main():
     COUNT_4BLD_CENTERS_ONLY = config['counts']['4bld_centers_only']
     COUNT_4BLD_WINGS_ONLY = config['counts']['4bld_wings_only']
     COUNT_5BLD_EDGES_CORNERS = config['counts']['5bld_edges_corners']
-    
-    # Display summary of all possible combinations
-    # print_combination_summary()
+
+    # Get specific combinations if they exist
+    SPECIFIC_COMBINATIONS = config.get('specific_combinations', {})
     
     # Define buffer options for each piece type
     edge_buffers = {
@@ -291,7 +291,6 @@ def main():
         "Ul": "D"
     }
 
-    
     # Display only enabled scramble counts
     total_active_combos, total_active_scrambles = print_enabled_summary(
         USE_EDGE_BUFFERS, USE_CORNER_BUFFERS, USE_WING_BUFFERS, 
@@ -404,99 +403,195 @@ def main():
     
     # Add 3BLD configurations if enabled
     if GENERATE_3BLD:
-        for edge_buffer in USE_EDGE_BUFFERS:
-            for corner_buffer in USE_CORNER_BUFFERS:
+        if '3bld' in SPECIFIC_COMBINATIONS:
+            # Use specific combinations
+            for combo in SPECIFIC_COMBINATIONS['3bld']:
                 scramble_configs.append({
                     "type": "333ni",
                     "count": str(COUNT_3BLD),
-                    "description": f"3BLD {edge_buffer}-{corner_buffer}",
-                    "edge_buffer": edge_buffers[edge_buffer],
-                    "corner_buffer": corner_buffers[corner_buffer]
+                    "description": f"3BLD {combo['edge_buffer']}-{combo['corner_buffer']}",
+                    "edge_buffer": edge_buffers[combo['edge_buffer']],
+                    "corner_buffer": corner_buffers[combo['corner_buffer']]
                 })
+        else:
+            # Use all combinations
+            for edge_buffer in USE_EDGE_BUFFERS:
+                for corner_buffer in USE_CORNER_BUFFERS:
+                    scramble_configs.append({
+                        "type": "333ni",
+                        "count": str(COUNT_3BLD),
+                        "description": f"3BLD {edge_buffer}-{corner_buffer}",
+                        "edge_buffer": edge_buffers[edge_buffer],
+                        "corner_buffer": corner_buffers[corner_buffer]
+                    })
     
     # Add 4BLD configurations if enabled
     if GENERATE_4BLD:
-        for corner_buffer in USE_CORNER_BUFFERS:
-            for wing_buffer in USE_WING_BUFFERS:
-                for xcenter_buffer in USE_XCENTER_BUFFERS:
-                    scramble_configs.append({
-                        "type": "444bld",
-                        "count": str(COUNT_4BLD),
-                        "description": f"4BLD {wing_buffer}-{corner_buffer} wings-corners",
-                        "wing_buffer": wing_buffers[wing_buffer],
-                        "corner_buffer": corner_buffers[corner_buffer],
-                        "xcenter_buffer": xcenter_buffers[xcenter_buffer]
-                    })
-    
-    # Add 5BLD configurations if enabled
-    if GENERATE_5BLD:
-        for edge_buffer in USE_EDGE_BUFFERS:
+        if '4bld' in SPECIFIC_COMBINATIONS:
+            # Use specific combinations
+            for combo in SPECIFIC_COMBINATIONS['4bld']:
+                scramble_configs.append({
+                    "type": "444bld",
+                    "count": str(COUNT_4BLD),
+                    "description": f"4BLD {combo['wing_buffer']}-{combo['corner_buffer']} wings-corners",
+                    "wing_buffer": wing_buffers[combo['wing_buffer']],
+                    "corner_buffer": corner_buffers[combo['corner_buffer']],
+                    "xcenter_buffer": xcenter_buffers[combo['xcenter_buffer']]
+                })
+        else:
+            # Use all combinations
             for corner_buffer in USE_CORNER_BUFFERS:
                 for wing_buffer in USE_WING_BUFFERS:
                     for xcenter_buffer in USE_XCENTER_BUFFERS:
-                        for tcenter_buffer in USE_TCENTER_BUFFERS:
-                            scramble_configs.append({
-                                "type": "555bld",
-                                "count": str(COUNT_5BLD),
-                                "description": f"5BLD {edge_buffer}-{corner_buffer}",
-                                "edge_buffer": edge_buffers[edge_buffer],
-                                "corner_buffer": corner_buffers[corner_buffer],
-                                "wing_buffer": wing_buffers[wing_buffer],
-                                "xcenter_buffer": xcenter_buffers[xcenter_buffer],
-                                "tcenter_buffer": tcenter_buffers[tcenter_buffer]
-                            })
+                        scramble_configs.append({
+                            "type": "444bld",
+                            "count": str(COUNT_4BLD),
+                            "description": f"4BLD {wing_buffer}-{corner_buffer} wings-corners",
+                            "wing_buffer": wing_buffers[wing_buffer],
+                            "corner_buffer": corner_buffers[corner_buffer],
+                            "xcenter_buffer": xcenter_buffers[xcenter_buffer]
+                        })
+    
+    # Add 5BLD configurations if enabled
+    if GENERATE_5BLD:
+        if '5bld' in SPECIFIC_COMBINATIONS:
+            # Use specific combinations
+            for combo in SPECIFIC_COMBINATIONS['5bld']:
+                scramble_configs.append({
+                    "type": "555bld",
+                    "count": str(COUNT_5BLD),
+                    "description": f"5BLD {combo['edge_buffer']}-{combo['corner_buffer']}",
+                    "edge_buffer": edge_buffers[combo['edge_buffer']],
+                    "corner_buffer": corner_buffers[combo['corner_buffer']],
+                    "wing_buffer": wing_buffers[combo['wing_buffer']],
+                    "xcenter_buffer": xcenter_buffers[combo['xcenter_buffer']],
+                    "tcenter_buffer": tcenter_buffers[combo['tcenter_buffer']]
+                })
+        else:
+            # Use all combinations
+            for edge_buffer in USE_EDGE_BUFFERS:
+                for corner_buffer in USE_CORNER_BUFFERS:
+                    for wing_buffer in USE_WING_BUFFERS:
+                        for xcenter_buffer in USE_XCENTER_BUFFERS:
+                            for tcenter_buffer in USE_TCENTER_BUFFERS:
+                                scramble_configs.append({
+                                    "type": "555bld",
+                                    "count": str(COUNT_5BLD),
+                                    "description": f"5BLD {edge_buffer}-{corner_buffer}",
+                                    "edge_buffer": edge_buffers[edge_buffer],
+                                    "corner_buffer": corner_buffers[corner_buffer],
+                                    "wing_buffer": wing_buffers[wing_buffer],
+                                    "xcenter_buffer": xcenter_buffers[xcenter_buffer],
+                                    "tcenter_buffer": tcenter_buffers[tcenter_buffer]
+                                })
     
     # Add edge-only configurations if enabled
     if GENERATE_EDGES_ONLY:
-        for edge_buffer in USE_EDGE_BUFFERS:
-            scramble_configs.append({
-                "type": "edges",
-                "count": str(COUNT_EDGES_ONLY),
-                "description": f"3BLD Edges Only {edge_buffer}",
-                "edge_buffer": edge_buffers[edge_buffer]
-            })
+        if 'edges_only' in SPECIFIC_COMBINATIONS:
+            # Use specific combinations
+            for combo in SPECIFIC_COMBINATIONS['edges_only']:
+                scramble_configs.append({
+                    "type": "edges",
+                    "count": str(COUNT_EDGES_ONLY),
+                    "description": f"3BLD Edges Only {combo['edge_buffer']}",
+                    "edge_buffer": edge_buffers[combo['edge_buffer']]
+                })
+        else:
+            # Use all combinations
+            for edge_buffer in USE_EDGE_BUFFERS:
+                scramble_configs.append({
+                    "type": "edges",
+                    "count": str(COUNT_EDGES_ONLY),
+                    "description": f"3BLD Edges Only {edge_buffer}",
+                    "edge_buffer": edge_buffers[edge_buffer]
+                })
     
     # Add corner-only configurations if enabled
     if GENERATE_CORNERS_ONLY:
-        for corner_buffer in USE_CORNER_BUFFERS:
-            scramble_configs.append({
-                "type": "corners",
-                "count": str(COUNT_CORNERS_ONLY),
-                "description": f"3BLD Corners Only {corner_buffer}",
-                "corner_buffer": corner_buffers[corner_buffer]
-            })
+        if 'corners_only' in SPECIFIC_COMBINATIONS:
+            # Use specific combinations
+            for combo in SPECIFIC_COMBINATIONS['corners_only']:
+                scramble_configs.append({
+                    "type": "corners",
+                    "count": str(COUNT_CORNERS_ONLY),
+                    "description": f"3BLD Corners Only {combo['corner_buffer']}",
+                    "corner_buffer": corner_buffers[combo['corner_buffer']]
+                })
+        else:
+            # Use all combinations
+            for corner_buffer in USE_CORNER_BUFFERS:
+                scramble_configs.append({
+                    "type": "corners",
+                    "count": str(COUNT_CORNERS_ONLY),
+                    "description": f"3BLD Corners Only {corner_buffer}",
+                    "corner_buffer": corner_buffers[corner_buffer]
+                })
     
     # Add 4BLD centers-only configurations if enabled
     if GENERATE_4BLD_CENTERS_ONLY:
-        for xcenter_buffer in USE_XCENTER_BUFFERS:
-            scramble_configs.append({
-                "type": "444cto",
-                "count": str(COUNT_4BLD_CENTERS_ONLY),
-                "description": f"4BLD Centers Only {xcenter_buffer}",
-                "xcenter_buffer": xcenter_buffers[xcenter_buffer]
-            })
+        if '4bld_centers_only' in SPECIFIC_COMBINATIONS:
+            # Use specific combinations
+            for combo in SPECIFIC_COMBINATIONS['4bld_centers_only']:
+                scramble_configs.append({
+                    "type": "444cto",
+                    "count": str(COUNT_4BLD_CENTERS_ONLY),
+                    "description": f"4BLD Centers Only {combo['xcenter_buffer']}",
+                    "xcenter_buffer": xcenter_buffers[combo['xcenter_buffer']]
+                })
+        else:
+            # Use all combinations
+            for xcenter_buffer in USE_XCENTER_BUFFERS:
+                scramble_configs.append({
+                    "type": "444cto",
+                    "count": str(COUNT_4BLD_CENTERS_ONLY),
+                    "description": f"4BLD Centers Only {xcenter_buffer}",
+                    "xcenter_buffer": xcenter_buffers[xcenter_buffer]
+                })
     
     # Add 4BLD wings-only configurations if enabled
     if GENERATE_4BLD_WINGS_ONLY:
-        for wing_buffer in USE_WING_BUFFERS:
-            scramble_configs.append({
-                "type": "444edo",
-                "count": str(COUNT_4BLD_WINGS_ONLY),
-                "description": f"4BLD Wings Only {wing_buffer}",
-                "wing_buffer": wing_buffers[wing_buffer]
-            })
+        if '4bld_wings_only' in SPECIFIC_COMBINATIONS:
+            # Use specific combinations
+            for combo in SPECIFIC_COMBINATIONS['4bld_wings_only']:
+                scramble_configs.append({
+                    "type": "444edo",
+                    "count": str(COUNT_4BLD_WINGS_ONLY),
+                    "description": f"4BLD Wings Only {combo['wing_buffer']}",
+                    "wing_buffer": wing_buffers[combo['wing_buffer']]
+                })
+        else:
+            # Use all combinations
+            for wing_buffer in USE_WING_BUFFERS:
+                scramble_configs.append({
+                    "type": "444edo",
+                    "count": str(COUNT_4BLD_WINGS_ONLY),
+                    "description": f"4BLD Wings Only {wing_buffer}",
+                    "wing_buffer": wing_buffers[wing_buffer]
+                })
     
     # Add 5BLD edges+corners configurations if enabled
     if GENERATE_5BLD_EDGES_CORNERS:
-        for edge_buffer in USE_EDGE_BUFFERS:
-            for corner_buffer in USE_CORNER_BUFFERS:
+        if '5bld_edges_corners' in SPECIFIC_COMBINATIONS:
+            # Use specific combinations
+            for combo in SPECIFIC_COMBINATIONS['5bld_edges_corners']:
                 scramble_configs.append({
                     "type": "5edge",
                     "count": str(COUNT_5BLD_EDGES_CORNERS),
-                    "description": f"5BLD Edges+Corners {edge_buffer}-{corner_buffer}",
-                    "edge_buffer": edge_buffers[edge_buffer],
-                    "corner_buffer": corner_buffers[corner_buffer]
+                    "description": f"5BLD Edges+Corners {combo['edge_buffer']}-{combo['corner_buffer']}",
+                    "edge_buffer": edge_buffers[combo['edge_buffer']],
+                    "corner_buffer": corner_buffers[combo['corner_buffer']]
                 })
+        else:
+            # Use all combinations
+            for edge_buffer in USE_EDGE_BUFFERS:
+                for corner_buffer in USE_CORNER_BUFFERS:
+                    scramble_configs.append({
+                        "type": "5edge",
+                        "count": str(COUNT_5BLD_EDGES_CORNERS),
+                        "description": f"5BLD Edges+Corners {edge_buffer}-{corner_buffer}",
+                        "edge_buffer": edge_buffers[edge_buffer],
+                        "corner_buffer": corner_buffers[corner_buffer]
+                    })
     
     # List available scheme files
     print("Available letter schemes:")

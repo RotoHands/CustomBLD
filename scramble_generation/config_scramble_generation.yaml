@@ -42,13 +42,59 @@ generate:
 # Scramble counts for each type
 counts:
   3bld: 200000 # Scrambles per 3BLD combo
-  4bld: 50000 # Scrambles per 4BLD combo
+  4bld: 500 # Scrambles per 4BLD combo
   5bld: 5000 # Scrambles per 5BLD combo
   edges_only: 350000 # Scrambles per edges-only combo
   corners_only: 350000 # Scrambles per corners-only combo
   4bld_centers_only: 100 # Scrambles per 4BLD centers combo
   4bld_wings_only: 100 # Scrambles per 4BLD wings combo
   5bld_edges_corners: 15000 # Scrambles per 5BLD edges+corners combo
+
+# Specific combinations to generate (if empty, will use all combinations from above)
+specific_combinations:
+  4bld:
+    - corner_buffer: UFR
+      wing_buffer: UFr
+      xcenter_buffer: Ufr
+    - corner_buffer: UFR
+      wing_buffer: UFr
+      xcenter_buffer: Ubl
+
+  3bld:
+    - edge_buffer: UF # 3style
+      corner_buffer: UFR
+    - edge_buffer: UR # OP/OP
+      corner_buffer: UBL
+    - edge_buffer: DF # M2/OP
+      corner_buffer: UBL
+
+  # edges_only:
+  #   - edge_buffer: UR
+  # corners_only:
+  #   - corner_buffer: UBL
+  4bld_centers_only:
+    - xcenter_buffer: Ufr
+    - xcenter_buffer: Ubl
+  4bld_wings_only:
+    - wing_buffer: UFr
+  5bld_edges_corners:
+    - edge_buffer: UF
+      wing_buffer: UFr
+      corner_buffer: UFR
+    - edge_buffer: UF
+      wing_buffer: UFr
+      corner_buffer: UBL
+  5bld:
+    - edge_buffer: UF
+      corner_buffer: UFR
+      wing_buffer: UFr
+      xcenter_buffer: Ufr
+      tcenter_buffer: Uf
+    - edge_buffer: UF
+      corner_buffer: UFR
+      wing_buffer: UFr
+      xcenter_buffer: Ubl
+      tcenter_buffer: Ub
 
 # Backup configuration
 backup:
