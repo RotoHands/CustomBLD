@@ -2,11 +2,11 @@
 set -e
 
 # Create logs database
-psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" <<-EOSQL
     CREATE DATABASE logs_db;
 EOSQL
 
-# Create request_logs table in logs_db
+# Connect to logs database and create tables
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "logs_db" <<-EOSQL
     CREATE TABLE IF NOT EXISTS request_logs (
         id SERIAL PRIMARY KEY,
