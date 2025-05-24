@@ -15,8 +15,17 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Configure logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(
+    level=logging.INFO if os.getenv('FLASK_ENV') == 'production' else logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 app_logger = logging.getLogger(__name__)
+
+# Log environment variables (without sensitive data)
+app_logger.debug(f"DB_NAME: {os.getenv('DB_NAME')}")
+app_logger.debug(f"DB_USER: {os.getenv('DB_USER')}")
+app_logger.debug(f"DB_HOST: {os.getenv('DB_HOST')}")
+app_logger.debug(f"DB_PORT: {os.getenv('DB_PORT')}")
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})  # More specific CORS configuration
@@ -37,6 +46,10 @@ DB_PARAMS = {
 required_env_vars = ['DB_NAME', 'DB_USER', 'DB_PASSWORD', 'DB_HOST', 'DB_PORT']
 missing_vars = [var for var in required_env_vars if not os.getenv(var)]
 if missing_vars:
+    app_logger.error(f"Missing environment variables: {', '.join(missing_vars)}")
+    app_logger.error("Current environment variables:")
+    for var in required_env_vars:
+        app_logger.error(f"{var}: {'Set' if os.getenv(var) else 'Not set'}")
     raise ValueError(f"Missing required environment variables: {', '.join(missing_vars)}")
 
 @app.before_request
@@ -1273,4 +1286,5 @@ def stats_options():
     return response
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    debug_mode = os.getenv('FLASK_ENV') != 'production'
+    app.run(host='0.0.0.0', port=5000, debug=debug_mode)
