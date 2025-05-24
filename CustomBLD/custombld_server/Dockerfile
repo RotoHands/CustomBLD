@@ -32,6 +32,10 @@ COPY --from=build /usr/local/lib/python3.9/site-packages /usr/local/lib/python3.
 
 # Copy application code
 COPY server.py .
+COPY request_logger.py .
+
+# Create directory for logs
+RUN mkdir -p /app/db && chmod 777 /app/db
 
 # Expose port 5000
 EXPOSE 5000

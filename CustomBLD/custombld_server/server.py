@@ -8,13 +8,49 @@ import json
 import time
 from pathlib import Path
 import random
+from request_logger import RequestLogger
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+app_logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})  # More specific CORS configuration
+
+# Initialize the request logger
+request_logger = RequestLogger()
+
+@app.before_request
+def log_request_info():
+    """Log request information before processing."""
+    if request.method == 'POST':
+        request.start_time = time.time()
+        request_logger.log_request(
+            ip_address=request.remote_addr,
+            user_agent=request.user_agent.string,
+            request_data=request.get_json() or {},
+            endpoint=request.endpoint,
+            method=request.method,
+            response_time=0,  # Will be updated in after_request
+            status_code=0,    # Will be updated in after_request
+        )
+
+@app.after_request
+def log_response_info(response):
+    """Log response information after processing."""
+    if request.method == 'POST':
+        response_time = int((time.time() - request.start_time) * 1000)  # Convert to milliseconds
+        request_logger.log_request(
+            ip_address=request.remote_addr,
+            user_agent=request.user_agent.string,
+            request_data=request.get_json() or {},
+            endpoint=request.endpoint,
+            method=request.method,
+            response_time=response_time,
+            status_code=response.status_code,
+            error_message=None if response.status_code < 400 else response.get_data(as_text=True)
+        )
+    return response
 
 # Database connection parameters
 DB_PARAMS = {
@@ -32,27 +68,27 @@ CACHE_EXPIRY = 86400  # 24 hours
 #
 def get_db_connection():
     try:
-        logger.debug(f"Attempting to connect to database with params: {DB_PARAMS}")
+        app_logger.debug(f"Attempting to connect to database with params: {DB_PARAMS}")
         conn = psycopg2.connect(**DB_PARAMS)
-        logger.debug("Database connection successful")
+        app_logger.debug("Database connection successful")
         return conn
     except Exception as e:
-        logger.error(f"Database connection error: {str(e)}")
-        logger.error(traceback.format_exc())
+        app_logger.error(f"Database connection error: {str(e)}")
+        app_logger.error(traceback.format_exc())
         raise
 
 def query_db(query, one=False):
     try:
         con = get_db_connection()
         cur = con.cursor()
-        logger.debug(f"Executing query: {query}")
+        app_logger.debug(f"Executing query: {query}")
         cur.execute(query)
         rv = cur.fetchall()
         con.close()
         return (rv[0] if rv else None) if one else rv
     except Exception as e:
-        logger.error(f"Query execution error: {str(e)}")
-        logger.error(traceback.format_exc())
+        app_logger.error(f"Query execution error: {str(e)}")
+        app_logger.error(traceback.format_exc())
         raise
 
 # Map frontend scramble types to database scramble types
@@ -120,24 +156,24 @@ def cache_is_valid():
         cache_path = Path(STATS_CACHE_FILE)
         
         if not cache_path.exists():
-            logger.info(f"Cache file doesn't exist at {STATS_CACHE_FILE}")
+            app_logger.info(f"Cache file doesn't exist at {STATS_CACHE_FILE}")
             return False
         
         # Check if file is empty
         if cache_path.stat().st_size == 0:
-            logger.info(f"Cache file exists but is empty")
+            app_logger.info(f"Cache file exists but is empty")
             return False
             
         # Check if cache has expired
         cache_age = time.time() - cache_path.stat().st_mtime
         if cache_age >= CACHE_EXPIRY:
-            logger.info(f"Cache expired (age: {cache_age:.2f}s, expiry: {CACHE_EXPIRY}s)")
+            app_logger.info(f"Cache expired (age: {cache_age:.2f}s, expiry: {CACHE_EXPIRY}s)")
             return False
             
-        logger.info(f"Valid cache found (age: {cache_age:.2f}s)")
+        app_logger.info(f"Valid cache found (age: {cache_age:.2f}s)")
         return True
     except Exception as e:
-        logger.error(f"Error checking cache validity: {str(e)}")
+        app_logger.error(f"Error checking cache validity: {str(e)}")
         return False
 
 def get_cached_stats():
@@ -149,7 +185,7 @@ def get_cached_stats():
             
         with open(STATS_CACHE_FILE, 'r') as f:
             stats = json.load(f)
-            logger.info(f"Retrieved stats from cache file: {STATS_CACHE_FILE}")
+            app_logger.info(f"Retrieved stats from cache file: {STATS_CACHE_FILE}")
             
             # Add cache info for debugging
             current_time = time.time()
@@ -160,10 +196,10 @@ def get_cached_stats():
             
             return stats
     except json.JSONDecodeError as e:
-        logger.error(f"Error parsing JSON from cache file: {str(e)}")
+        app_logger.error(f"Error parsing JSON from cache file: {str(e)}")
         return None
     except Exception as e:
-        logger.error(f"Error reading cache: {str(e)}")
+        app_logger.error(f"Error reading cache: {str(e)}")
         return None
 
 def cache_stats(stats):
@@ -171,17 +207,17 @@ def cache_stats(stats):
     try:
         with open(STATS_CACHE_FILE, 'w') as f:
             json.dump(stats, f)
-        logger.info(f"Stats cached to {STATS_CACHE_FILE}")
+        app_logger.info(f"Stats cached to {STATS_CACHE_FILE}")
     except Exception as e:
-        logger.error(f"Error caching stats: {str(e)}")
-        logger.error(traceback.format_exc())
+        app_logger.error(f"Error caching stats: {str(e)}")
+        app_logger.error(traceback.format_exc())
 
 def generate_stats():
     """Generate stats by querying the database"""
     try:
-        logger.info("Beginning database query for statistics generation")
+        app_logger.info("Beginning database query for statistics generation")
         start_time = time.time()
-        logger.debug("Generating scramble statistics from database")
+        app_logger.debug("Generating scramble statistics from database")
         
         # Count by scramble type
         scramble_types_query = """
@@ -385,23 +421,23 @@ def generate_stats():
         # Cache the stats
         cache_stats(stats)
         
-        logger.info(f"Statistics generation complete in {stats['query_time']:.2f} seconds")
+        app_logger.info(f"Statistics generation complete in {stats['query_time']:.2f} seconds")
         return stats
         
     except Exception as e:
-        logger.error(f"Error generating stats: {str(e)}")
-        logger.error(traceback.format_exc())
+        app_logger.error(f"Error generating stats: {str(e)}")
+        app_logger.error(traceback.format_exc())
         raise
 
 def get_stats():
     """Get stats from cache if valid, otherwise generate new stats"""
     if cache_is_valid():
-        logger.info("Cache is valid and not expired, using cached stats")
+        app_logger.info("Cache is valid and not expired, using cached stats")
         cached_stats = get_cached_stats()
         if cached_stats:
             return cached_stats
     
-    logger.info("Cache is invalid or expired (> 24 hours old), generating fresh stats")
+    app_logger.info("Cache is invalid or expired (> 24 hours old), generating fresh stats")
     return generate_stats()
 
 # Add a new function to map letters from database to user's letter scheme
@@ -438,7 +474,7 @@ def generate_scrambles():
     try:
         start_time = time.time()
         data = request.json
-        # logger.debug(f"Received request data: {data}")
+        # app_logger.debug(f"Received request data: {data}")
         query_conditions = []
         args = []
         
@@ -856,7 +892,7 @@ def generate_scrambles():
         has_tcenter_buffer = bool(data.get('tcenter_buffer') and data.get('tcenter_buffer') != 'random')
         
         # Log which columns are filtered
-        logger.debug(f"Query filters - scramble_type: {has_scramble_type}, corner: {has_corner_buffer}, " +
+        app_logger.debug(f"Query filters - scramble_type: {has_scramble_type}, corner: {has_corner_buffer}, " +
                     f"edge: {has_edge_buffer}, wing: {has_wing_buffer}, xcenter: {has_xcenter_buffer}, " + 
                     f"tcenter: {has_tcenter_buffer}")
         
@@ -883,7 +919,7 @@ def generate_scrambles():
             index_used = "generic_random_key"
             
         # Only log the index that would likely be used (but don't add hints to the query)
-        logger.info(f"Query pattern matches index: {index_used}")
+        app_logger.info(f"Query pattern matches index: {index_used}")
         
         # Simple approach: just use random_key for efficient random selection
         # Let PostgreSQL's query planner choose the appropriate index
@@ -1147,8 +1183,8 @@ def generate_scrambles():
         
         return response
     except Exception as e:
-        logger.error(f"Error in generate_scrambles: {str(e)}")
-        logger.error(traceback.format_exc())
+        app_logger.error(f"Error in generate_scrambles: {str(e)}")
+        app_logger.error(traceback.format_exc())
         return jsonify({
             'error': str(e),
             'traceback': traceback.format_exc()
@@ -1171,29 +1207,29 @@ def health_check():
         conn.close()
         return jsonify({'status': 'healthy', 'database': 'connected'}), 200
     except Exception as e:
-        logger.error(f"Health check failed: {str(e)}")
+        app_logger.error(f"Health check failed: {str(e)}")
         return jsonify({'status': 'unhealthy', 'error': str(e)}), 500
 
 @app.route('/scramble-stats', methods=['GET'])
 def get_scramble_stats():
     try:
-        logger.debug("Retrieving scramble statistics")
+        app_logger.debug("Retrieving scramble statistics")
         
         # Check if force refresh is requested
         force_refresh = request.args.get('refresh', 'false').lower() == 'true'
         
         if force_refresh:
-            logger.info("Force refresh requested, generating new stats")
+            app_logger.info("Force refresh requested, generating new stats")
             stats = generate_stats()
         else:
             # Try to get stats from cache or generate new stats if cache is invalid
             if cache_is_valid():
                 stats = get_cached_stats()
                 if not stats:
-                    logger.warning("Cache file exists but couldn't be read, generating new stats")
+                    app_logger.warning("Cache file exists but couldn't be read, generating new stats")
                     stats = generate_stats()
             else:
-                logger.info("Cache is invalid or expired, generating fresh stats")
+                app_logger.info("Cache is invalid or expired, generating fresh stats")
                 stats = generate_stats()
         
         # Add cache status to response
@@ -1211,8 +1247,8 @@ def get_scramble_stats():
         return response
         
     except Exception as e:
-        logger.error(f"Error retrieving scramble stats: {str(e)}")
-        logger.error(traceback.format_exc())
+        app_logger.error(f"Error retrieving scramble stats: {str(e)}")
+        app_logger.error(traceback.format_exc())
         return jsonify({
             'error': str(e),
             'traceback': traceback.format_exc()

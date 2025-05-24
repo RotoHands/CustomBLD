@@ -18,7 +18,7 @@ no corner twists
 
 
 TODO
-footer
+
 logs
 .env file
 

@@ -3,8 +3,12 @@ FROM postgres:17-alpine
 # Create directory for dump file
 WORKDIR /docker-entrypoint-initdb.d
 
-# Copy the backup file
+# Copy the backup file and initialization scripts
 COPY all_solves_db.backup .
+COPY 02-create-logs-db.sh .
+
+# Make scripts executable
+RUN chmod +x /docker-entrypoint-initdb.d/*.sh
 
 # Create a phased restore script that handles schema, data, and indexes separately
 RUN echo '#!/bin/bash' > /docker-entrypoint-initdb.d/restore.sh && \

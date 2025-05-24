@@ -19,15 +19,16 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - DB_NAME=all_solves_db
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-      - DB_HOST=db
-      - DB_PORT=5432
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
     depends_on:
       - db
     volumes:
       - ./custombld_db/stats_cache.json:/app/db_stats_cache.json
+      - ./custombld_db:/app/db
     networks:
       - custombld-network
 
