@@ -84,8 +84,8 @@ function App() {
       // URLs to try in order
       const urls = [
         `/scramble-stats${refreshParam}`,
-        `http://server:5000/scramble-stats${refreshParam}`,
-        `http://localhost:5000/scramble-stats${refreshParam}`
+        // `http://server:5000/scramble-stats${refreshParam}`,
+        // `http://localhost:5000/scramble-stats${refreshParam}`
       ];
       
       let succeeded = false;

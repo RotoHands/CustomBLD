@@ -111,7 +111,7 @@ const QueryForm = ({ onSubmit }) => {
       xCenters: [],
       tCenters: []
     },
-    scramble_count: 10,
+    scramble_count: 1,
     generate_solutions: 'yes'
   });
 
@@ -428,7 +428,7 @@ const QueryForm = ({ onSubmit }) => {
           xCenters: [],
           tCenters: []
         },
-        scramble_count: 10,
+        scramble_count: 1,
         generate_solutions: 'yes'
       });
       localStorage.removeItem('letterScheme');
@@ -768,7 +768,8 @@ const QueryForm = ({ onSubmit }) => {
             setIsSubmitting(true);
             
             // Use the full URL to your Flask server
-            const response = await fetch('http://localhost:5000/query-scrambles', {
+            // const response = await fetch('http://localhost:5000/query-scrambles', {
+              const response = await fetch('/query-scrambles', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
