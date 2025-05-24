@@ -140,6 +140,13 @@ const ScrambleResults = ({ results }) => {
     return true; // Show all other values
   };
 
+  // Function to format parity value
+  const formatParity = (value) => {
+    if (value === true || value === 'true') return 'Yes';
+    if (value === false || value === 'false') return 'No';
+    return value;
+  };
+
   // Update the renderSolution function to show solution as the rotation
   const renderSolution = (result) => {
     return (
@@ -168,7 +175,7 @@ const ScrambleResults = ({ results }) => {
                   {shouldShowStat(result.edge_length) && <div>Length: {result.edge_length}</div>}
                   {shouldShowStat(result.edges_cycle_breaks) && <div>Cycle breaks: {result.edges_cycle_breaks}</div>}
                   {shouldShowStat(result.edges_solved) && <div>Solved edges: {result.edges_solved}</div>}
-                  {shouldShowStat(result.edge_parity) && <div>Parity: {result.edge_parity}</div>}
+                  {shouldShowStat(result.edge_parity) && <div>Parity: {formatParity(result.edge_parity)}</div>}
                 </div>
               </>
             )}
@@ -202,7 +209,7 @@ const ScrambleResults = ({ results }) => {
                   {shouldShowStat(result.corner_length) && <div>Length: {result.corner_length}</div>}
                   {shouldShowStat(result.corners_cycle_breaks) && <div>Cycle breaks: {result.corners_cycle_breaks}</div>}
                   {shouldShowStat(result.corners_solved) && <div>Solved corners: {result.corners_solved}</div>}
-                  {shouldShowStat(result.corner_parity) && <div>Parity: {result.corner_parity}</div>}
+                  {shouldShowStat(result.corner_parity) && <div>Parity: {formatParity(result.corner_parity)}</div>}
                 </div>
               </>
             )}
@@ -219,7 +226,7 @@ const ScrambleResults = ({ results }) => {
                   {shouldShowStat(result.wings_length) && <div>Length: {result.wings_length}</div>}
                   {shouldShowStat(result.wings_cycle_breaks) && <div>Cycle breaks: {result.wings_cycle_breaks}</div>}
                   {shouldShowStat(result.wings_solved) && <div>Solved wings: {result.wings_solved}</div>}
-                  {shouldShowStat(result.wing_parity) && <div>Parity: {result.wing_parity}</div>}
+                  {shouldShowStat(result.wing_parity) && <div>Parity: {formatParity(result.wing_parity)}</div>}
                 </div>
               </>
             )}
@@ -236,7 +243,7 @@ const ScrambleResults = ({ results }) => {
                   {shouldShowStat(result.xcenter_length) && <div>Length: {result.xcenter_length}</div>}
                   {shouldShowStat(result.xcenters_cycle_breaks) && <div>Cycle breaks: {result.xcenters_cycle_breaks}</div>}
                   {shouldShowStat(result.xcenters_solved) && <div>Solved X-centers: {result.xcenters_solved}</div>}
-                  {shouldShowStat(result.xcenter_parity) && <div>Parity: {result.xcenter_parity}</div>}
+                  {shouldShowStat(result.xcenter_parity) && <div>Parity: {formatParity(result.xcenter_parity)}</div>}
                 </div>
               </>
             )}
@@ -253,7 +260,7 @@ const ScrambleResults = ({ results }) => {
                   {shouldShowStat(result.tcenter_length) && <div>Length: {result.tcenter_length}</div>}
                   {shouldShowStat(result.tcenters_cycle_breaks) && <div>Cycle breaks: {result.tcenters_cycle_breaks}</div>}
                   {shouldShowStat(result.tcenters_solved) && <div>Solved T-centers: {result.tcenters_solved}</div>}
-                  {shouldShowStat(result.tcenter_parity) && <div>Parity: {result.tcenter_parity}</div>}
+                  {shouldShowStat(result.tcenter_parity) && <div>Parity: {formatParity(result.tcenter_parity)}</div>}
                 </div>
               </>
             )}

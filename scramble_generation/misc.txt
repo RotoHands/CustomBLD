@@ -18,9 +18,7 @@ no corner twists
 
 
 TODO
-
-logs
-.env file
+add readme 
 
 how to compile and run the java program
 # javac -encoding UTF-8 *.java
