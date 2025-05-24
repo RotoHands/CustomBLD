@@ -18,11 +18,9 @@ no corner twists
 
 
 TODO
-logo
 footer
-generate scramble with scrambo
 logs
-
+.env file
 
 how to compile and run the java program
 # javac -encoding UTF-8 *.java

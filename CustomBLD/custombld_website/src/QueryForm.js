@@ -23,7 +23,7 @@ import {
 
 const QueryForm = ({ onSubmit }) => {
   const [formData, setFormData] = useState({
-    scramble_type: '',
+    scramble_type: '3bld',  // Set default to 3bld
     edge_buffer: 'UF',  // Set default buffer to UF
     edge_length_type: 'random',
     edge_length: 0,
@@ -111,7 +111,7 @@ const QueryForm = ({ onSubmit }) => {
       xCenters: [],
       tCenters: []
     },
-    scramble_count: 1,
+    scramble_count: 10,
     generate_solutions: 'yes'
   });
 
@@ -352,7 +352,7 @@ const QueryForm = ({ onSubmit }) => {
     if (window.confirm('Are you sure you want to reset all settings to default?')) {
       localStorage.removeItem('scrambleForm');
       setFormData({
-        scramble_type: '',
+        scramble_type: '3bld',  // Set default to 3bld
         edge_buffer: 'UF',  // Set default buffer to UF
         edge_length_type: 'random',
         edge_length: 0,
@@ -428,7 +428,7 @@ const QueryForm = ({ onSubmit }) => {
           xCenters: [],
           tCenters: []
         },
-        scramble_count: 1,
+        scramble_count: 10,
         generate_solutions: 'yes'
       });
       localStorage.removeItem('letterScheme');
