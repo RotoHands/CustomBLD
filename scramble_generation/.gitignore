@@ -4,7 +4,6 @@
 *.db
 *.log
 *.csv
-*node_modules*
 *pg_backup
 *backup
 all_solves_db.backup
