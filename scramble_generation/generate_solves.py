@@ -207,7 +207,7 @@ def main():
     print(f"Total time taken: {end_time - start_time} seconds for analyzing solves of type {args.scramble_type}")
     subprocess.run(["python", "db_solves/solves_to_csv.py", args.scramble_type], stderr=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
     subprocess.run(["python", "db_solves/create_db_script.py", args.scramble_type], stderr=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
-    # delete_txt_csv_files(True)
+    delete_txt_csv_files(True)
 
 if __name__ == '__main__':
     main()

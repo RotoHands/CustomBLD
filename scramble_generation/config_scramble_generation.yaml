@@ -30,8 +30,8 @@ use_tcenter_buffers:
 
 # Scramble types to generate - set True/False for each type
 generate:
-  3bld: false # Full 3x3 BLD scrambles
-  4bld: true # Full 4x4 BLD scrambles
+  3bld: true # Full 3x3 BLD scrambles
+  4bld: false # Full 4x4 BLD scrambles
   5bld: false # Full 5x5 BLD scrambles
   edges_only: false # 3x3 edges-only scrambles
   corners_only: false # 3x3 corners-only scrambles
@@ -41,13 +41,13 @@ generate:
 
 # Scramble counts for each type
 counts:
-  3bld: 200000 # Scrambles per 3BLD combo
-  4bld: 500 # Scrambles per 4BLD combo
+  3bld: 2000 # Scrambles per 3BLD combo
+  4bld: 50000 # Scrambles per 4BLD combo
   5bld: 5000 # Scrambles per 5BLD combo
-  edges_only: 350000 # Scrambles per edges-only combo
-  corners_only: 350000 # Scrambles per corners-only combo
-  4bld_centers_only: 100 # Scrambles per 4BLD centers combo
-  4bld_wings_only: 100 # Scrambles per 4BLD wings combo
+  edges_only: 3500 # Scrambles per edges-only combo
+  corners_only: 3500 # Scrambles per corners-only combo
+  4bld_centers_only: 10000 # Scrambles per 4BLD centers combo
+  4bld_wings_only: 10000 # Scrambles per 4BLD wings combo
   5bld_edges_corners: 15000 # Scrambles per 5BLD edges+corners combo
 
 # Specific combinations to generate (if empty, will use all combinations from above)
