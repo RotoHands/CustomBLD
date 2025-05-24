@@ -4,6 +4,7 @@ import glob
 import os
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import time 
 
 def analyze_solves(scramble_type, change_base_scheme, buffers):
     if scramble_type in ["333ni","corners","edges"]:
@@ -192,11 +193,18 @@ def main():
         "xcenter_buffer": args.xcenter_buffer,
         "tcenter_buffer": args.tcenter_buffer
     }
-    print("here 1")
+    
+    start_time = time.time()
     generate_scrambles(args.count, args.scramble_type, args.threads, buffers)
     merge_files(args.scramble_type)
     print("buffers: ", buffers)
+    end_time = time.time()
+    print(f"Total time taken: {end_time - start_time} seconds for {args.count} scrambles of type {args.scramble_type}")
+
+    start_time = time.time()
     analyze_solves(args.scramble_type, args.change_base_scheme, buffers)
+    end_time = time.time()
+    print(f"Total time taken: {end_time - start_time} seconds for analyzing solves of type {args.scramble_type}")
     subprocess.run(["python", "db_solves/solves_to_csv.py", args.scramble_type], stderr=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
     subprocess.run(["python", "db_solves/create_db_script.py", args.scramble_type], stderr=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
     delete_txt_csv_files(True)

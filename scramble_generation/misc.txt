@@ -18,11 +18,9 @@ no corner twists
 
 
 TODO
-serverside only 1000 solves
-show stats on number of scrambles
 logo
 footer
-generate scramble
+generate scramble with scrambo
 logs
 
 

@@ -551,7 +551,6 @@ const Stats = ({ stats, statsLoading, statsError, fetchStats, isMobile }) => {
                         const buffers = item.combo.split('-');
                         return matchesSelectedBuffers(buffers, ['corners', 'edges', 'wings', 'xcenters', 'tcenters']);
                       })
-                      .slice(0, isMobile ? 5 : 15)
                       .map((item, index) => {
                         const buffers = item.combo.split('-');
                         return (

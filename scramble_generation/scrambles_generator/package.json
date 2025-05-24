@@ -4,6 +4,7 @@
   "description": "Cube scramble generator",
   "main": "scramble_generator.js",
   "dependencies": {
-    "cstimer_module": "^0.1.4"
+    "cstimer_module": "^0.1.4",
+    "scrambo": "^0.3.0"
   }
-} 
+}
