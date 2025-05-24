@@ -9,6 +9,10 @@ import time
 from pathlib import Path
 import random
 from request_logger import RequestLogger
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -19,6 +23,21 @@ CORS(app, resources={r"/*": {"origins": "*"}})  # More specific CORS configurati
 
 # Initialize the request logger
 request_logger = RequestLogger()
+
+# Database connection parameters from environment variables
+DB_PARAMS = {
+    'dbname': os.getenv('DB_NAME'),
+    'user': os.getenv('DB_USER'),
+    'password': os.getenv('DB_PASSWORD'),
+    'host': os.getenv('DB_HOST'),
+    'port': os.getenv('DB_PORT')
+}
+
+# Validate required environment variables
+required_env_vars = ['DB_NAME', 'DB_USER', 'DB_PASSWORD', 'DB_HOST', 'DB_PORT']
+missing_vars = [var for var in required_env_vars if not os.getenv(var)]
+if missing_vars:
+    raise ValueError(f"Missing required environment variables: {', '.join(missing_vars)}")
 
 @app.before_request
 def log_request_info():
@@ -51,15 +70,6 @@ def log_response_info(response):
             error_message=None if response.status_code < 400 else response.get_data(as_text=True)
         )
     return response
-
-# Database connection parameters
-DB_PARAMS = {
-    'dbname': os.getenv('DB_NAME', 'all_solves_db'),
-    'user': os.getenv('DB_USER', 'postgres'),
-    'password': os.getenv('DB_PASSWORD', 'postgres'),
-    'host': os.getenv('DB_HOST', 'db'),
-    'port': os.getenv('DB_PORT', '5432')
-}
 
 # Path for cached stats
 STATS_CACHE_FILE = '/app/db_stats_cache.json'
