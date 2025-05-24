@@ -6,8 +6,8 @@ WORKDIR /docker-entrypoint-initdb.d
 # Copy the backup file and initialization scripts
 COPY all_solves_db.backup .
 
-# Make scripts executable
-RUN chmod +x /docker-entrypoint-initdb.d/*.sh
+# Make scripts executable if they exist
+RUN if ls *.sh 1> /dev/null 2>&1; then chmod +x *.sh; fi
 
 # Create a phased restore script that handles schema, data, and indexes separately
 RUN echo '#!/bin/bash' > /docker-entrypoint-initdb.d/restore.sh && \
