@@ -16,7 +16,7 @@ const AdditionalSettings = ({ formData, handleChange }) => {
       <Col sm="9">
         <Form.Select
           name="scramble_count"
-          value={formData.scramble_count || 1}
+          value={formData.scramble_count || 15}
           onChange={handleChange}
           style={{ width: '200px' }}
         >

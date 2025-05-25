@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Card, Button, Collapse, Alert, Pagination, Dropdown } from 'react-bootstrap';
 import { CSVLink } from 'react-csv';
 
-const ScrambleResults = ({ results }) => {
+const ScrambleResults = ({ results, isMobile }) => {
   const [showSolutions, setShowSolutions] = useState({});
   const [copySuccess, setCopySuccess] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [scramblesPerPage, setScramblesPerPage] = useState(10);
+  const [scramblesPerPage, setScramblesPerPage] = useState(5);
   
   // Add debug logging
   useEffect(() => {
@@ -151,8 +151,8 @@ const ScrambleResults = ({ results }) => {
   const renderSolution = (result) => {
     return (
       <Collapse in={showSolutions[result.id]}>
-        <div className="mt-2">
-          <div className="p-3 bg-light rounded solution-container">
+        <div className="solution-card mt-3">
+          <div className="p-3 solution-container">
             {/* Rotation information at the beginning */}
             {result.solution && (
               <div className="mb-1">
@@ -337,87 +337,181 @@ const ScrambleResults = ({ results }) => {
 
   return (
     <div className="mt-4">
-      <Card>
-        <Card.Header className="d-flex justify-content-between align-items-center">
-          <h3 className="mb-0">Scrambles ({results.length})</h3>
-          <div className="d-flex align-items-center">
-            <Dropdown className="me-2">
-              <Dropdown.Toggle variant="outline-secondary" id="page-size-dropdown">
-                {scramblesPerPage === results.length ? 'All' : `${scramblesPerPage} per page`}
-              </Dropdown.Toggle>
-              <Dropdown.Menu>
-                <Dropdown.Item onClick={() => handlePageSizeChange(10)}>10 per page</Dropdown.Item>
-                <Dropdown.Item onClick={() => handlePageSizeChange(20)}>20 per page</Dropdown.Item>
-                <Dropdown.Item onClick={() => handlePageSizeChange(50)}>50 per page</Dropdown.Item>
-                <Dropdown.Item onClick={() => handlePageSizeChange(100)}>100 per page</Dropdown.Item>
-                <Dropdown.Item onClick={() => handlePageSizeChange(results.length)}>Show all</Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
-            <Button
-              variant="outline-primary"
-              className="me-2"
+      {/* Action buttons - now in a fixed position on mobile */}
+      
+
+      {/* Results */}
+      <div className="mt-3 scramble-list-container">
+        <div className="scramble-header p-3 pb-0 d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+          <h4 className="mb-3 mb-md-0 scramble-header-label" style={{fontSize: '1.6rem', fontWeight: 500}}>Scrambles ({results.length})</h4>
+          <div className="d-flex flex-row flex-wrap gap-2 align-items-center justify-content-md-end">
+            <Button 
+              variant="outline-primary" 
+              size={isMobile ? "sm" : undefined}
+              className={isMobile ? "btn-xs" : ""}
               onClick={() => toggleAllSolutions(true)}
             >
               Expand All
             </Button>
-            <Button
-              variant="outline-primary"
-              className="me-2"
+            <Button 
+              variant="outline-primary" 
+              size={isMobile ? "sm" : undefined}
+              className={isMobile ? "btn-xs" : ""}
               onClick={() => toggleAllSolutions(false)}
             >
               Collapse All
             </Button>
-            <Button
-              variant="outline-primary"
-              className="me-2"
+            <Button 
+              variant="outline-primary" 
+              size={isMobile ? "sm" : undefined}
+              className={isMobile ? "btn-xs" : ""}
               onClick={copyScramblesToClipboard}
             >
               Copy Scrambles
             </Button>
-            <CSVLink
-              data={prepareCsvData()}
+            <CSVLink 
+              data={prepareCsvData()} 
               filename="scrambles.csv"
-              className="btn btn-outline-success"
+              className={`btn btn-outline-success ${isMobile ? 'btn-sm btn-xs' : ''}`}
+              style={{ textDecoration: 'none' }}
             >
               Download CSV
             </CSVLink>
-          </div>
-        </Card.Header>
-        <Card.Body>
-          {copySuccess && (
-            <Alert variant="success" onClose={() => setCopySuccess(false)} dismissible>
-              Scrambles copied to clipboard!
-            </Alert>
-          )}
-          
-          {currentScrambles.map((result, index) => (
-            <div key={result.id || index} className="mb-4 scramble-item">
-              <div className="d-flex justify-content-between align-items-start">
-                <div className="d-flex align-items-center">
-                  <span className="me-3 scramble-number">{indexOfFirstScramble + index + 1})</span>
-                  <div className="scramble-text">
-                    {result.scramble}
-                  </div>
-                </div>
-                <Button
-                  variant="outline-secondary"
-                  size="sm"
-                  onClick={() => toggleSolution(result.id || index)}
+            <div className="d-flex align-items-center ms-1">
+              <span className="me-1 small">Show:</span>
+              <Dropdown>
+                <Dropdown.Toggle 
+                  variant="outline-secondary" 
+                  size={isMobile ? "sm" : undefined}
+                  className={isMobile ? "btn-xs px-2" : "px-2"}
                 >
-                  {showSolutions[result.id || index] ? 'Hide Solution' : 'Show Solution'}
-                </Button>
-              </div>
-              
-              {renderSolution(result)}
+                  {scramblesPerPage}
+                </Dropdown.Toggle>
+                <Dropdown.Menu>
+                  {[5, 10, 50, 100, 1000].map(size => (
+                    <Dropdown.Item 
+                      key={size} 
+                      onClick={() => handlePageSizeChange(size)}
+                    >
+                      {size} per page
+                    </Dropdown.Item>
+                  ))}
+                </Dropdown.Menu>
+              </Dropdown>
             </div>
-          ))}
-          
-          {totalPages > 1 && renderPagination()}
-        </Card.Body>
-      </Card>
-      
-      {/* Add some custom styling for the solution section */}
+          </div>
+        </div>
+        {currentScrambles.map((result, index) => (
+          <div key={result.id} className="scramble-row-card">
+            <div className="p-3 d-flex flex-column flex-md-row justify-content-between align-items-start">
+              {/* Show solution button at the top on mobile */}
+              {isMobile && (
+                <Button
+                  variant="outline-primary"
+                  size="sm"
+                  className="mb-2 w-100 btn-xs"
+                  onClick={() => toggleSolution(result.id)}
+                >
+                  {showSolutions[result.id] ? 'Hide Solution' : 'Show Solution'}
+                </Button>
+              )}
+              <div className="flex-grow-1">
+                <div className="d-flex align-items-center mb-2">
+                  <span className="scramble-number-lg me-2">{indexOfFirstScramble + index + 1})</span>
+                  <div className="scramble-text">{result.scramble}</div>
+                </div>
+              </div>
+              {/* Show solution button on the right for desktop */}
+              {!isMobile && (
+                <Button
+                  variant="outline-primary"
+                  onClick={() => toggleSolution(result.id)}
+                  className="ms-4"
+                >
+                  {showSolutions[result.id] ? 'Hide Solution' : 'Show Solution'}
+                </Button>
+              )}
+            </div>
+            {/* Solution section */}
+            {renderSolution(result)}
+            {index !== currentScrambles.length - 1 && (
+              <div className="scramble-divider"></div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Pagination */}
+      <div className="d-flex justify-content-center mt-3">
+        {renderPagination()}
+      </div>
+
+      {/* Copy success alert */}
+      {copySuccess && (
+        <Alert 
+          variant="success" 
+          className="position-fixed bottom-0 end-0 m-3" 
+          style={{ zIndex: 1000 }}
+          onClose={() => setCopySuccess(false)} 
+          dismissible
+        >
+          Scrambles copied to clipboard!
+        </Alert>
+      )}
+
+      {/* Add custom styling */}
       <style jsx>{`
+        .scramble-text {
+          font-size: ${isMobile ? '1.1rem' : '1.25rem'};
+          font-family: 'Rubik', monospace, 'Rubik', 'Arial', sans-serif;
+          white-space: pre-wrap;
+          word-break: keep-all;
+          word-wrap: break-word;
+          letter-spacing: 0.5px;
+          color: #000000;
+          text-align: justify;
+          text-justify: inter-word;
+        }
+        
+        .scramble-header-label {
+          color: #000;
+        }
+        
+        .scramble-number-lg {
+          font-size: ${isMobile ? '1.2rem' : '1.3rem'};
+          font-weight: bold;
+          color: #000000;
+          font-family: 'Rubik', monospace;
+        }
+        
+        .smaller-text {
+          font-size: 0.8rem;
+          padding: 0.25rem 0.5rem;
+        }
+        
+        .scramble-row-card {
+          background: #fff;
+          border-radius: 0;
+          box-shadow: none;
+          margin: 0;
+          border: none;
+        }
+        
+        .scramble-number {
+          font-size: 1.2rem;
+          font-weight: bold;
+          color: #222;
+          font-family: 'Rubik', monospace;
+        }
+        
+        .solution-card {
+          background: #f8f9fa;
+          border-radius: 0.5rem;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+          border: 1px solid #e3e6ea;
+          margin-top: 0.5rem;
+        }
+        
         .solution-container {
           font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
@@ -449,28 +543,26 @@ const ScrambleResults = ({ results }) => {
           font-size: 1.2em;
         }
 
-        .scramble-text {
-          font-size: 1.4rem;
-          font-family: 'Rubik', monospace;
-          white-space: pre-wrap;
-          word-break: break-all;
-          letter-spacing: 0.5px;
+        .show-dropdown {
+          min-width: 45px;
+          font-size: 0.8rem;
         }
 
-        .scramble-number {
-          font-size: 1.6rem;
-          font-weight: 600;
-          color: #495057;
-          font-family: 'Rubik', sans-serif;
+        .btn-xs {
+          font-size: 0.92rem !important;
+          padding: 0.32rem 0.7rem !important;
+          line-height: 1.3 !important;
         }
 
-        .scramble-item {
-          padding-bottom: 1.2rem;
-          border-bottom: 1px solid #dee2e6;
+        .scramble-list-container {
+          border: 1.5px solid #e3e6ea;
+          border-radius: 12px;
+          background: #f8f9fa;
+          overflow: hidden;
         }
-
-        .scramble-item:last-child {
-          border-bottom: none;
+        .scramble-divider {
+          border-bottom: 1px solid #e3e6ea;
+          margin: 0 18px;
         }
       `}</style>
     </div>

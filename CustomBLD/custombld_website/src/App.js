@@ -82,53 +82,32 @@ function App() {
       // Add refresh parameter to URL if needed
       const refreshParam = refresh ? '?refresh=true' : '';
       
-      // URLs to try in order
-      const urls = [
-        `/scramble-stats${refreshParam}`,
-        // `http://server:5000/scramble-stats${refreshParam}`,
-        // `http://localhost:5000/scramble-stats${refreshParam}`
-      ];
+      // Check if we're in development mode (no .env.prd)
+      const isDevelopment = !process.env.REACT_APP_ENV || process.env.REACT_APP_ENV !== 'production';
       
-      let succeeded = false;
-      let lastError = null;
+      // Use full URL in development, relative URL in production
+      const baseUrl = isDevelopment ? 'http://localhost:5000' : '';
+      const response = await fetch(`${baseUrl}/scramble-stats${refreshParam}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: isDevelopment ? 'omit' : 'include',
+        mode: isDevelopment ? 'cors' : 'same-origin'
+      });
       
-      // Try each URL in sequence
-      for (const url of urls) {
-        try {
-          console.log(`Attempting to fetch stats from: ${url}`);
-          const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          });
-          
-          if (response.ok) {
-            const data = await response.json();
-            setStats(data);
-            setStatsLoading(false);
-            succeeded = true;
-            console.log(`Successfully fetched stats from: ${url}`);
-            
-            // If this was a refresh, show a message
-            if (refresh) {
-              // If we have a notification system, we could use it here
-              console.log('Statistics refreshed successfully');
-            }
-            
-            break; // Exit the loop on success
-          } else {
-            const errorText = await response.text();
-            throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
-          }
-        } catch (error) {
-          console.warn(`Failed to fetch from ${url}:`, error);
-          lastError = error;
-        }
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
       }
       
-      if (!succeeded) {
-        throw lastError || new Error('Failed to fetch statistics from all available endpoints');
+      const data = await response.json();
+      setStats(data);
+      setStatsLoading(false);
+      
+      // If this was a refresh, show a message
+      if (refresh) {
+        console.log('Statistics refreshed successfully');
       }
     } catch (err) {
       console.error('Error fetching stats:', err);
@@ -232,7 +211,7 @@ function App() {
         >
           <Tab eventKey="search" title={<span><i className="fas fa-search me-1"></i>{isMobile ? "" : " Search"}</span>}>
             <div className="py-2">
-              <QueryForm onSubmit={handleFormSubmit} />
+              <QueryForm onSubmit={handleFormSubmit} isMobile={isMobile} />
               
               {error && (
                 <div className="alert alert-danger my-3" role="alert">
@@ -241,7 +220,10 @@ function App() {
               )}
               
               {results && results.length > 0 && (
-                <ScrambleResults results={results} />
+                <ScrambleResults 
+                  results={results} 
+                  isMobile={isMobile}
+                />
               )}
             </div>
           </Tab>

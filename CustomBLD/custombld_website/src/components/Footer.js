@@ -14,10 +14,16 @@ function Footer() {
           />
           <div className="contact-section me-4">
             <h5 className="mb-2">Feel free to contact me!</h5>
-            <a href="mailto:rotohands@gmail.com" className="text-white text-decoration-none">
-              <i className="fas fa-envelope me-2"></i>
-              rotohands@gmail.com
-            </a>
+            <div className="d-flex flex-column gap-2">
+              <a href="mailto:rotohands@gmail.com" className="text-white text-decoration-none">
+                <i className="fas fa-envelope me-2"></i>
+                rotohands@gmail.com
+              </a>
+              <a href="https://discord.gg/rotohands" target="_blank" rel="noopener noreferrer" className="text-white text-decoration-none">
+                <i className="fab fa-discord me-2"></i>
+                Discord
+              </a>
+            </div>
           </div>
           <div className="social-grid">
             <div className="d-flex gap-3 mb-3">

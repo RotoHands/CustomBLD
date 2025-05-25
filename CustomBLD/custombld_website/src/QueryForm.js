@@ -21,7 +21,7 @@ import {
 } from './components/LetterScheme';
 
 
-const QueryForm = ({ onSubmit }) => {
+const QueryForm = ({ onSubmit, isMobile }) => {
   const [formData, setFormData] = useState({
     scramble_type: '3bld',  // Set default to 3bld
     edge_buffer: 'UF',  // Set default buffer to UF
@@ -111,7 +111,7 @@ const QueryForm = ({ onSubmit }) => {
       xCenters: [],
       tCenters: []
     },
-    scramble_count: 1,
+    scramble_count: 15,
     generate_solutions: 'yes'
   });
 
@@ -428,7 +428,7 @@ const QueryForm = ({ onSubmit }) => {
           xCenters: [],
           tCenters: []
         },
-        scramble_count: 1,
+        scramble_count: 15,
         generate_solutions: 'yes'
       });
       localStorage.removeItem('letterScheme');
@@ -767,20 +767,21 @@ const QueryForm = ({ onSubmit }) => {
           try {
             setIsSubmitting(true);
             
-            // Use the full URL to your Flask server
-            // const response = await fetch('http://localhost:5000/query-scrambles', {
-              const response = await fetch('/query-scrambles', {
+            // Check if we're in development mode (no .env.prd)
+            const isDevelopment = !process.env.REACT_APP_ENV || process.env.REACT_APP_ENV !== 'production';
+            
+            // Use full URL in development, relative URL in production
+            const baseUrl = isDevelopment ? 'http://localhost:5000' : '';
+            const response = await fetch(`${baseUrl}/query-scrambles`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
               },
               body: JSON.stringify(payload),
-              credentials: 'omit', // Try with different credentials options
-              mode: 'cors'  // Explicitly set CORS mode
+              credentials: isDevelopment ? 'omit' : 'include',
+              mode: isDevelopment ? 'cors' : 'same-origin'
             });
-            
-            console.log('Response status:', response.status);
             
             if (!response.ok) {
               const errorText = await response.text();
@@ -903,11 +904,13 @@ const QueryForm = ({ onSubmit }) => {
             </Accordion.Item>
           </Accordion>
 
-          <div className="d-flex justify-content-between mt-4">
+          <div className="d-flex justify-content-between mt-4 gap-3">
             <Button 
               variant="primary" 
               onClick={saveSettings}
               type="button"
+              size={isMobile ? "sm" : undefined}
+              className={isMobile ? "px-2 py-1" : ""}
             >
               Save Settings
             </Button>
@@ -915,6 +918,8 @@ const QueryForm = ({ onSubmit }) => {
               variant="outline-danger" 
               onClick={resetSettings}
               type="button"
+              size={isMobile ? "sm" : undefined}
+              className={isMobile ? "px-2 py-1" : ""}
             >
               Reset All
             </Button>
