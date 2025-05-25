@@ -497,456 +497,475 @@ const QueryForm = ({ onSubmit, isMobile }) => {
   };
 
   return (
-    <Card className="p-4 my-4 shadow-sm bg-light">
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
-      <Card.Body>
-        <h2 className="text-primary text-center mb-4">CustomBLD - Scramble Generator</h2>
-        
-        <Form onSubmit={async (e) => {
-          e.preventDefault(); // Make sure to prevent default form submission
-          
-          // Check if scramble type is selected and valid
-          if (!formData.scramble_type || !scrambleTypes.includes(formData.scramble_type)) {
-            toast.warning('You forgot to choose a scramble type');
-            return;
-          }
-          
-          // Construct the payload based on form data
-          const payload = {
-            // Always include these fields
-            scramble_type: formData.scramble_type,
-            letterScheme: formData.letterScheme,
-            scramble_count: formData.scramble_count,
-            generate_solutions: formData.generate_solutions
-          };
-          
-          // Add edge data if needed (3BLD, 4BLD, 5BLD or specific edge selections)
-          if (['3bld', '3bld_edges', '5bld', '5bld_edges_corners'].includes(formData.scramble_type)) {
-            payload.edge_buffer = formData.edge_buffer;
+    <>
+      <Card 
+        className={`shadow-sm bg-light${isMobile ? ' w-100 m-0 p-2' : ' p-4 my-4'}`}
+        style={isMobile ? { maxWidth: '100vw', minWidth: 0 } : {}}
+      >
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
+        <Card.Body>        
+          <Form onSubmit={async (e) => {
+            e.preventDefault(); // Make sure to prevent default form submission
             
-            // Handle edge length based on selection
-            if (formData.edge_length_type === 'random') {
-              payload.edge_length_type = 'random';
-            } else {
-              payload.edge_length_type = 'range';
+            // Check if scramble type is selected and valid
+            if (!formData.scramble_type || !scrambleTypes.includes(formData.scramble_type)) {
+              toast.warning('You forgot to choose a scramble type');
+              return;
+            }
+            
+            // Construct the payload based on form data
+            const payload = {
+              // Always include these fields
+              scramble_type: formData.scramble_type,
+              letterScheme: formData.letterScheme,
+              scramble_count: formData.scramble_count,
+              generate_solutions: formData.generate_solutions
+            };
+            
+            // Add edge data if needed (3BLD, 4BLD, 5BLD or specific edge selections)
+            if (['3bld', '3bld_edges', '5bld', '5bld_edges_corners'].includes(formData.scramble_type)) {
+              payload.edge_buffer = formData.edge_buffer;
               
-              // Special case: if both min and max are 0, set a flag for empty
-              if (formData.edge_length_min === 0 && formData.edge_length_max === 0) {
-                payload.edge_length_empty = true;
+              // Handle edge length based on selection
+              if (formData.edge_length_type === 'random') {
+                payload.edge_length_type = 'random';
               } else {
-                payload.edge_length_min = formData.edge_length_min;
-                payload.edge_length_max = formData.edge_length_max;
+                payload.edge_length_type = 'range';
+                
+                // Special case: if both min and max are 0, set a flag for empty
+                if (formData.edge_length_min === 0 && formData.edge_length_max === 0) {
+                  payload.edge_length_empty = true;
+                } else {
+                  payload.edge_length_min = formData.edge_length_min;
+                  payload.edge_length_max = formData.edge_length_max;
+                }
+              }
+              
+              // Handle cycle breaks based on selection
+              if (formData.edge_cycle_breaks_type === 'random') {
+                payload.edge_cycle_breaks_type = 'random';
+              } else {
+                payload.edge_cycle_breaks_type = 'range';
+                // Always use the literal range values, even for 0-0
+                payload.edge_cycle_breaks_min = formData.edge_cycle_breaks_min;
+                payload.edge_cycle_breaks_max = formData.edge_cycle_breaks_max;
+              }
+              
+              // Add edge parity
+              payload.edge_parity = formData.edge_parity;
+
+              // For flipped edges - don't use the empty flag
+              if (formData.edges_flipped_type === 'random') {
+                payload.edges_flipped_type = 'random';
+              } else {
+                payload.edges_flipped_type = 'range';
+                // Always use the literal range values, even for 0-0
+                payload.edges_flipped_min = formData.edges_flipped_min;
+                payload.edges_flipped_max = formData.edges_flipped_max;
+              }
+              
+              // For solved edges - don't use the empty flag
+              if (formData.edges_solved_type === 'random') {
+                payload.edges_solved_type = 'random';
+              } else {
+                payload.edges_solved_type = 'range';
+                // Always use the literal range values, even for 0-0
+                payload.edges_solved_min = formData.edges_solved_min;
+                payload.edges_solved_max = formData.edges_solved_max;
               }
             }
             
-            // Handle cycle breaks based on selection
-            if (formData.edge_cycle_breaks_type === 'random') {
-              payload.edge_cycle_breaks_type = 'random';
-            } else {
-              payload.edge_cycle_breaks_type = 'range';
-              // Always use the literal range values, even for 0-0
-              payload.edge_cycle_breaks_min = formData.edge_cycle_breaks_min;
-              payload.edge_cycle_breaks_max = formData.edge_cycle_breaks_max;
-            }
-            
-            // Add edge parity
-            payload.edge_parity = formData.edge_parity;
+            // Add corner data if needed (3BLD, 4BLD, 5BLD or specific corner selections)
+            if (['3bld', '3bld_corners', '4bld', '5bld'].includes(formData.scramble_type)) {
+              payload.corner_buffer = formData.corner_buffer;
+              
+              // Handle corner length based on selection
+              if (formData.corner_length_type === 'random') {
+                payload.corner_length_type = 'random';
+              } else {
+                payload.corner_length_type = 'range';
+                // Always use the literal range values, even for 0-0
+                payload.corner_length_min = formData.corner_length_min;
+                payload.corner_length_max = formData.corner_length_max;
+              }
+              
+              // Handle cycle breaks based on selection
+              if (formData.corners_cycle_breaks_type === 'random') {
+                payload.corners_cycle_breaks_type = 'random';
+              } else {
+                payload.corners_cycle_breaks_type = 'range';
+                // Always use the literal range values, even for 0-0
+                payload.corners_cycle_breaks_min = formData.corners_cycle_breaks_min;
+                payload.corners_cycle_breaks_max = formData.corners_cycle_breaks_max;
+              }
+              
+              // Add corner parity
+              payload.corner_parity = formData.corner_parity;
+              
+              // For clockwise twists - check the length of twist_clockwise
+              if (formData.corners_cw_twists_type === 'random') {
+                payload.corners_cw_twists_type = 'random';
+              } else {
+                payload.corners_cw_twists_type = 'range';
+                // Always use the literal range values, even for 0-0
+                payload.corners_cw_twists_min = formData.corners_cw_twists_min;
+                payload.corners_cw_twists_max = formData.corners_cw_twists_max;
+                // Add a flag to indicate we want to check the data length
+                payload.corners_cw_twists_length = true;
+              }
+              
+              // For counterclockwise twists - check the length of twist_counterclockwise
+              if (formData.corners_ccw_twists_type === 'random') {
+                payload.corners_ccw_twists_type = 'random';
+              } else {
+                payload.corners_ccw_twists_type = 'range';
+                // Always use the literal range values, even for 0-0
+                payload.corners_ccw_twists_min = formData.corners_ccw_twists_min;
+                payload.corners_ccw_twists_max = formData.corners_ccw_twists_max;
+                // Add a flag to indicate we want to check the data length
+                payload.corners_ccw_twists_length = true;
+              }
 
-            // For flipped edges - don't use the empty flag
-            if (formData.edges_flipped_type === 'random') {
-              payload.edges_flipped_type = 'random';
-            } else {
-              payload.edges_flipped_type = 'range';
-              // Always use the literal range values, even for 0-0
-              payload.edges_flipped_min = formData.edges_flipped_min;
-              payload.edges_flipped_max = formData.edges_flipped_max;
+              // For solved corners
+              if (formData.corners_solved_type === 'random') {
+                payload.corners_solved_type = 'random';
+              } else {
+                payload.corners_solved_type = 'range';
+                // Always use the literal range values, even for 0-0
+                payload.corners_solved_min = formData.corners_solved_min;
+                payload.corners_solved_max = formData.corners_solved_max;
+              }
             }
             
-            // For solved edges - don't use the empty flag
-            if (formData.edges_solved_type === 'random') {
-              payload.edges_solved_type = 'random';
-            } else {
-              payload.edges_solved_type = 'range';
-              // Always use the literal range values, even for 0-0
-              payload.edges_solved_min = formData.edges_solved_min;
-              payload.edges_solved_max = formData.edges_solved_max;
+            // Add wing data if needed (4BLD, 5BLD)
+            if (['4bld', '4bld_wings', '5bld'].includes(formData.scramble_type)) {
+              payload.wing_buffer = formData.wing_buffer;
+              
+              // Handle wings length based on selection
+              if (formData.wings_length_type === 'random') {
+                payload.wings_length_type = 'random';
+              } else {
+                payload.wings_length_type = 'range';
+                // Always use the literal range values, even for 0-0
+                payload.wings_length_min = formData.wings_length_min;
+                payload.wings_length_max = formData.wings_length_max;
+              }
+              
+              // Handle cycle breaks based on selection
+              if (formData.wings_cycle_breaks_type === 'random') {
+                payload.wings_cycle_breaks_type = 'random';
+              } else {
+                payload.wings_cycle_breaks_type = 'range';
+                // Always use the literal range values, even for 0-0
+                payload.wings_cycle_breaks_min = formData.wings_cycle_breaks_min;
+                payload.wings_cycle_breaks_max = formData.wings_cycle_breaks_max;
+              }
+              
+              // For solved wings - don't use the empty flag  
+              if (formData.wings_solved_type === 'random') {
+                payload.wings_solved_type = 'random';
+              } else {
+                payload.wings_solved_type = 'range';
+                // Always use the literal range values, even for 0-0
+                payload.wings_solved_min = formData.wings_solved_min;
+                payload.wings_solved_max = formData.wings_solved_max;
+              }
+              
+              // Add wing parity
+              payload.wing_parity = formData.wing_parity;
             }
+            
+            // Add x-center data if needed (4BLD, 5BLD)
+            if (['4bld', '4bld_centers', '5bld'].includes(formData.scramble_type)) {
+              payload.xcenter_buffer = formData.xcenter_buffer;
+              
+              // Handle x-centers length based on selection
+              if (formData.x_centers_length_type === 'random') {
+                payload.x_centers_length_type = 'random';
+              } else {
+                payload.x_centers_length_type = 'range';
+                // Always use the literal range values, even for 0-0
+                payload.x_centers_length_min = formData.x_centers_length_min;
+                payload.x_centers_length_max = formData.x_centers_length_max;
+              }
+              
+              // Handle cycle breaks based on selection
+              if (formData.x_centers_cycle_breaks_type === 'random') {
+                payload.x_centers_cycle_breaks_type = 'random';
+              } else {
+                payload.x_centers_cycle_breaks_type = 'range';
+                // Always use the literal range values, even for 0-0
+                payload.x_centers_cycle_breaks_min = formData.x_centers_cycle_breaks_min;
+                payload.x_centers_cycle_breaks_max = formData.x_centers_cycle_breaks_max;
+              }
+              
+              // For solved x-centers - don't use the empty flag
+              if (formData.x_centers_solved_type === 'random') {
+                payload.x_centers_solved_type = 'random';
+              } else {
+                payload.x_centers_solved_type = 'range';
+                // Always use the literal range values, even for 0-0
+                payload.x_centers_solved_min = formData.x_centers_solved_min;
+                payload.x_centers_solved_max = formData.x_centers_solved_max;
+              }
+              
+              // Add x-center parity
+              payload.xcenter_parity = formData.xcenter_parity;
+            }
+            
+            // Add t-center data if needed (5BLD only)
+            if (['5bld'].includes(formData.scramble_type)) {
+              payload.tcenter_buffer = formData.tcenter_buffer;
+              
+              // Handle t-centers length based on selection
+              if (formData.t_centers_length_type === 'random') {
+                payload.t_centers_length_type = 'random';
+              } else {
+                payload.t_centers_length_type = 'range';
+                // Always use the literal range values, even for 0-0
+                payload.t_centers_length_min = formData.t_centers_length_min;
+                payload.t_centers_length_max = formData.t_centers_length_max;
+              }
+              
+              // Handle cycle breaks based on selection
+              if (formData.t_centers_cycle_breaks_type === 'random') {
+                payload.t_centers_cycle_breaks_type = 'random';
+              } else {
+                payload.t_centers_cycle_breaks_type = 'range';
+                // Always use the literal range values, even for 0-0
+                payload.t_centers_cycle_breaks_min = formData.t_centers_cycle_breaks_min;
+                payload.t_centers_cycle_breaks_max = formData.t_centers_cycle_breaks_max;
+              }
+              
+              // For solved t-centers - don't use the empty flag
+              if (formData.t_centers_solved_type === 'random') {
+                payload.t_centers_solved_type = 'random';
+              } else {
+                payload.t_centers_solved_type = 'range';
+                // Always use the literal range values, even for 0-0
+                payload.t_centers_solved_min = formData.t_centers_solved_min;
+                payload.t_centers_solved_max = formData.t_centers_solved_max;
+              }
+              
+              // Add t-center parity
+              payload.tcenter_parity = formData.tcenter_parity;
+            }
+            
+            // Add practice letters if any are selected
+            if (Object.values(formData.practiceLetters).some(arr => arr.length > 0)) {
+              payload.practiceLetters = formData.practiceLetters;
+            }
+            
+            try {
+              setIsSubmitting(true);
+              
+              // Check if we're in development mode (no .env.prd)
+              const isDevelopment = !process.env.REACT_APP_ENV || process.env.REACT_APP_ENV !== 'production';
+              
+              // Use full URL in development, environment variable in production
+              const baseUrl = isDevelopment
+                ? 'http://localhost:5000'
+                : process.env.REACT_APP_API_URL || '';
+              const response = await fetch(`${baseUrl}/query-scrambles`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Accept': 'application/json'
+                },
+                body: JSON.stringify(payload),
+                credentials: isDevelopment ? 'omit' : 'include',
+                mode: isDevelopment ? 'cors' : 'same-origin'
+              });
+              
+              if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Error response:', errorText);
+                throw new Error(`Server error: ${response.status} - ${errorText}`);
+              }
+              
+              const data = await response.json();
+              console.log('Received data:', data);
+              
+              // Pass results back to parent through onSubmit callback
+              onSubmit(data.results || []);
+            } catch (error) {
+              console.error('Error fetching scrambles:', error);
+              // You can show an error message or pass the error to parent
+              onSubmit([], error.message);
+            } finally {
+              setIsSubmitting(false);
+            }
+          }}>
+            <Accordion defaultActiveKey={['0','1','2','6', '7']} alwaysOpen className={isMobile ? 'wide-accordion' : ''}>
+              <Accordion.Item eventKey="0">
+                <Accordion.Header>Scramble Type</Accordion.Header>
+                <Accordion.Body>
+                  <Form.Group className="mb-3">
+                    <Form.Select 
+                      name="scramble_type"
+                      value={formData.scramble_type}
+                      onChange={handleChange}
+                    >
+                      <option value="">Select Scramble Type</option>
+                      {scrambleTypes.map(type => (
+                        <option key={type} value={type}>{type}</option>
+                      ))}
+                    </Form.Select>
+                  </Form.Group>
+                </Accordion.Body>
+              </Accordion.Item>
+
+              <Accordion.Item eventKey="1">
+                <Accordion.Header>Edges</Accordion.Header>
+                <Accordion.Body>
+                  <EdgeSection 
+                    formData={formData} 
+                    handleChange={handleChange}
+                    renderNumberSelect={renderNumberSelect}
+                    handlePracticeLetterChange={handlePracticeLetterChange}
+                    handleLetterChange={handleLetterChange}
+                  />
+                </Accordion.Body>
+              </Accordion.Item>
+
+              <Accordion.Item eventKey="2">
+                <Accordion.Header>Corners</Accordion.Header>
+                <Accordion.Body>
+                  <CornerSection 
+                    formData={formData} 
+                    handleChange={handleChange}
+                    renderNumberSelect={renderNumberSelect}
+                    handlePracticeLetterChange={handlePracticeLetterChange}
+                    handleLetterChange={handleLetterChange}
+                  />
+                </Accordion.Body>
+              </Accordion.Item>
+
+              <Accordion.Item eventKey="3">
+                <Accordion.Header>Wings</Accordion.Header>
+                <Accordion.Body>
+                  <WingSection 
+                    formData={formData} 
+                    handleChange={handleChange}
+                    renderNumberSelect={renderNumberSelect}
+                    handlePracticeLetterChange={handlePracticeLetterChange}
+                  />
+                </Accordion.Body>
+              </Accordion.Item>
+
+              <Accordion.Item eventKey="4">
+                <Accordion.Header>X-Centers</Accordion.Header>
+                <Accordion.Body>
+                  <XCenterSection 
+                    formData={formData} 
+                    handleChange={handleChange}
+                    renderNumberSelect={renderNumberSelect}
+                    handlePracticeLetterChange={handlePracticeLetterChange}
+                  />
+                </Accordion.Body>
+              </Accordion.Item>
+
+              <Accordion.Item eventKey="5">
+                <Accordion.Header>T-Centers</Accordion.Header>
+                <Accordion.Body>
+                  <TCenterSection 
+                    formData={formData} 
+                    handleChange={handleChange}
+                    renderNumberSelect={renderNumberSelect}
+                    handlePracticeLetterChange={handlePracticeLetterChange}
+                  />
+                </Accordion.Body>
+              </Accordion.Item>
+
+              <Accordion.Item eventKey="6">
+                <Accordion.Header>Letter Scheme</Accordion.Header>
+                <Accordion.Body>
+                  <LetterSchemeSection 
+                    formData={formData}
+                    handleLetterChange={handleLetterChange}
+                  />
+                </Accordion.Body>
+              </Accordion.Item>
+
+              <Accordion.Item eventKey="7">
+                <Accordion.Header>Additional Settings</Accordion.Header>
+                <Accordion.Body>
+                  <AdditionalSettings 
+                    formData={formData}
+                    handleChange={handleChange}
+                  />
+                </Accordion.Body>
+              </Accordion.Item>
+            </Accordion>
+
+            <div className="d-flex justify-content-between mt-4 gap-3">
+              <Button 
+                variant="primary" 
+                onClick={saveSettings}
+                type="button"
+                size={isMobile ? "sm" : undefined}
+                className={isMobile ? "px-2 py-1" : ""}
+              >
+                Save Settings
+              </Button>
+              <Button 
+                variant="outline-danger" 
+                onClick={resetSettings}
+                type="button"
+                size={isMobile ? "sm" : undefined}
+                className={isMobile ? "px-2 py-1" : ""}
+              >
+                Reset All
+              </Button>
+            </div>
+
+            <div className="d-grid gap-2 mt-4">
+              <Button 
+                variant="primary" 
+                size="lg" 
+                type="submit"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    Generating...
+                  </>
+                ) : (
+                  'Generate Custom Scrambles!'
+                )}
+              </Button>
+            </div>
+          </Form>
+        </Card.Body>
+      </Card>
+      <style>{`
+        @media (max-width: 767px) {
+          .wide-accordion {
+            width: 130vw !important;
+            position: relative;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-left: 0 !important;
+            margin-right: 0 !important;
           }
-          
-          // Add corner data if needed (3BLD, 4BLD, 5BLD or specific corner selections)
-          if (['3bld', '3bld_corners', '4bld', '5bld'].includes(formData.scramble_type)) {
-            payload.corner_buffer = formData.corner_buffer;
-            
-            // Handle corner length based on selection
-            if (formData.corner_length_type === 'random') {
-              payload.corner_length_type = 'random';
-            } else {
-              payload.corner_length_type = 'range';
-              // Always use the literal range values, even for 0-0
-              payload.corner_length_min = formData.corner_length_min;
-              payload.corner_length_max = formData.corner_length_max;
-            }
-            
-            // Handle cycle breaks based on selection
-            if (formData.corners_cycle_breaks_type === 'random') {
-              payload.corners_cycle_breaks_type = 'random';
-            } else {
-              payload.corners_cycle_breaks_type = 'range';
-              // Always use the literal range values, even for 0-0
-              payload.corners_cycle_breaks_min = formData.corners_cycle_breaks_min;
-              payload.corners_cycle_breaks_max = formData.corners_cycle_breaks_max;
-            }
-            
-            // Add corner parity
-            payload.corner_parity = formData.corner_parity;
-            
-            // For clockwise twists - check the length of twist_clockwise
-            if (formData.corners_cw_twists_type === 'random') {
-              payload.corners_cw_twists_type = 'random';
-            } else {
-              payload.corners_cw_twists_type = 'range';
-              // Always use the literal range values, even for 0-0
-              payload.corners_cw_twists_min = formData.corners_cw_twists_min;
-              payload.corners_cw_twists_max = formData.corners_cw_twists_max;
-              // Add a flag to indicate we want to check the data length
-              payload.corners_cw_twists_length = true;
-            }
-            
-            // For counterclockwise twists - check the length of twist_counterclockwise
-            if (formData.corners_ccw_twists_type === 'random') {
-              payload.corners_ccw_twists_type = 'random';
-            } else {
-              payload.corners_ccw_twists_type = 'range';
-              // Always use the literal range values, even for 0-0
-              payload.corners_ccw_twists_min = formData.corners_ccw_twists_min;
-              payload.corners_ccw_twists_max = formData.corners_ccw_twists_max;
-              // Add a flag to indicate we want to check the data length
-              payload.corners_ccw_twists_length = true;
-            }
-
-            // For solved corners
-            if (formData.corners_solved_type === 'random') {
-              payload.corners_solved_type = 'random';
-            } else {
-              payload.corners_solved_type = 'range';
-              // Always use the literal range values, even for 0-0
-              payload.corners_solved_min = formData.corners_solved_min;
-              payload.corners_solved_max = formData.corners_solved_max;
-            }
+          .wide-accordion .accordion-item,
+          .wide-accordion .accordion-body {
+            width: 100% !important;
           }
-          
-          // Add wing data if needed (4BLD, 5BLD)
-          if (['4bld', '4bld_wings', '5bld'].includes(formData.scramble_type)) {
-            payload.wing_buffer = formData.wing_buffer;
-            
-            // Handle wings length based on selection
-            if (formData.wings_length_type === 'random') {
-              payload.wings_length_type = 'random';
-            } else {
-              payload.wings_length_type = 'range';
-              // Always use the literal range values, even for 0-0
-              payload.wings_length_min = formData.wings_length_min;
-              payload.wings_length_max = formData.wings_length_max;
-            }
-            
-            // Handle cycle breaks based on selection
-            if (formData.wings_cycle_breaks_type === 'random') {
-              payload.wings_cycle_breaks_type = 'random';
-            } else {
-              payload.wings_cycle_breaks_type = 'range';
-              // Always use the literal range values, even for 0-0
-              payload.wings_cycle_breaks_min = formData.wings_cycle_breaks_min;
-              payload.wings_cycle_breaks_max = formData.wings_cycle_breaks_max;
-            }
-            
-            // For solved wings - don't use the empty flag  
-            if (formData.wings_solved_type === 'random') {
-              payload.wings_solved_type = 'random';
-            } else {
-              payload.wings_solved_type = 'range';
-              // Always use the literal range values, even for 0-0
-              payload.wings_solved_min = formData.wings_solved_min;
-              payload.wings_solved_max = formData.wings_solved_max;
-            }
-            
-            // Add wing parity
-            payload.wing_parity = formData.wing_parity;
-          }
-          
-          // Add x-center data if needed (4BLD, 5BLD)
-          if (['4bld', '4bld_centers', '5bld'].includes(formData.scramble_type)) {
-            payload.xcenter_buffer = formData.xcenter_buffer;
-            
-            // Handle x-centers length based on selection
-            if (formData.x_centers_length_type === 'random') {
-              payload.x_centers_length_type = 'random';
-            } else {
-              payload.x_centers_length_type = 'range';
-              // Always use the literal range values, even for 0-0
-              payload.x_centers_length_min = formData.x_centers_length_min;
-              payload.x_centers_length_max = formData.x_centers_length_max;
-            }
-            
-            // Handle cycle breaks based on selection
-            if (formData.x_centers_cycle_breaks_type === 'random') {
-              payload.x_centers_cycle_breaks_type = 'random';
-            } else {
-              payload.x_centers_cycle_breaks_type = 'range';
-              // Always use the literal range values, even for 0-0
-              payload.x_centers_cycle_breaks_min = formData.x_centers_cycle_breaks_min;
-              payload.x_centers_cycle_breaks_max = formData.x_centers_cycle_breaks_max;
-            }
-            
-            // For solved x-centers - don't use the empty flag
-            if (formData.x_centers_solved_type === 'random') {
-              payload.x_centers_solved_type = 'random';
-            } else {
-              payload.x_centers_solved_type = 'range';
-              // Always use the literal range values, even for 0-0
-              payload.x_centers_solved_min = formData.x_centers_solved_min;
-              payload.x_centers_solved_max = formData.x_centers_solved_max;
-            }
-            
-            // Add x-center parity
-            payload.xcenter_parity = formData.xcenter_parity;
-          }
-          
-          // Add t-center data if needed (5BLD only)
-          if (['5bld'].includes(formData.scramble_type)) {
-            payload.tcenter_buffer = formData.tcenter_buffer;
-            
-            // Handle t-centers length based on selection
-            if (formData.t_centers_length_type === 'random') {
-              payload.t_centers_length_type = 'random';
-            } else {
-              payload.t_centers_length_type = 'range';
-              // Always use the literal range values, even for 0-0
-              payload.t_centers_length_min = formData.t_centers_length_min;
-              payload.t_centers_length_max = formData.t_centers_length_max;
-            }
-            
-            // Handle cycle breaks based on selection
-            if (formData.t_centers_cycle_breaks_type === 'random') {
-              payload.t_centers_cycle_breaks_type = 'random';
-            } else {
-              payload.t_centers_cycle_breaks_type = 'range';
-              // Always use the literal range values, even for 0-0
-              payload.t_centers_cycle_breaks_min = formData.t_centers_cycle_breaks_min;
-              payload.t_centers_cycle_breaks_max = formData.t_centers_cycle_breaks_max;
-            }
-            
-            // For solved t-centers - don't use the empty flag
-            if (formData.t_centers_solved_type === 'random') {
-              payload.t_centers_solved_type = 'random';
-            } else {
-              payload.t_centers_solved_type = 'range';
-              // Always use the literal range values, even for 0-0
-              payload.t_centers_solved_min = formData.t_centers_solved_min;
-              payload.t_centers_solved_max = formData.t_centers_solved_max;
-            }
-            
-            // Add t-center parity
-            payload.tcenter_parity = formData.tcenter_parity;
-          }
-          
-          // Add practice letters if any are selected
-          if (Object.values(formData.practiceLetters).some(arr => arr.length > 0)) {
-            payload.practiceLetters = formData.practiceLetters;
-          }
-          
-          try {
-            setIsSubmitting(true);
-            
-            // Check if we're in development mode (no .env.prd)
-            const isDevelopment = !process.env.REACT_APP_ENV || process.env.REACT_APP_ENV !== 'production';
-            
-            // Use full URL in development, environment variable in production
-            const baseUrl = isDevelopment
-              ? 'http://localhost:5000'
-              : process.env.REACT_APP_API_URL || '';
-            const response = await fetch(`${baseUrl}/query-scrambles`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-              },
-              body: JSON.stringify(payload),
-              credentials: isDevelopment ? 'omit' : 'include',
-              mode: isDevelopment ? 'cors' : 'same-origin'
-            });
-            
-            if (!response.ok) {
-              const errorText = await response.text();
-              console.error('Error response:', errorText);
-              throw new Error(`Server error: ${response.status} - ${errorText}`);
-            }
-            
-            const data = await response.json();
-            console.log('Received data:', data);
-            
-            // Pass results back to parent through onSubmit callback
-            onSubmit(data.results || []);
-          } catch (error) {
-            console.error('Error fetching scrambles:', error);
-            // You can show an error message or pass the error to parent
-            onSubmit([], error.message);
-          } finally {
-            setIsSubmitting(false);
-          }
-        }}>
-          <Accordion defaultActiveKey={['0','1','2','6', '7']} alwaysOpen>
-            <Accordion.Item eventKey="0">
-              <Accordion.Header>Scramble Type</Accordion.Header>
-              <Accordion.Body>
-                <Form.Group className="mb-3">
-                  <Form.Select 
-                    name="scramble_type"
-                    value={formData.scramble_type}
-                    onChange={handleChange}
-                  >
-                    <option value="">Select Scramble Type</option>
-                    {scrambleTypes.map(type => (
-                      <option key={type} value={type}>{type}</option>
-                    ))}
-                  </Form.Select>
-                </Form.Group>
-              </Accordion.Body>
-            </Accordion.Item>
-
-            <Accordion.Item eventKey="1">
-              <Accordion.Header>Edges</Accordion.Header>
-              <Accordion.Body>
-                <EdgeSection 
-                  formData={formData} 
-                  handleChange={handleChange}
-                  renderNumberSelect={renderNumberSelect}
-                  handlePracticeLetterChange={handlePracticeLetterChange}
-                  handleLetterChange={handleLetterChange}
-                />
-              </Accordion.Body>
-            </Accordion.Item>
-
-            <Accordion.Item eventKey="2">
-              <Accordion.Header>Corners</Accordion.Header>
-              <Accordion.Body>
-                <CornerSection 
-                  formData={formData} 
-                  handleChange={handleChange}
-                  renderNumberSelect={renderNumberSelect}
-                  handlePracticeLetterChange={handlePracticeLetterChange}
-                  handleLetterChange={handleLetterChange}
-                />
-              </Accordion.Body>
-            </Accordion.Item>
-
-            <Accordion.Item eventKey="3">
-              <Accordion.Header>Wings</Accordion.Header>
-              <Accordion.Body>
-                <WingSection 
-                  formData={formData} 
-                  handleChange={handleChange}
-                  renderNumberSelect={renderNumberSelect}
-                  handlePracticeLetterChange={handlePracticeLetterChange}
-                />
-              </Accordion.Body>
-            </Accordion.Item>
-
-            <Accordion.Item eventKey="4">
-              <Accordion.Header>X-Centers</Accordion.Header>
-              <Accordion.Body>
-                <XCenterSection 
-                  formData={formData} 
-                  handleChange={handleChange}
-                  renderNumberSelect={renderNumberSelect}
-                  handlePracticeLetterChange={handlePracticeLetterChange}
-                />
-              </Accordion.Body>
-            </Accordion.Item>
-
-            <Accordion.Item eventKey="5">
-              <Accordion.Header>T-Centers</Accordion.Header>
-              <Accordion.Body>
-                <TCenterSection 
-                  formData={formData} 
-                  handleChange={handleChange}
-                  renderNumberSelect={renderNumberSelect}
-                  handlePracticeLetterChange={handlePracticeLetterChange}
-                />
-              </Accordion.Body>
-            </Accordion.Item>
-
-            <Accordion.Item eventKey="6">
-              <Accordion.Header>Letter Scheme</Accordion.Header>
-              <Accordion.Body>
-                <LetterSchemeSection 
-                  formData={formData}
-                  handleLetterChange={handleLetterChange}
-                />
-              </Accordion.Body>
-            </Accordion.Item>
-
-            <Accordion.Item eventKey="7">
-              <Accordion.Header>Additional Settings</Accordion.Header>
-              <Accordion.Body>
-                <AdditionalSettings 
-                  formData={formData}
-                  handleChange={handleChange}
-                />
-              </Accordion.Body>
-            </Accordion.Item>
-          </Accordion>
-
-          <div className="d-flex justify-content-between mt-4 gap-3">
-            <Button 
-              variant="primary" 
-              onClick={saveSettings}
-              type="button"
-              size={isMobile ? "sm" : undefined}
-              className={isMobile ? "px-2 py-1" : ""}
-            >
-              Save Settings
-            </Button>
-            <Button 
-              variant="outline-danger" 
-              onClick={resetSettings}
-              type="button"
-              size={isMobile ? "sm" : undefined}
-              className={isMobile ? "px-2 py-1" : ""}
-            >
-              Reset All
-            </Button>
-          </div>
-
-          <div className="d-grid gap-2 mt-4">
-            <Button 
-              variant="primary" 
-              size="lg" 
-              type="submit"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <>
-                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                  Generating...
-                </>
-              ) : (
-                'Generate Custom Scrambles!'
-              )}
-            </Button>
-          </div>
-        </Form>
-      </Card.Body>
-    </Card>
+        }
+      `}</style>
+    </>
   );
 };
 
