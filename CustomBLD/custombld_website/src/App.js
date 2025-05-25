@@ -155,15 +155,17 @@ function App() {
                   </a>
                 </div>
               </div>
-              <img 
-                src="/rotohands_logo.png" 
-                alt="Roto Hands" 
-                style={{ 
-                  width: '65px', 
-                  height: '65px',
-                  filter: 'invert(1)'
-                }} 
-              />
+              <a href="https://rotohands.com" target="_blank" rel="noopener noreferrer">
+                <img 
+                  src="/rotohands_logo.png" 
+                  alt="Roto Hands" 
+                  style={{ 
+                    width: '65px', 
+                    height: '65px',
+                    filter: 'invert(1)'
+                  }} 
+                />
+              </a>
             </div>
           </div>
         </Container>

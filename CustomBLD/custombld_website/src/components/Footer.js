@@ -7,11 +7,13 @@ function Footer() {
     <footer className="bg-primary text-white py-4 mt-4">
       <Container>
         <div className="d-flex justify-content-between align-items-center">
-          <img 
-            src="/rotohands_logo.png" 
-            alt="Roto Hands" 
-            className="footer-logo me-4"
-          />
+          <a href="https://rotohands.com" target="_blank" rel="noopener noreferrer">
+            <img 
+              src="/rotohands_logo.png" 
+              alt="Roto Hands" 
+              className="footer-logo me-4"
+            />
+          </a>
           <div className="contact-section me-4">
             <h5 className="mb-2">Feel free to contact me!</h5>
             <div className="d-flex flex-column gap-2">
