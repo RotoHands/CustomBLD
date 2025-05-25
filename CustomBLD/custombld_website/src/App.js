@@ -85,8 +85,10 @@ function App() {
       // Check if we're in development mode (no .env.prd)
       const isDevelopment = !process.env.REACT_APP_ENV || process.env.REACT_APP_ENV !== 'production';
       
-      // Use full URL in development, relative URL in production
-      const baseUrl = isDevelopment ? 'http://localhost:5000' : '';
+      // Use full URL in development, environment variable in production
+      const baseUrl = isDevelopment
+        ? 'http://localhost:5000'
+        : process.env.REACT_APP_API_URL || '';
       const response = await fetch(`${baseUrl}/scramble-stats${refreshParam}`, {
         method: 'GET',
         headers: {
