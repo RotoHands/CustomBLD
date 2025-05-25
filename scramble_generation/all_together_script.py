@@ -340,42 +340,66 @@ def main():
     active_counts = {}
     
     if GENERATE_3BLD:
-        active_combos["3BLD"] = len(USE_EDGE_BUFFERS) * len(USE_CORNER_BUFFERS)
+        if '3bld' in SPECIFIC_COMBINATIONS:
+            active_combos["3BLD"] = len(SPECIFIC_COMBINATIONS['3bld'])
+        else:
+            active_combos["3BLD"] = len(USE_EDGE_BUFFERS) * len(USE_CORNER_BUFFERS)
         active_counts["3BLD"] = active_combos["3BLD"] * COUNT_3BLD
         print(f"  3BLD:                  {active_combos['3BLD']} combinations = {active_counts['3BLD']:,} scrambles")
     
     if GENERATE_4BLD:
-        active_combos["4BLD"] = len(USE_CORNER_BUFFERS) * len(USE_WING_BUFFERS) * len(USE_XCENTER_BUFFERS)
+        if '4bld' in SPECIFIC_COMBINATIONS:
+            active_combos["4BLD"] = len(SPECIFIC_COMBINATIONS['4bld'])
+        else:
+            active_combos["4BLD"] = len(USE_CORNER_BUFFERS) * len(USE_WING_BUFFERS) * len(USE_XCENTER_BUFFERS)
         active_counts["4BLD"] = active_combos["4BLD"] * COUNT_4BLD
         print(f"  4BLD:                  {active_combos['4BLD']} combinations = {active_counts['4BLD']:,} scrambles")
     
     if GENERATE_5BLD:
-        active_combos["5BLD"] = len(USE_CORNER_BUFFERS) * len(USE_EDGE_BUFFERS) * len(USE_WING_BUFFERS) * len(USE_XCENTER_BUFFERS) * len(USE_TCENTER_BUFFERS)
+        if '5bld' in SPECIFIC_COMBINATIONS:
+            active_combos["5BLD"] = len(SPECIFIC_COMBINATIONS['5bld'])
+        else:
+            active_combos["5BLD"] = len(USE_CORNER_BUFFERS) * len(USE_EDGE_BUFFERS) * len(USE_WING_BUFFERS) * len(USE_XCENTER_BUFFERS) * len(USE_TCENTER_BUFFERS)
         active_counts["5BLD"] = active_combos["5BLD"] * COUNT_5BLD
         print(f"  5BLD:                  {active_combos['5BLD']} combinations = {active_counts['5BLD']:,} scrambles")
     
     if GENERATE_EDGES_ONLY:
-        active_combos["Edges"] = len(USE_EDGE_BUFFERS)
+        if 'edges_only' in SPECIFIC_COMBINATIONS:
+            active_combos["Edges"] = len(SPECIFIC_COMBINATIONS['edges_only'])
+        else:
+            active_combos["Edges"] = len(USE_EDGE_BUFFERS)
         active_counts["Edges"] = active_combos["Edges"] * COUNT_EDGES_ONLY
         print(f"  Edges Only:            {active_combos['Edges']} combinations = {active_counts['Edges']:,} scrambles")
     
     if GENERATE_CORNERS_ONLY:
-        active_combos["Corners"] = len(USE_CORNER_BUFFERS)
+        if 'corners_only' in SPECIFIC_COMBINATIONS:
+            active_combos["Corners"] = len(SPECIFIC_COMBINATIONS['corners_only'])
+        else:
+            active_combos["Corners"] = len(USE_CORNER_BUFFERS)
         active_counts["Corners"] = active_combos["Corners"] * COUNT_CORNERS_ONLY
         print(f"  Corners Only:          {active_combos['Corners']} combinations = {active_counts['Corners']:,} scrambles")
     
     if GENERATE_4BLD_CENTERS_ONLY:
-        active_combos["4Centers"] = len(USE_XCENTER_BUFFERS)
+        if '4bld_centers_only' in SPECIFIC_COMBINATIONS:
+            active_combos["4Centers"] = len(SPECIFIC_COMBINATIONS['4bld_centers_only'])
+        else:
+            active_combos["4Centers"] = len(USE_XCENTER_BUFFERS)
         active_counts["4Centers"] = active_combos["4Centers"] * COUNT_4BLD_CENTERS_ONLY
         print(f"  4BLD Centers Only:     {active_combos['4Centers']} combinations = {active_counts['4Centers']:,} scrambles")
     
     if GENERATE_4BLD_WINGS_ONLY:
-        active_combos["4Wings"] = len(USE_WING_BUFFERS)
+        if '4bld_wings_only' in SPECIFIC_COMBINATIONS:
+            active_combos["4Wings"] = len(SPECIFIC_COMBINATIONS['4bld_wings_only'])
+        else:
+            active_combos["4Wings"] = len(USE_WING_BUFFERS)
         active_counts["4Wings"] = active_combos["4Wings"] * COUNT_4BLD_WINGS_ONLY
         print(f"  4BLD Wings Only:       {active_combos['4Wings']} combinations = {active_counts['4Wings']:,} scrambles")
     
     if GENERATE_5BLD_EDGES_CORNERS:
-        active_combos["5EC"] = len(USE_CORNER_BUFFERS) * len(USE_EDGE_BUFFERS)
+        if '5bld_edges_corners' in SPECIFIC_COMBINATIONS:
+            active_combos["5EC"] = len(SPECIFIC_COMBINATIONS['5bld_edges_corners'])
+        else:
+            active_combos["5EC"] = len(USE_CORNER_BUFFERS) * len(USE_EDGE_BUFFERS)
         active_counts["5EC"] = active_combos["5EC"] * COUNT_5BLD_EDGES_CORNERS
         print(f"  5BLD Edges+Corners:    {active_combos['5EC']} combinations = {active_counts['5EC']:,} scrambles")
     
