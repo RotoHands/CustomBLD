@@ -23,7 +23,7 @@ yarn-debug.log*
 yarn-error.log*
 all_solves_db.backup
 droplet*
-
+logs.db
 
 
 

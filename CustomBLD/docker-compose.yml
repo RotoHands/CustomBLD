@@ -6,12 +6,14 @@ services:
       context: ./custombld_website
       dockerfile: Dockerfile
     ports:
-      - "${WEBSITE_PORT:-80}:80"
+      - 8080:80
     depends_on:
       - server
     networks:
       - custombld-network
     restart: ${RESTART_POLICY:-always}
+    env_file:
+      - .env.prd
 
   server:
     build:
@@ -34,6 +36,8 @@ services:
     networks:
       - custombld-network
     restart: ${RESTART_POLICY:-always}
+    env_file:
+      - .env.prd
 
   db:
     build:
@@ -54,6 +58,8 @@ services:
                -c checkpoint_completion_target=0.9
                -c max_wal_size=8GB
     restart: ${RESTART_POLICY:-always}
+    env_file:
+      - .env.prd
                
 networks:
   custombld-network:
