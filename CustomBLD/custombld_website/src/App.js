@@ -16,7 +16,8 @@ function App() {
   const [activeTab, setActiveTab] = useState('search');
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [showHelp, setShowHelp] = useState(false);
-
+  console.log('REACT_APP_ENV:', process.env.REACT_APP_ENV);
+  console.log('REACT_APP_API_URL:', process.env.REACT_APP_API_URL);
   useEffect(() => {
     // Check for mobile screen size
     const handleResize = () => {
