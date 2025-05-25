@@ -92,3 +92,75 @@
 .practice-letters .form-check {
   min-width: 80px;
 }
+
+/* Mobile-friendly styles */
+@media (max-width: 768px) {
+  .letter-scheme-section {
+    padding: 0.5rem;
+  }
+
+  .letter-scheme-section table {
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+
+  .letter-scheme-section td {
+    padding: 0.5rem !important;
+  }
+
+  .letter-scheme-section .form-control {
+    width: 100% !important;
+    font-size: 1rem;
+  }
+
+  .letter-scheme-section .btn {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+
+  .letter-scheme-section .d-flex {
+    flex-direction: column;
+  }
+
+  .letter-scheme-section .d-flex > * {
+    width: 100%;
+  }
+}
+
+/* Make accordion wider */
+.accordion {
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+/* Improve button spacing and layout */
+.letter-scheme-section .d-flex.justify-content-between {
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.letter-scheme-section .d-flex.justify-content-between > * {
+  flex: 1;
+  min-width: 200px;
+}
+
+/* Improve table layout */
+.letter-scheme-section table {
+  table-layout: fixed;
+}
+
+.letter-scheme-section td {
+  word-break: break-word;
+}
+
+/* Improve form control appearance */
+.letter-scheme-section .form-control {
+  height: 2.5rem;
+  font-size: 1.1rem;
+}
+
+/* Add more space at the bottom */
+.letter-scheme-section {
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+}

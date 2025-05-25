@@ -164,6 +164,7 @@ const LetterSchemeSection = ({ formData, handleLetterChange }) => {
                         value={formData.letterScheme?.base?.[pos] ?? ''}
                         onChange={(e) => handleLetterChangeWithTracking('base', pos, e.target.value)}
                         className="w-75 mx-auto text-center"
+                        style={{ fontSize: '0.875rem', padding: '0.25rem' }}
                       />
                     </td>
                   );
@@ -207,6 +208,7 @@ const LetterSchemeSection = ({ formData, handleLetterChange }) => {
                         value={formData.letterScheme?.[piece]?.[pos] ?? ''}
                         onChange={(e) => handleLetterChangeWithTracking(piece, pos, e.target.value)}
                         className="w-75 mx-auto text-center"
+                        style={{ fontSize: '0.875rem', padding: '0.25rem' }}
                       />
                     </td>
                   );
@@ -294,32 +296,36 @@ const LetterSchemeSection = ({ formData, handleLetterChange }) => {
         </>
       )}
 
-      <div className="d-flex justify-content-between mt-4 mb-4">
-        <div>
-          <Button 
-            variant="primary" 
-            onClick={saveSettings}
-            className="me-2"
-          >
-            Save Letter Scheme
-          </Button>
-          <Button 
-            variant="success" 
-            onClick={applyToAllPieces}
-          >
-            Apply Letter Scheme to All Pieces
-          </Button>
-        </div>
+      <div className="d-flex flex-wrap gap-2 mt-4 mb-4">
+        <Button 
+          variant="primary" 
+          onClick={saveSettings}
+          className="flex-grow-1"
+        >
+          <i className="fas fa-save me-2"></i>
+          Save Letter Scheme
+        </Button>
+        <Button 
+          variant="success" 
+          onClick={applyToAllPieces}
+          className="flex-grow-1"
+        >
+          <i className="fas fa-copy me-2"></i>
+          Apply to All Pieces
+        </Button>
         <Button 
           variant="outline-danger" 
           onClick={resetSettings}
+          className="flex-grow-1"
         >
+          <i className="fas fa-undo me-2"></i>
           Reset to Default
         </Button>
       </div>
         
       {hasChanges && (
         <div className="alert alert-warning">
+          <i className="fas fa-exclamation-triangle me-2"></i>
           You have unsaved changes
         </div>
       )}

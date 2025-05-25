@@ -3,6 +3,7 @@ import { Container, Row, Col, Tabs, Tab, Spinner, Alert, Badge, Modal, Button } 
 import QueryForm from './QueryForm';
 import ScrambleResults from './components/ScrambleResults';
 import Stats from './components/Stats';
+import Footer from './components/Footer';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
@@ -146,37 +147,41 @@ function App() {
               fontFamily: 'Rubik, sans-serif',
               fontWeight: '600'
             }}>Custom BLD Trainer</h1>
-            <div className="social-icons">
-              <a 
-                href="#" 
-                onClick={(e) => {
-                  e.preventDefault();
-                  setShowHelp(true);
-                }}
-                className="text-white me-3"
-              >
-                <i className="fas fa-question-circle fa-2x"></i>
-              </a>
-              <a href="https://github.com/rotohands" target="_blank" rel="noopener noreferrer" className="text-white me-3">
-                <i className="fab fa-github fa-2x"></i>
-              </a>
-              <a href="https://instagram.com/roto_hands" target="_blank" rel="noopener noreferrer" className="text-white me-3">
-                <i className="fab fa-instagram fa-2x"></i>
-              </a>
-              <a href="https://youtube.com/channel/UCVGKCZFamCuYXiln9w3Cnxw" target="_blank" rel="noopener noreferrer" className="text-white me-3">
-                <i className="fab fa-youtube fa-2x"></i>
-              </a>
-              <a href="https://rotohands.com" target="_blank" rel="noopener noreferrer" className="text-white">
-                <img 
-                  src="/rotohands_logo.png" 
-                  alt="Roto Hands" 
-                  style={{ 
-                    width: '65px', 
-                    height: '65px',
-                    filter: 'invert(1)'
-                  }} 
-                />
-              </a>
+            <div className="social-icons d-flex align-items-center">
+              <div className="social-grid me-3">
+                <div className="d-flex gap-2 mb-2">
+                  <a 
+                    href="#" 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setShowHelp(true);
+                    }}
+                    className="text-white"
+                  >
+                    <i className="fas fa-question-circle fa-2x"></i>
+                  </a>
+                  <a href="https://github.com/rotohands" target="_blank" rel="noopener noreferrer" className="text-white">
+                    <i className="fab fa-github fa-2x"></i>
+                  </a>
+                </div>
+                <div className="d-flex gap-2">
+                  <a href="https://instagram.com/roto_hands" target="_blank" rel="noopener noreferrer" className="text-white">
+                    <i className="fab fa-instagram fa-2x"></i>
+                  </a>
+                  <a href="https://youtube.com/channel/UCVGKCZFamCuYXiln9w3Cnxw" target="_blank" rel="noopener noreferrer" className="text-white">
+                    <i className="fab fa-youtube fa-2x"></i>
+                  </a>
+                </div>
+              </div>
+              <img 
+                src="/rotohands_logo.png" 
+                alt="Roto Hands" 
+                style={{ 
+                  width: '65px', 
+                  height: '65px',
+                  filter: 'invert(1)'
+                }} 
+              />
             </div>
           </div>
         </Container>
@@ -218,7 +223,7 @@ function App() {
         </Modal.Footer>
       </Modal>
 
-      <Container className={isMobile ? "px-2 py-2" : "py-4"}>
+      <Container className={isMobile ? "px-2 py-2" : "py-4"} style={{ maxWidth: isMobile ? '100%' : '1400px' }}>
         <Tabs
           id="main-tabs"
           activeKey={activeTab}
@@ -257,46 +262,11 @@ function App() {
       
       {isMobile && (
         <div className="mobile-helper-footer bg-light text-center py-2 mt-4 shadow-sm">
-          <small>Tip: Rotate to landscape for full tables</small>
+          <small></small>
         </div>
       )}
 
-      <footer className="bg-primary text-white py-4 mt-5">
-        <Container>
-          <div className="d-flex justify-content-between align-items-center">
-            <div className="social-icons">
-              <a href="https://github.com/rotohands" target="_blank" rel="noopener noreferrer" className="text-white me-3">
-                <i className="fab fa-github fa-2x"></i>
-              </a>
-              <a href="https://instagram.com/roto_hands" target="_blank" rel="noopener noreferrer" className="text-white me-3">
-                <i className="fab fa-instagram fa-2x"></i>
-              </a>
-              <a href="https://youtube.com/channel/UCVGKCZFamCuYXiln9w3Cnxw" target="_blank" rel="noopener noreferrer" className="text-white me-3">
-                <i className="fab fa-youtube fa-2x"></i>
-              </a>
-              <a href="https://rotohands.com" target="_blank" rel="noopener noreferrer" className="text-white me-3">
-                <img 
-                  src="/rotohands_logo.png" 
-                  alt="Roto Hands" 
-                  style={{ 
-                    width: '70px', 
-                    height: '70px',
-                    filter: 'invert(1)'
-                  }} 
-                />
-              </a>
-          
-            </div>
-            <div className="contact-section text-end">
-              <h5 className="mb-3">Feel free to contact me!</h5>
-              <a href="mailto:rotohands@gmail.com" className="text-white text-decoration-none">
-                <i className="fas fa-envelope me-2"></i>
-                rotohands@gmail.com
-              </a>
-            </div>
-          </div>
-        </Container>
-      </footer>
+      <Footer />
     </Container>
   );
 }

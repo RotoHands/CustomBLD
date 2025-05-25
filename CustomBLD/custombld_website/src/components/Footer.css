@@ -1,0 +1,24 @@
+.footer-logo {
+  width: 65px;
+  height: 65px;
+  filter: invert(1);
+}
+
+.social-grid a {
+  transition: opacity 0.2s ease-in-out;
+}
+
+.social-grid a:hover {
+  opacity: 0.8;
+}
+
+@media (max-width: 768px) {
+  .footer-logo {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .social-grid .fa-2x {
+    font-size: 1.5em;
+  }
+} 

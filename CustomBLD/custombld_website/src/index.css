@@ -23,6 +23,57 @@ code {
   overflow: hidden;
 }
 
+.accordion {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+@media (min-width: 768px) {
+  .accordion {
+    max-width: 90%;
+    margin: 0 auto;
+  }
+}
+
+@media (min-width: 1200px) {
+  .accordion {
+    max-width: 80%;
+    margin: 0 auto;
+  }
+}
+
+.accordion-button {
+  padding: 1rem;
+  font-size: 1.1rem;
+}
+
+.accordion-body {
+  padding: 1.5rem;
+}
+
+/* Container adjustments for accordion */
+.container {
+  max-width: 100%;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .container {
+    padding-left: 3rem;
+    padding-right: 3rem;
+  }
+}
+
 .form-select:focus,
 .form-control:focus {
   border-color: #0d6efd;
@@ -35,64 +86,125 @@ code {
 
 .btn {
   transition: transform 0.2s;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  white-space: nowrap;
 }
 
 .btn:hover {
   transform: translateY(-2px);
 }
-.practice-letters {  background-color: #f8f9fa;}.practice-letters .form-check {  min-width: 80px;}
 
-.practice-letters {
-    background-color: #f8f9fa;
+/* Mobile-friendly button styles */
+@media (max-width: 768px) {
+  .btn {
+    width: 100%;
+    margin-bottom: 0.5rem;
+    padding: 0.75rem 1rem;
+    font-size: 1.1rem;
   }
-  
-  .practice-letters .form-check {
-    min-width: 80px;
+
+  .btn-group {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .btn-group > .btn {
+    border-radius: 0.25rem !important;
     margin-bottom: 0.5rem;
   }
-  
-  /* Add these styles for the number inputs */
-  .form-control[type="number"] {
-    -moz-appearance: textfield;
-  }
-  
-  .form-control[type="number"]::-webkit-inner-spin-button,
-  .form-control[type="number"]::-webkit-outer-spin-button {
-    opacity: 1;
-  }
-  .letters-practice-header {
-    cursor: pointer;
-    padding: 8px;
-    border-radius: 4px;
-    transition: background-color 0.2s;
-  }
-  
-  .letters-practice-header:hover {
-    background-color: #f0f0f0;
-  }
+}
 
-  .collapsible-header {
-    cursor: pointer;
-    padding: 8px 12px;
-    border-radius: 4px;
-    transition: all 0.2s ease;
-    user-select: none;
-  }
-  
-  .collapsible-header i {
-    font-size: 16px;
-    width: 16px;
-    text-align: center;
-    transition: color 0.2s ease;
-  }
-  
-  .collapsible-header:hover {
-    background-color: #f8f9fa;
-  }
+.practice-letters {
+  background-color: #f8f9fa;
+}
 
-  h4 {
-    color: #0d6efd;
-    margin-top: 2rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid #dee2e6;
+.practice-letters .form-check {
+  min-width: 80px;
+  margin-bottom: 0.5rem;
+}
+
+/* Add these styles for the number inputs */
+.form-control[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.form-control[type="number"]::-webkit-inner-spin-button,
+.form-control[type="number"]::-webkit-outer-spin-button {
+  opacity: 1;
+}
+
+.letters-practice-header {
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.letters-practice-header:hover {
+  background-color: #f0f0f0;
+}
+
+.collapsible-header {
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.collapsible-header i {
+  font-size: 16px;
+  width: 16px;
+  text-align: center;
+  transition: color 0.2s ease;
+}
+
+.collapsible-header:hover {
+  background-color: #f8f9fa;
+}
+
+h4 {
+  color: #0d6efd;
+  margin-top: 2rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+/* Footer styles */
+footer {
+  margin-top: 3rem;
+  padding: 2rem 0;
+  background-color: #f8f9fa;
+  border-top: 1px solid #dee2e6;
+}
+
+/* Mobile helper footer */
+.mobile-helper-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  padding: 1rem;
+  background-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Improve table responsiveness */
+.table-responsive {
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+  .table-responsive {
+    margin-bottom: 2rem;
   }
+  
+  .table th,
+  .table td {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+}
