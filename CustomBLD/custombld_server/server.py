@@ -499,7 +499,10 @@ def get_scrambles_with_retry(query, scramble_count, max_retries=3):
     results = []
     
     while retry_count < max_retries and len(results) < scramble_count:
-        current_query = query + f" AND random_key >= {random_value} ORDER BY random_key ASC LIMIT {scramble_count}"
+        # Remove any existing random_key and ORDER BY clauses
+        base_query = query.split(" AND random_key >=")[0]
+        current_query = base_query + f" AND random_key >= {random_value} ORDER BY random_key ASC LIMIT {scramble_count}"
+        
         try:
             results = query_db(current_query)
             
