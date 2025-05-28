@@ -492,6 +492,29 @@ def map_letters(sequence, piece_type, letter_scheme):
    
     return ''.join(result)
 
+def get_scrambles_with_retry(query, scramble_count, max_retries=5):
+    """Get scrambles with retry logic for insufficient results"""
+    random_value = random.random()
+    retry_count = 0
+    results = []
+    
+    while retry_count < max_retries and len(results) < scramble_count:
+        current_query = query + f" AND random_key >= {random_value} ORDER BY random_key ASC LIMIT {scramble_count}"
+        try:
+            results = query_db(current_query)
+            
+            if len(results) < scramble_count:
+                # If we don't have enough results, try with a smaller random value
+                random_value = random_value * 0.5
+                retry_count += 1
+            else:
+                break
+        except Exception as e:
+            app_logger.error(f"Error executing query: {str(e)}")
+            break
+    
+    return results
+
 @app.route('/query-scrambles', methods=['POST'])
 def generate_scrambles():
     try:
@@ -968,7 +991,7 @@ def generate_scrambles():
         print(sql_for_viewer)
         
         # Execute query
-        results = query_db(sql_for_viewer)
+        results = get_scrambles_with_retry(final_query, scramble_count)
         
         # Return results
         scrambles = []
