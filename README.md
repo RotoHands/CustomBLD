@@ -1,20 +1,24 @@
-# CustomBLD 🎲
+# CustomBLD 
 
 CustomBLD is a tool for generating custom BLD scrambles.
 It is a database of ~20 million scrambles and solutions for 3x3, 4x4, and 5x5 BLD events.
-Allowing you to choose and customize specific scrambles types you want to practice.
+It allows you to choose and customize specific scrambles types for what you want to practice.
+
+Feel free to contact me if you have ideas or need help,
+@rotobld - discord
+mail - rotohads@gmail.com
 
 ## 🎯 Why is it good for?
 
 - Training hard scrambles (scrambles with 3twists, 4flips, many cycle breaks)
-- Trainig easy scrambles - get used to easy sceambles so you don't panic when you get a good one in comp
+- Trainig easy scrambles - get used to easy sceambles so you don't panic when you one in a competition
 - Training excecution only (with the solution provided)
 - Training 3-style subsets with real solves (you can choose which letter pairs to practice)
-- 
+- etc...
 
 ## ✨ Features
 
-- Letter pair solutions for each solve with detailed stats, for example:
+- Letter pair solutions for each solve with detailed stats. For example:
 
 ```rubik
 D' L2 B2 U' F2 U' L2 F2 U' B2 L' D' R B2 U2 F' U L F U2 Rw'
@@ -49,7 +53,6 @@ You are welcome to use this code for your projects.
 I've designed it to be as convenient and easy to set up as possible.
 
 You can easily:
-
 1. Run a local instance of the website
 2. Generate a scrambles database for your specific needs (particular buffer combinations, larger quantities of specific events)
 
@@ -81,10 +84,13 @@ docker-compose up --build
 Download the database in your preferred format:
 
 1. SQLite database
-2. PostgreSQL database
+2. PostgreSQL database (this file you can put in CusomBLD\CustomBLD\custombld_db and it will be loaded to the website)
 
 ### 🔄 Restoring the Database Locally
 
+I will recommand to use put the db file in scramble_generation\dbsolves or in CusomBLD\CustomBLD\custombld_db and when you will run the docker-compose up --build and will automativally restore it.
+
+if you want to restore the db locally on your machine you can use this script (this is the script that is running in the dockers)
 <details>
 <summary>Click to view database restoration script</summary>
 
@@ -137,7 +143,7 @@ chmod +x restore.sh
 
 </details>
 
-### 🎲 Generating Your Own Scrambles
+### Generating Your Own Scrambles
 
 Inside the `scramble_generation` folder, you'll find a `config_scramble_generation.yaml` file where you can configure:
 
@@ -176,9 +182,10 @@ docker-compose up --build
 
 #### 🔄 Multiple Generations
 
+- The db will be saved at scramble_generation\db_solves
 - New scrambles will be added to the existing database
 - You can generate multiple times to accumulate more scrambles
-- To start with a fresh database, run:
+- To start with a fresh database it is not enough to delete the db files, you need to run:
 
 ```bash
 docker-compose down -v
@@ -307,9 +314,9 @@ LIMIT 15
 
 - [csTimer](https://github.com/cs0x7f/cstimer) - Used the library to generate the scrambles
 - [Scrambo](https://github.com/NickColley/scrambo) - Used for generating 4BLD scrambles efficiently
-- Java code for analyzing solves - Used from a BLD android app developed about a decade ago. If you know the original developer, please let me know so I can properly credit them.
+- Java code for analyzing solves - I found this code online a decade ago and used it to develop a BLD android app. But now I didn't manage to find the code online and had been lucky enough to have a local copy that i used.  If you know the original developer, please let me know so I can properly credit them.
 
-- Roman - This project was inspired by a conversation at WORLDS 2023. Roman shared his implementation of a similar idea for training hard cases for the Got Talent show. His approach of generating millions of scrambles and filtering for specific cases helped shape this project.
+- Roman - I had this idea for a couple of years now, but I didn't know how to approach it because I had no clear method for generating custom scrambles. Initially, I considered mathematically constructing scrambles based on specific requirements. However, when I met Roman at WORLDS 2023, he shared his implementation of a similar idea that he used for training challenging cases for the Got Talent show he participated in. He explained that he took a "brute force" approach, generating millions of scrambles. This gave me a completely new perspective and made the problem feel much more solvable.
 
 ## 💭 Additional Thoughts
 
