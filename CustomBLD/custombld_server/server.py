@@ -494,14 +494,13 @@ def map_letters(sequence, piece_type, letter_scheme):
 
 def get_scrambles_with_retry(query, scramble_count, max_retries=3):
     """Get scrambles with retry logic for insufficient results"""
-    random_value = random.random()
-    retry_count = 0
     all_results = []
-    lower_bound = 0
+    retry_count = 0
+    upper_bound = 1.0  # Start from 1.0
     
     while retry_count < max_retries and len(all_results) < scramble_count:
         # Calculate the range for this attempt
-        upper_bound = random_value
+        lower_bound = upper_bound / 2  # Each time we search in the upper half of the previous range
         current_query = query.split(" AND random_key >=")[0]
         current_query += f" AND random_key >= {lower_bound} AND random_key < {upper_bound} ORDER BY random_key ASC LIMIT {scramble_count}"
         
@@ -511,8 +510,8 @@ def get_scrambles_with_retry(query, scramble_count, max_retries=3):
                 all_results.extend(results)
             
             if len(all_results) < scramble_count:
-                # For next attempt, search in the range between current lower bound and random value
-                random_value = (lower_bound + upper_bound) / 2
+                # For next attempt, search in the lower half of the current range
+                upper_bound = lower_bound
                 retry_count += 1
             else:
                 break
