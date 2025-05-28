@@ -492,18 +492,23 @@ def map_letters(sequence, piece_type, letter_scheme):
    
     return ''.join(result)
 
-def get_scrambles_with_retry(query, scramble_count, max_retries=3):
+def get_scrambles_with_retry(query, scramble_count, max_retries=2):
     """Get scrambles with retry logic for insufficient results"""
     all_results = []
     retry_count = 0
-    initial_random = random.random()  # Get initial random value
-    upper_bound = initial_random
+    init_random_value = random.random()  # Get initial random value
     
     while retry_count < max_retries and len(all_results) < scramble_count:
-        # Calculate the range for this attempt
-        lower_bound = upper_bound / 2  # Each time we search in the upper half of the previous range
-        current_query = query.split(" AND random_key >=")[0]
-        current_query += f" AND random_key >= {lower_bound} AND random_key < {upper_bound} ORDER BY random_key ASC LIMIT {scramble_count}"
+        if retry_count == 0:
+            # First attempt: use initial random value directly
+            current_query = query.split(" AND random_key >=")[0]
+            current_query += f" AND random_key >= {init_random_value} ORDER BY random_key ASC LIMIT {scramble_count}"
+        else:
+            # Subsequent attempts: use halves of the initial random value
+            upper_bound = init_random_value / (2 ** (retry_count - 1))
+            lower_bound = upper_bound / 2
+            current_query = query.split(" AND random_key >=")[0]
+            current_query += f" AND random_key >= {lower_bound} AND random_key < {upper_bound} ORDER BY random_key ASC LIMIT {scramble_count}"
         
         try:
             results = query_db(current_query)
@@ -511,8 +516,6 @@ def get_scrambles_with_retry(query, scramble_count, max_retries=3):
                 all_results.extend(results)
             
             if len(all_results) < scramble_count:
-                # For next attempt, search in the lower half of the current range
-                upper_bound = lower_bound
                 retry_count += 1
             else:
                 break
