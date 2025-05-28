@@ -20,27 +20,37 @@ class RequestLogger:
         # Ensure the logs directory exists
         os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
         
+        # Check if database file exists
+        db_exists = os.path.exists(self.db_path)
+        
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS request_logs (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    ip_address TEXT,
-                    user_agent TEXT,
-                    request_data TEXT,
-                    endpoint TEXT,
-                    method TEXT,
-                    response_time INTEGER,
-                    status_code INTEGER,
-                    error_message TEXT
-                )
-            ''')
-            # Create indexes for better query performance
-            cursor.execute('CREATE INDEX IF NOT EXISTS idx_timestamp ON request_logs(timestamp)')
-            cursor.execute('CREATE INDEX IF NOT EXISTS idx_endpoint ON request_logs(endpoint)')
-            cursor.execute('CREATE INDEX IF NOT EXISTS idx_status_code ON request_logs(status_code)')
-            conn.commit()
+            
+            # Only create table if database is new
+            if not db_exists:
+                logger.info("Creating new request_logs table...")
+                cursor.execute('''
+                    CREATE TABLE IF NOT EXISTS request_logs (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        ip_address TEXT,
+                        user_agent TEXT,
+                        request_data TEXT,
+                        endpoint TEXT,
+                        method TEXT,
+                        response_time INTEGER,
+                        status_code INTEGER,
+                        error_message TEXT
+                    )
+                ''')
+                # Create indexes for better query performance
+                cursor.execute('CREATE INDEX IF NOT EXISTS idx_timestamp ON request_logs(timestamp)')
+                cursor.execute('CREATE INDEX IF NOT EXISTS idx_endpoint ON request_logs(endpoint)')
+                cursor.execute('CREATE INDEX IF NOT EXISTS idx_status_code ON request_logs(status_code)')
+                conn.commit()
+                logger.info("Request logs table and indexes created successfully")
+            else:
+                logger.info("Using existing logs.db file")
 
     def log_request(self, 
                    ip_address: str,

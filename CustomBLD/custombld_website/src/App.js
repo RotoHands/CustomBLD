@@ -90,6 +90,7 @@ function App() {
       const baseUrl = isDevelopment
         ? 'http://localhost:5000'
         : process.env.REACT_APP_API_URL || '';
+      
       const response = await fetch(`${baseUrl}/scramble-stats${refreshParam}`, {
         method: 'GET',
         headers: {

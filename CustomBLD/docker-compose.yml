@@ -5,6 +5,8 @@ services:
     build:
       context: ./custombld_website
       dockerfile: Dockerfile
+      args:
+        - NODE_ENV=${NODE_ENV:-development}
     ports:
       - 8080:80
     depends_on:
@@ -12,8 +14,6 @@ services:
     networks:
       - custombld-network
     restart: ${RESTART_POLICY:-always}
-    env_file:
-      - .env.prd
 
   server:
     build:
@@ -27,7 +27,7 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT}
-      - FLASK_ENV=${FLASK_ENV:-development}
+      - FLASK_ENV=${NODE_ENV:-development}
     depends_on:
       - db
     volumes:
@@ -36,8 +36,6 @@ services:
     networks:
       - custombld-network
     restart: ${RESTART_POLICY:-always}
-    env_file:
-      - .env.prd
 
   db:
     build:
@@ -58,8 +56,6 @@ services:
                -c checkpoint_completion_target=0.9
                -c max_wal_size=8GB
     restart: ${RESTART_POLICY:-always}
-    env_file:
-      - .env.prd
                
 networks:
   custombld-network:
