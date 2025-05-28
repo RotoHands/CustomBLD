@@ -492,7 +492,7 @@ def map_letters(sequence, piece_type, letter_scheme):
    
     return ''.join(result)
 
-def get_scrambles_with_retry(query, scramble_count, max_retries=5):
+def get_scrambles_with_retry(query, scramble_count, max_retries=3):
     """Get scrambles with retry logic for insufficient results"""
     random_value = random.random()
     retry_count = 0
@@ -991,7 +991,7 @@ def generate_scrambles():
         print(sql_for_viewer)
         
         # Execute query
-        results = get_scrambles_with_retry(final_query, scramble_count)
+        results = get_scrambles_with_retry(sql_for_viewer, scramble_count)
         
         # Return results
         scrambles = []
