@@ -496,7 +496,8 @@ def get_scrambles_with_retry(query, scramble_count, max_retries=3):
     """Get scrambles with retry logic for insufficient results"""
     all_results = []
     retry_count = 0
-    upper_bound = 1.0  # Start from 1.0
+    initial_random = random.random()  # Get initial random value
+    upper_bound = initial_random
     
     while retry_count < max_retries and len(all_results) < scramble_count:
         # Calculate the range for this attempt
