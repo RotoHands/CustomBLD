@@ -496,19 +496,23 @@ def get_scrambles_with_retry(query, scramble_count, max_retries=3):
     """Get scrambles with retry logic for insufficient results"""
     random_value = random.random()
     retry_count = 0
-    results = []
+    all_results = []
+    lower_bound = 0
     
-    while retry_count < max_retries and len(results) < scramble_count:
-        # Remove any existing random_key and ORDER BY clauses
-        base_query = query.split(" AND random_key >=")[0]
-        current_query = base_query + f" AND random_key >= {random_value} ORDER BY random_key ASC LIMIT {scramble_count}"
+    while retry_count < max_retries and len(all_results) < scramble_count:
+        # Calculate the range for this attempt
+        upper_bound = random_value
+        current_query = query.split(" AND random_key >=")[0]
+        current_query += f" AND random_key >= {lower_bound} AND random_key < {upper_bound} ORDER BY random_key ASC LIMIT {scramble_count}"
         
         try:
             results = query_db(current_query)
+            if results:
+                all_results.extend(results)
             
-            if len(results) < scramble_count:
-                # If we don't have enough results, try with a smaller random value
-                random_value = random_value * 0.5
+            if len(all_results) < scramble_count:
+                # For next attempt, search in the range between current lower bound and random value
+                random_value = (lower_bound + upper_bound) / 2
                 retry_count += 1
             else:
                 break
@@ -516,7 +520,8 @@ def get_scrambles_with_retry(query, scramble_count, max_retries=3):
             app_logger.error(f"Error executing query: {str(e)}")
             break
     
-    return results
+    # Return only the requested number of results
+    return all_results[:scramble_count]
 
 @app.route('/query-scrambles', methods=['POST'])
 def generate_scrambles():
