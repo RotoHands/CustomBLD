@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/custombld_logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -42,8 +43,18 @@
     <meta name="twitter:title" content="Custom BLD Trainer" />
     <meta name="twitter:description" content="Custom BLD scrambles with solutions!" />
     <meta name="twitter:image" content="https://custombld.net/custombld_logo.png" />
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-51FKHEQ0V0"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-51FKHEQ0V0');
+    </script>
     <title>Custom BLD Trainer</title>
   </head>
+  
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
