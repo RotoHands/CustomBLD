@@ -152,19 +152,19 @@ const QueryForm = ({ onSubmit, isMobile }) => {
       setFormData(prev => {
         const newData = { ...prev, [name]: numberValue };
         
-        // Ensure min <= max relationship
+        // Ensure min <= max relationship, but allow both to be 0
         if (name.endsWith('_min')) {
           const maxField = name.replace('_min', '_max');
           const maxValue = prev[maxField];
           
-          if (maxValue !== undefined && numberValue > maxValue) {
+          if (maxValue !== undefined && numberValue > maxValue && maxValue !== 0) {
             newData[maxField] = numberValue;
           }
         } else if (name.endsWith('_max')) {
           const minField = name.replace('_max', '_min');
           const minValue = prev[minField];
           
-          if (minValue !== undefined && numberValue < minValue) {
+          if (minValue !== undefined && numberValue < minValue && minValue !== 0) {
             newData[minField] = numberValue;
           }
         }
@@ -209,7 +209,7 @@ const QueryForm = ({ onSubmit, isMobile }) => {
             
             // Only adjust if min value exists and is greater than the new max
             // But don't adjust if the new max is 0, this is a special case
-            if (minValue !== undefined && minValue !== '' && numberValue < minValue && numberValue !== 0) {
+            if (minValue !== undefined && minValue !== '' && numberValue < minValue && minValue !== 0) {
               newData[minField] = numberValue;
             }
           }
@@ -471,7 +471,7 @@ const QueryForm = ({ onSubmit, isMobile }) => {
           <InputGroup>
             <Form.Select
               name={minFieldName}
-              value={formData[minFieldName] || 0}
+              value={formData[minFieldName] !== undefined ? formData[minFieldName] : 0}
               onChange={handleChange}
               disabled={formData[typeFieldName] !== 'range'}
               className="min-select"
@@ -483,7 +483,7 @@ const QueryForm = ({ onSubmit, isMobile }) => {
             
             <Form.Select
               name={maxFieldName}
-              value={formData[maxFieldName] || max}
+              value={formData[maxFieldName] !== undefined ? formData[maxFieldName] : max}
               onChange={handleChange}
               disabled={formData[typeFieldName] !== 'range'}
               className="max-select"

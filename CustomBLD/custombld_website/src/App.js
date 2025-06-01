@@ -192,12 +192,7 @@ function App() {
                   GitHub Repository
                 </a>
               </li>
-              <li>
-                <a href="mailto:rotohands@gmail.com" className="text-decoration-none">
-                  <i className="fas fa-envelope me-2"></i>
-                  Contact me at rotohands@gmail.com
-                </a>
-              </li>
+    
             </ul>
           </div>
         </Modal.Body>

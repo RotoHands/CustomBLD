@@ -6,7 +6,7 @@ const ScrambleResults = ({ results, isMobile }) => {
   const [showSolutions, setShowSolutions] = useState({});
   const [copySuccess, setCopySuccess] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [scramblesPerPage, setScramblesPerPage] = useState(5);
+  const [scramblesPerPage, setScramblesPerPage] = useState(15);
   
   // Add debug logging
   useEffect(() => {
@@ -388,7 +388,7 @@ const ScrambleResults = ({ results, isMobile }) => {
                   {scramblesPerPage}
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
-                  {[5, 10, 50, 100, 1000].map(size => (
+                  {[5, 15, 50, 100, 1000].map(size => (
                     <Dropdown.Item 
                       key={size} 
                       onClick={() => handlePageSizeChange(size)}
