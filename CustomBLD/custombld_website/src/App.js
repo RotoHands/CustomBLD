@@ -126,48 +126,71 @@ function App() {
         <Container>
           <div className="d-flex justify-content-between align-items-center">
             <h1 className="mb-0" style={{ 
-              fontSize: isMobile ? '1.75rem' : '2.5rem',
+              fontSize: isMobile ? '1.6rem' : '2.5rem',
               fontFamily: 'Rubik, sans-serif',
               fontWeight: '600'
             }}>Custom BLD Trainer</h1>
-            <div className="social-icons d-flex align-items-center">
-              <div className="social-grid me-3">
-                <div className="d-flex gap-2 mb-2">
-                  <a 
-                    href="#" 
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setShowHelp(true);
-                    }}
-                    className="text-white"
-                  >
-                    <i className="fas fa-question-circle fa-2x"></i>
-                  </a>
-                  <a href="https://github.com/rotohands" target="_blank" rel="noopener noreferrer" className="text-white">
-                    <i className="fab fa-github fa-2x"></i>
-                  </a>
-                </div>
-                <div className="d-flex gap-2">
-                  <a href="https://instagram.com/roto_hands" target="_blank" rel="noopener noreferrer" className="text-white">
-                    <i className="fab fa-instagram fa-2x"></i>
-                  </a>
-                  <a href="https://youtube.com/channel/UCVGKCZFamCuYXiln9w3Cnxw" target="_blank" rel="noopener noreferrer" className="text-white">
-                    <i className="fab fa-youtube fa-2x"></i>
-                  </a>
-                </div>
-              </div>
+            
+            {isMobile ? (
               <a href="https://rotohands.com" target="_blank" rel="noopener noreferrer">
                 <img 
                   src="/rotohands_logo.png" 
                   alt="Roto Hands" 
                   style={{ 
-                    width: '65px', 
-                    height: '65px',
+                    width: '50px', 
+                    height: '50px',
                     filter: 'invert(1)'
                   }} 
                 />
               </a>
-            </div>
+            ) : (
+              <div className="d-flex align-items-center gap-4">
+                <div className="social-icons d-flex flex-column align-items-end" style={{ minWidth: '120px' }}>
+                  {/* First row */}
+                  <div className="d-flex gap-3 mb-2" style={{ width: '100%', justifyContent: 'space-between' }}>
+                    <a href="https://youtube.com/channel/UCVGKCZFamCuYXiln9w3Cnxw" target="_blank" rel="noopener noreferrer" className="text-white">
+                      <i className="fab fa-youtube fa-2x"></i>
+                    </a>
+                    <a href="https://discord.gg/rotohands" target="_blank" rel="noopener noreferrer" className="text-white">
+                      <i className="fab fa-discord fa-2x"></i>
+                    </a>
+                    <a href="https://www.paypal.com/donate?hosted_button_id=X9X9VZEAYK3DJ" target="_blank" rel="noopener noreferrer" className="text-white">
+                      <i className="fas fa-pizza-slice fa-2x"></i>
+                    </a>
+                  </div>
+                  {/* Second row */}
+                  <div className="d-flex gap-3" style={{ width: '100%', justifyContent: 'space-between' }}>
+                    <a 
+                      href="#" 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setShowHelp(true);
+                      }}
+                      className="text-white"
+                    >
+                      <i className="fas fa-question-circle fa-2x"></i>
+                    </a>
+                    <a href="https://github.com/rotohands" target="_blank" rel="noopener noreferrer" className="text-white">
+                      <i className="fab fa-github fa-2x"></i>
+                    </a>
+                    <a href="https://instagram.com/roto_hands" target="_blank" rel="noopener noreferrer" className="text-white">
+                      <i className="fab fa-instagram fa-2x"></i>
+                    </a>
+                  </div>
+                </div>
+                <a href="https://rotohands.com" target="_blank" rel="noopener noreferrer">
+                  <img 
+                    src="/rotohands_logo.png" 
+                    alt="Roto Hands" 
+                    style={{ 
+                      width: '65px', 
+                      height: '65px',
+                      filter: 'invert(1)'
+                    }} 
+                  />
+                </a>
+              </div>
+            )}
           </div>
         </Container>
       </header>

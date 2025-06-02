@@ -292,8 +292,40 @@ const ScrambleResults = ({ results, isMobile }) => {
   // Render pagination controls
   const renderPagination = () => {
     const pages = [];
+    const maxVisiblePages = isMobile ? 5 : 10;
+    let startPage = 1;
+    let endPage = totalPages;
+
+    if (totalPages > maxVisiblePages) {
+      // Calculate start and end page numbers
+      const halfVisible = Math.floor(maxVisiblePages / 2);
+      startPage = Math.max(currentPage - halfVisible, 1);
+      endPage = startPage + maxVisiblePages - 1;
+
+      if (endPage > totalPages) {
+        endPage = totalPages;
+        startPage = Math.max(endPage - maxVisiblePages + 1, 1);
+      }
+    }
     
-    for (let number = 1; number <= totalPages; number++) {
+    // Add first page and ellipsis if needed
+    if (startPage > 1) {
+      pages.push(
+        <Pagination.Item 
+          key={1}
+          active={1 === currentPage}
+          onClick={() => handlePageChange(1)}
+        >
+          1
+        </Pagination.Item>
+      );
+      if (startPage > 2) {
+        pages.push(<Pagination.Ellipsis key="ellipsis1" />);
+      }
+    }
+
+    // Add page numbers
+    for (let number = startPage; number <= endPage; number++) {
       pages.push(
         <Pagination.Item 
           key={number}
@@ -304,19 +336,45 @@ const ScrambleResults = ({ results, isMobile }) => {
         </Pagination.Item>
       );
     }
+
+    // Add last page and ellipsis if needed
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) {
+        pages.push(<Pagination.Ellipsis key="ellipsis2" />);
+      }
+      pages.push(
+        <Pagination.Item 
+          key={totalPages}
+          active={totalPages === currentPage}
+          onClick={() => handlePageChange(totalPages)}
+        >
+          {totalPages}
+        </Pagination.Item>
+      );
+    }
     
     return (
-      <Pagination className="justify-content-center mt-3 mb-0">
-        <Pagination.Prev 
-          onClick={() => handlePageChange(currentPage - 1)}
-          disabled={currentPage === 1}
-        />
-        {pages}
-        <Pagination.Next 
-          onClick={() => handlePageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
-        />
-      </Pagination>
+      <div className="pagination-container">
+        <Pagination className="justify-content-center mt-3 mb-0 flex-wrap">
+          <Pagination.First
+            onClick={() => handlePageChange(1)}
+            disabled={currentPage === 1}
+          />
+          <Pagination.Prev 
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          />
+          {pages}
+          <Pagination.Next 
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          />
+          <Pagination.Last
+            onClick={() => handlePageChange(totalPages)}
+            disabled={currentPage === totalPages}
+          />
+        </Pagination>
+      </div>
     );
   };
 
@@ -563,6 +621,36 @@ const ScrambleResults = ({ results, isMobile }) => {
         .scramble-divider {
           border-bottom: 1px solid #e3e6ea;
           margin: 0 18px;
+        }
+
+        .pagination-container {
+          overflow-x: auto;
+          padding: 0.5rem 0;
+          margin: -0.5rem 0;
+        }
+
+        .pagination {
+          margin-bottom: 0;
+          white-space: nowrap;
+          gap: 0.25rem;
+        }
+
+        .page-link {
+          min-width: 40px;
+          text-align: center;
+          border-radius: 4px !important;
+        }
+
+        @media (max-width: 768px) {
+          .page-link {
+            min-width: 35px;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.9rem;
+          }
+          
+          .pagination {
+            gap: 0.15rem;
+          }
         }
       `}</style>
     </div>
