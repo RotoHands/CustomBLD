@@ -1,4 +1,4 @@
-# CustomBLD 
+# CustomBLD
 
 CustomBLD is a tool for generating custom BLD scrambles.
 It is a database of ~20 million scrambles and solutions for 3x3, 4x4, and 5x5 BLD events.
@@ -43,9 +43,8 @@ Length: 6
   - Number of solved pieces
   - Number of cycle breaks
 - Generate up to 1000 scrambles
-- Copy the scrambles easily and paste them in your favorite timer 
+- Copy the scrambles easily and paste them in your favorite timer
 - CSV export
-
 
 ## 🚀 If you want to generate scrambles yourself
 
@@ -53,6 +52,7 @@ You are welcome to use this code for your projects.
 I've designed it to be as convenient and easy to set up as possible.
 
 You can easily:
+
 1. Run a local instance of the website
 2. Generate a scrambles database for your specific needs (particular buffer combinations, larger quantities of specific events)
 
@@ -91,42 +91,66 @@ Download the database in your preferred format:
 I will recommand to use put the db file in scramble_generation\dbsolves or in CusomBLD\CustomBLD\custombld_db and when you will run the docker-compose up --build and will automativally restore it.
 
 if you want to restore the db locally on your machine you can use this script (this is the script that is running in the dockers)
+
 <details>
 <summary>Click to view database restoration script</summary>
 
-Create a file named `restore.sh` in your database directory:
+For Linux/Mac (bash script):
 
 ```bash
 #!/bin/bash
 set -e
 
+# Configuration
+DB_NAME="all_solves_db"
+DB_USER="postgres"
+PGPASSWORD="postgres"
+BACKUP_FILE="all_solves_db.backup"
+
+# Export password for non-interactive use
+export PGPASSWORD
+
+# Check if backup file exists
+if [ ! -f "$BACKUP_FILE" ]; then
+    echo "Error: Backup file '$BACKUP_FILE' not found!"
+    exit 1
+fi
+
 echo "Starting phased database restore for better performance..."
 
-# Phase 1: Restore schema only (without data and indexes)
+# Phase 0: Create database if it doesn't exist
+echo "Phase 0: Checking for database '$DB_NAME'..."
+if ! psql -U "$DB_USER" -tc "SELECT 1 FROM pg_database WHERE datname = '$DB_NAME';" | grep -q 1; then
+    echo "Database not found. Creating '$DB_NAME'..."
+    createdb -U "$DB_USER" "$DB_NAME"
+else
+    echo "Database '$DB_NAME' already exists."
+fi
+
+# Phase 0b: Drop and recreate public schema
+echo "Phase 0b: Dropping and recreating 'public' schema to avoid conflicts..."
+psql -U "$DB_USER" -d "$DB_NAME" -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+
+# Phase 1: Restore schema only
 echo "Phase 1: Restoring schema only..."
-pg_restore -v --no-owner --no-privileges --section=pre-data \
-    --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" \
-    /docker-entrypoint-initdb.d/all_solves_db.backup
+pg_restore -v --no-owner --no-privileges --section=pre-data -U "$DB_USER" -d "$DB_NAME" "$BACKUP_FILE"
 
-# Phase 2: Restore data only (fast, without index maintenance)
+# Phase 2: Restore data only (without indexes)
 echo "Phase 2: Restoring data only (without indexes)..."
-pg_restore -v --no-owner --no-privileges --section=data --jobs=4 \
-    --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" \
-    /docker-entrypoint-initdb.d/all_solves_db.backup
+pg_restore -v --no-owner --no-privileges --section=data --jobs=4 -U "$DB_USER" -d "$DB_NAME" "$BACKUP_FILE"
 
-# Phase 3: Create indexes after data is loaded
+# Phase 3: Restore indexes and constraints
 echo "Phase 3: Creating indexes after data is loaded..."
-pg_restore -v --no-owner --no-privileges --section=post-data \
-    --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" \
-    /docker-entrypoint-initdb.d/all_solves_db.backup
+pg_restore -v --no-owner --no-privileges --section=post-data -U "$DB_USER" -d "$DB_NAME" "$BACKUP_FILE"
 
-# Phase 4: Analyze database for optimal query planning
+# Phase 4: Analyze database
 echo "Phase 4: Analyzing database tables for optimized index usage..."
-psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "ANALYZE scrambles;"
+psql -U "$DB_USER" -d "$DB_NAME" -c "ANALYZE scrambles;"
 
 # Phase 5: Verify data integrity
 echo "Phase 5: Verifying data integrity..."
-ROWS=$(psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -t -c "SELECT COUNT(*) FROM scrambles;" 2>/dev/null || echo "0")
+ROWS=$(psql -U "$DB_USER" -d "$DB_NAME" -t -c "SELECT COUNT(*) FROM scrambles;" | tr -d '[:space:]')
+
 echo "Database contains $ROWS rows"
 if [ "$ROWS" -gt 0 ]; then
     echo "Database restore completed successfully"
@@ -135,11 +159,101 @@ else
 fi
 ```
 
-Make the script executable:
+For Windows (save as `restore.bat`):
 
-```bash
-chmod +x restore.sh
+```batch
+@echo off
+setlocal EnableDelayedExpansion
+
+:: Configuration
+set DB_NAME=all_solves_db
+set DB_USER=postgres
+set PGPASSWORD=postgres
+set BACKUP_FILE=all_solves_db.backup
+
+:: Check if backup file exists
+if not exist "%BACKUP_FILE%" (
+    echo Error: Backup file %BACKUP_FILE% not found!
+    exit /b 1
+)
+
+echo Starting phased database restore for better performance...
+
+:: Phase 0: Create database if it doesn't exist
+echo Phase 0: Checking for database "%DB_NAME%"...
+psql -U "%DB_USER%" -tc "SELECT 1 FROM pg_database WHERE datname = '%DB_NAME%';" | findstr 1 >nul
+if errorlevel 1 (
+    echo Database not found. Creating "%DB_NAME%"...
+    psql -U "%DB_USER%" -c "CREATE DATABASE \"%DB_NAME%\";"
+    if errorlevel 1 (
+        echo Error creating database
+        exit /b 1
+    )
+) else (
+    echo Database "%DB_NAME%" already exists.
+)
+
+:: Phase 0b: Drop and recreate public schema
+echo Phase 0b: Dropping and recreating 'public' schema to avoid conflicts...
+psql -U "%DB_USER%" -d "%DB_NAME%" -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+if errorlevel 1 (
+    echo Error while dropping or recreating schema
+    exit /b 1
+)
+
+:: Phase 1: Restore schema only (without data and indexes)
+echo Phase 1: Restoring schema only...
+pg_restore -v --no-owner --no-privileges --section=pre-data -U "%DB_USER%" -d "%DB_NAME%" "%BACKUP_FILE%"
+if errorlevel 1 (
+    echo Error during schema restore
+    exit /b 1
+)
+
+:: Phase 2: Restore data only (fast, without index maintenance)
+echo Phase 2: Restoring data only (without indexes)...
+pg_restore -v --no-owner --no-privileges --section=data --jobs=4 -U "%DB_USER%" -d "%DB_NAME%" "%BACKUP_FILE%"
+if errorlevel 1 (
+    echo Error during data restore
+    exit /b 1
+)
+
+:: Phase 3: Create indexes after data is loaded
+echo Phase 3: Creating indexes after data is loaded...
+pg_restore -v --no-owner --no-privileges --section=post-data -U "%DB_USER%" -d "%DB_NAME%" "%BACKUP_FILE%"
+if errorlevel 1 (
+    echo Error during index creation
+    exit /b 1
+)
+
+:: Phase 4: Analyze database for optimal query planning
+echo Phase 4: Analyzing database tables for optimized index usage...
+psql -U "%DB_USER%" -d "%DB_NAME%" -c "ANALYZE scrambles;"
+if errorlevel 1 (
+    echo Error during database analysis
+    exit /b 1
+)
+
+:: Phase 5: Verify data integrity
+echo Phase 5: Verifying data integrity...
+for /f "tokens=*" %%i in ('psql -U "%DB_USER%" -d "%DB_NAME%" -t -c "SELECT COUNT(*) FROM scrambles;" 2^>nul') do (
+    set ROWS=%%i
+)
+set ROWS=!ROWS: =!
+echo Database contains !ROWS! rows
+if "!ROWS!" gtr "0" (
+    echo Database restore completed successfully
+) else (
+    echo WARNING: Database restore may have failed - no rows found
+)
+
 ```
+
+Important notes for Windows users:
+
+1. Make sure PostgreSQL is installed and its `bin` directory is in your system PATH
+2. You might need to set the PGPASSWORD environment variable or use a `.pgpass` file
+3. Run the script from the directory containing your backup file
+4. You can create the database first using: `createdb -U postgres custombld`
 
 </details>
 
@@ -314,7 +428,7 @@ LIMIT 15
 
 - [csTimer](https://github.com/cs0x7f/cstimer) - Used the library to generate the scrambles
 - [Scrambo](https://github.com/NickColley/scrambo) - Used for generating 4BLD scrambles efficiently
-- Java code for analyzing solves - I found this code online a decade ago and used it to develop a BLD android app. But now I didn't manage to find the code online and had been lucky enough to have a local copy that i used.  If you know the original developer, please let me know so I can properly credit them.
+- Java code for analyzing solves - I found this code online a decade ago and used it to develop a BLD android app. But now I didn't manage to find the code online and had been lucky enough to have a local copy that i used. If you know the original developer, please let me know so I can properly credit them.
 
 - Roman - I had this idea for a couple of years now, but I didn't know how to approach it because I had no clear method for generating custom scrambles. Initially, I considered mathematically constructing scrambles based on specific requirements. However, when I met Roman at WORLDS 2023, he shared his implementation of a similar idea that he used for training challenging cases for the Got Talent show he participated in. He explained that he took a "brute force" approach, generating millions of scrambles. This gave me a completely new perspective and made the problem feel much more solvable.
 
