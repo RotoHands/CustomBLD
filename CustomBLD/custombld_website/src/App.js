@@ -151,7 +151,7 @@ function App() {
                     <a href="https://youtube.com/channel/UCVGKCZFamCuYXiln9w3Cnxw" target="_blank" rel="noopener noreferrer" className="text-white">
                       <i className="fab fa-youtube fa-2x"></i>
                     </a>
-                    <a href="https://discord.gg/rotohands" target="_blank" rel="noopener noreferrer" className="text-white">
+                    <a href="https://discord.com/invite/uTbBjardtn" target="_blank" rel="noopener noreferrer" className="text-white">
                       <i className="fab fa-discord fa-2x"></i>
                     </a>
                     <a href="https://www.paypal.com/donate?hosted_button_id=X9X9VZEAYK3DJ" target="_blank" rel="noopener noreferrer" className="text-white">

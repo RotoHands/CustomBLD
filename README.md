@@ -1,17 +1,16 @@
 # CustomBLD
 
-CustomBLD is a tool for generating custom BLD scrambles.
+CustomBLD is a tool for using custom BLD scrambles.
 It is a database of ~20 million scrambles and solutions for 3x3, 4x4, and 5x5 BLD events.
 It allows you to choose and customize specific scrambles types for what you want to practice.
 
 Feel free to contact me if you have ideas or need help,
-@rotobld - discord
-mail - rotohads@gmail.com
+[discord](https://discord.com/invite/uTbBjardtn), or email - [contact@custombld.net](contact@custombld.net)
 
 ## 🎯 Why is it good for?
 
 - Training hard scrambles (scrambles with 3twists, 4flips, many cycle breaks)
-- Trainig easy scrambles - get used to easy sceambles so you don't panic when you one in a competition
+- Training easy scrambles - get used to easy sceambles so you don't panic when you one in a competition
 - Training excecution only (with the solution provided)
 - Training 3-style subsets with real solves (you can choose which letter pairs to practice)
 - etc...
@@ -250,13 +249,6 @@ if "!ROWS!" gtr "0" (
 
 ```
 
-Important notes for Windows users:
-
-1. Make sure PostgreSQL is installed and its `bin` directory is in your system PATH
-2. You might need to set the PGPASSWORD environment variable or use a `.pgpass` file
-3. Run the script from the directory containing your backup file
-4. You can create the database first using: `createdb -U postgres custombld`
-
 </details>
 
 ### Generating Your Own Scrambles
@@ -428,16 +420,14 @@ LIMIT 15
 
 ## 🙏 Acknowledgments
 
-- [csTimer](https://github.com/cs0x7f/cstimer) - Used the library to generate the scrambles
-- [Scrambo](https://github.com/NickColley/scrambo) - Used for generating 4BLD scrambles efficiently
-- Java code for analyzing solves - I found this code online a decade ago and used it to develop a BLD android app. But now I didn't manage to find the code online and had been lucky enough to have a local copy that i used. If you know the original developer, please let me know so I can properly credit them.
+- [csTimer](https://github.com/cs0x7f/cstimer) - I used the library to generate the scrambles
+- [Scrambo](https://github.com/NickColley/scrambo) - I used it for generating 4BLD scrambles efficiently
+- Java code for analyzing solves - I found this code online a decade ago and used it to develop a BLD android app. When I started this projectm I didn't manage to find the code online  again and had been lucky enough to have a local copy on my computer. If you know the original developer, please let me know so I can properly credit them.
 
-- Roman - I had this idea for a couple of years now, but I didn't know how to approach it because I had no clear method for generating custom scrambles. Initially, I considered mathematically constructing scrambles based on specific requirements. However, when I met Roman at WORLDS 2023, he shared his implementation of a similar idea that he used for training challenging cases for the Got Talent show he participated in. He explained that he took a "brute force" approach, generating millions of scrambles. This gave me a completely new perspective and made the problem feel much more solvable.
+- Roman Strakhov - I had this idea for a couple of years now, but I didn't know how to approach it because I had no clear method for generating custom scrambles. Initially, I considered mathematically constructing scrambles based on specific requirements. However, when I met Roman at Worlds 2023, he shared his implementation of a similar idea that he used for training the Got Talent show he participated in. He explained that he took a "brute force" approach, generating millions of scrambles and then choosing the scrambles that answered his requirements. This gave me a completely new perspective and made the problem feel much more solvable.
 
-## 💭 Additional Thoughts
+## 💭 Final Thoughts
 
-I hope this tool will make BLD training more efficient and expand the ways people approach training. I believe that practicing and coaching in cubing is an underdeveloped area in our community, and I hope this tool can help advance BLD training.
+I hope this tool will make BLD training more efficient and expand the ways people approach training. I believe that practicing and coaching in cubing is an undeveloped area in our community, and I hope this tool can help advance the BLD event.
 
-for example, a common challenge in competitions is handling easy scrambles, where the pressure to perform well can be overwhelming. This tool allows you to simulate these situations, helping you prepare for real competition scenarios. Instead of randomly waiting for easy scrambles, you can now deliberately practice with them.
-
-Similarly, when faced with challenging scrambles (like those with 3 corner twists or 4 flipped edges), you can now generate specific practice sets to improve your handling of these cases.
+for example, a common challenge in competitions is handling easy scrambles, where the pressure to perform well can be overwhelming. This tool allows you to simulate these situations, helping you prepare for real competition scenarios. Instead of randomly waiting for easy scrambles, you can now deliberately practice on them.

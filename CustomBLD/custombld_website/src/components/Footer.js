@@ -24,7 +24,7 @@ function Footer() {
                   <i className="fas fa-envelope me-2"></i>
                   contact@custombld.net
                 </a>
-                <a href="https://discord.gg/rotohands" target="_blank" rel="noopener noreferrer" className="text-white text-decoration-none">
+                <a href="https://discord.com/invite/uTbBjardtn" target="_blank" rel="noopener noreferrer" className="text-white text-decoration-none">
                   <i className="fab fa-discord me-2" style={{ fontSize: '1.1rem' }}></i>
                   Rotohands Discord
                 </a>
@@ -38,7 +38,7 @@ function Footer() {
             <a href="https://github.com/rotohands" target="_blank" rel="noopener noreferrer" className="text-white">
               <i className="fab fa-github fa-2x"></i>
             </a>
-            <a href="https://discord.gg/rotohands" target="_blank" rel="noopener noreferrer" className="text-white">
+            <a href="https://discord.com/invite/uTbBjardtn" target="_blank" rel="noopener noreferrer" className="text-white">
               <i className="fab fa-discord fa-2x"></i>
             </a>
             <a href="https://instagram.com/roto_hands" target="_blank" rel="noopener noreferrer" className="text-white">
