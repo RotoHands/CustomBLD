@@ -83,8 +83,10 @@ docker-compose up --build
 
 Download the database in your preferred format:
 
-1. SQLite database
-2. PostgreSQL database (this file you can put in CusomBLD\CustomBLD\custombld_db and it will be loaded to the website)
+1. SQLite database - [link](https://drive.google.com/file/d/1qhtHivpLuTCUB2yj18XttZWo91rlom-k/view?usp=sharing)
+2. PostgreSQL database - [link](https://drive.google.com/file/d/1vUnHhm1A_SxuDkCcpskecx7QHRzK3pYX/view?usp=sharing) (this file you can put in CusomBLD\CustomBLD\custombld_db and it will be loaded to the website)
+
+note that the website only work with the postgres version of the db
 
 ### 🔄 Restoring the Database Locally
 
