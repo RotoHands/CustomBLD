@@ -427,6 +427,6 @@ LIMIT 15
 
 ## 💭 Final Thoughts
 
-I hope this tool will make BLD training more efficient and expand the ways people approach training. I believe that practicing and coaching in cubing is an undeveloped area in our community, and I hope this tool can help advance the BLD event.
+I hope this tool (and [trainbld.com](https://trainbld.com/)) will make BLD training more efficient and expand the ways people approach training. I believe that practicing and coaching in cubing is an undeveloped area in our community, and I hope this tool can help advance the BLD event.
 
 for example, a common challenge in competitions is handling easy scrambles, where the pressure to perform well can be overwhelming. This tool allows you to simulate these situations, helping you prepare for real competition scenarios. Instead of randomly waiting for easy scrambles, you can now deliberately practice on them.
