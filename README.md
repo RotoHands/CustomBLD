@@ -1,6 +1,6 @@
 # CustomBLD
 
-CustomBLD is a tool for using custom BLD scrambles.
+[CustomBLD.net](https://custombld.net/) is a tool for using custom BLD scrambles.
 It is a database of ~20 million scrambles and solutions for 3x3, 4x4, and 5x5 BLD events.
 It allows you to choose and customize specific scrambles types for what you want to practice.
 
