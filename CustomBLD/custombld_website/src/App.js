@@ -204,13 +204,13 @@ function App() {
           <div className="resources-list">
             <ul className="list-unstyled">
               <li className="mb-3">
-                <a href="https://youtube.com/channel/UCVGKCZFamCuYXiln9w3Cnxw" target="_blank" rel="noopener noreferrer" className="text-decoration-none">
+                <a href="https://youtu.be/o7PhXQPeOrs" target="_blank" rel="noopener noreferrer" className="text-decoration-none">
                   <i className="fab fa-youtube me-2"></i>
-                  Tutorial Videos
+                  Tutorial Video
                 </a>
               </li>
               <li className="mb-3">
-                <a href="https://github.com/rotohands" target="_blank" rel="noopener noreferrer" className="text-decoration-none">
+                <a href="https://github.com/RotoHands/CustomBLD" target="_blank" rel="noopener noreferrer" className="text-decoration-none">
                   <i className="fab fa-github me-2"></i>
                   GitHub Repository
                 </a>
