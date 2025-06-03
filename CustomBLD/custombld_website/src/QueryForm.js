@@ -783,8 +783,8 @@ const QueryForm = ({ onSubmit, isMobile }) => {
                   'Accept': 'application/json'
                 },
                 body: JSON.stringify(payload),
-                credentials: isDevelopment ? 'omit' : 'include',
-                mode: isDevelopment ? 'cors' : 'same-origin'
+                credentials: 'omit',
+                mode: 'cors'
               });
               
               if (!response.ok) {

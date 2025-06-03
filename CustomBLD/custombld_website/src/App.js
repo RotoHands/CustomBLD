@@ -96,8 +96,8 @@ function App() {
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: isDevelopment ? 'omit' : 'include',
-        mode: isDevelopment ? 'cors' : 'same-origin'
+        credentials: 'omit',
+        mode: 'cors'
       });
       
       if (!response.ok) {
