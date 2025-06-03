@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, send_file
-# from flask_cors import CORS  # CORS is handled by Nginx
+from flask_cors import CORS
 import psycopg2
 import os
 import logging
@@ -28,7 +28,17 @@ app_logger.debug(f"DB_HOST: {os.getenv('DB_HOST')}")
 app_logger.debug(f"DB_PORT: {os.getenv('DB_PORT')}")
 
 app = Flask(__name__)
-# CORS is handled by Nginx
+
+# Only enable CORS in development
+if os.getenv('FLASK_ENV') != 'production':
+    app_logger.info("Development environment detected - enabling CORS for localhost")
+    CORS(app, resources={r"/*": {
+        "origins": ["http://localhost:8080", "http://localhost:3000"],
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type"]
+    }})
+else:
+    app_logger.info("Production environment detected - CORS will be handled by Nginx")
 
 # Initialize the request logger
 request_logger = RequestLogger()
