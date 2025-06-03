@@ -5,7 +5,8 @@ It is a database of ~20 million scrambles and solutions for 3x3, 4x4, and 5x5 BL
 It allows you to choose and customize specific scrambles types for what you want to practice.
 
 Feel free to contact me if you have ideas or need help ([contact@custombld.net](contact@custombld.net), [discord](https://discord.com/invite/uTbBjardtn))
-Short tutorial video - [here](https://youtu.be/o7PhXQPeOrs)
+
+Tutorial video - [here](https://youtu.be/o7PhXQPeOrs)
 
 ## 🎯 Why is it good for?
 
