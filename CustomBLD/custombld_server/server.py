@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, send_file
-from flask_cors import CORS
+# from flask_cors import CORS  # CORS is handled by Nginx
 import psycopg2
 import os
 import logging
@@ -28,7 +28,7 @@ app_logger.debug(f"DB_HOST: {os.getenv('DB_HOST')}")
 app_logger.debug(f"DB_PORT: {os.getenv('DB_PORT')}")
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": ["https://www.custombld.net", "https://custombld.net"]}})  # Specific CORS configuration for production domains
+# CORS is handled by Nginx
 
 # Initialize the request logger
 request_logger = RequestLogger()
