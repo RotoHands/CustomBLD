@@ -28,7 +28,7 @@ app_logger.debug(f"DB_HOST: {os.getenv('DB_HOST')}")
 app_logger.debug(f"DB_PORT: {os.getenv('DB_PORT')}")
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})  # More specific CORS configuration
+CORS(app, resources={r"/*": {"origins": ["https://www.custombld.net", "https://custombld.net"]}})  # Specific CORS configuration for production domains
 
 # Initialize the request logger
 request_logger = RequestLogger()
@@ -531,7 +531,6 @@ def generate_scrambles():
     try:
         start_time = time.time()
         data = request.json
-        # app_logger.debug(f"Received request data: {data}")
         query_conditions = []
         args = []
         
@@ -1232,12 +1231,6 @@ def generate_scrambles():
             'debug': debug_info if data.get('debug') else None,
             'count': len(results_to_return)
         })
-        
-        # Add explicit CORS headers
-        response.headers.add('Access-Control-Allow-Origin', '*')
-        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
-        response.headers.add('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-        
         return response
     except Exception as e:
         app_logger.error(f"Error in generate_scrambles: {str(e)}")
@@ -1247,13 +1240,9 @@ def generate_scrambles():
             'traceback': traceback.format_exc()
         }), 500
 
-# Add an OPTIONS route handler for preflight requests
 @app.route('/query-scrambles', methods=['OPTIONS'])
 def options():
     response = jsonify({'status': 'success'})
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
-    response.headers.add('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
     return response
 
 @app.route('/health', methods=['GET'])
@@ -1300,7 +1289,6 @@ def get_scramble_stats():
         stats['cache_file'] = os.path.basename(STATS_CACHE_FILE)
         
         response = jsonify(stats)
-        response.headers.add('Access-Control-Allow-Origin', '*')
         return response
         
     except Exception as e:
@@ -1314,9 +1302,6 @@ def get_scramble_stats():
 @app.route('/scramble-stats', methods=['OPTIONS'])
 def stats_options():
     response = jsonify({'status': 'success'})
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
-    response.headers.add('Access-Control-Allow-Methods', 'GET, OPTIONS')
     return response
 
 if __name__ == '__main__':
